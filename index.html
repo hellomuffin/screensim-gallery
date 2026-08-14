@@ -47,6 +47,9 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
   text-align:left;vertical-align:top}
 .cmp th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .cmp td:first-child{font-weight:600;white-space:nowrap}
+.eq{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;
+  padding:1rem 1.25rem;font-family:ui-monospace,Menlo,monospace;font-size:.86rem;
+  line-height:1.7;overflow-x:auto;margin:1rem 0}
 .task{background:var(--surface);border:1px solid var(--line);border-radius:16px;
   padding:1.5rem;margin:1.5rem 0;scroll-margin-top:1rem}
 .fam{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;letter-spacing:.08em;
@@ -101,8 +104,7 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
     <div class="stat"><b>85</b><span>engine tests</span></div>
   </div>
   <div class="navrow">
-    <a href="#engine">Engine architecture</a>
-    <a href="#osworld">vs OSWorld-2</a>
+    <a href="#action">Action space &amp; grounding</a>
     <a href="#curated">Curated tasks</a>
     <a href="#library">Full task library</a>
   </div>
@@ -110,121 +112,149 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
 
 <div class="wrap">
 
-<section class="prose" id="engine">
-<h2>The engine, for engineers</h2>
+<section class="prose" id="action">
+<h2>The action space and grounding rule</h2>
 
-<p><strong>ScreenSim is not a UI mock — it is a deterministic state machine
-with a rendered projection.</strong> There is a real backend: every fact about
-the simulated phone lives in one JSON-serializable scene graph
-(<code>DeviceState</code>), and the pixels are a pure function of it.</p>
+<p>An action is a pair <em>a</em> = (<em>v</em>, <em>&gamma;</em>): a motor
+verb and a grounding expression. The grammar is the contract between guidance
+and execution: an utterance maps one-to-one onto a finger motion, resolution
+is deterministic and purely lexical&#8239;/&#8239;geometric, and every failure
+mode is a typed, spoken refusal rather than a guess. Resolution is a pure
+function of (utterance, visible widget scene); identical inputs resolve
+identically, which is what places the action space inside the engine's
+replay-hash guarantees.</p>
 
-<h4>1 · The backend state</h4>
-<p><code>DeviceState</code> holds: per-app <em>data trees</em> (every Settings
-value, bank balances and transfer history, mail drafts, cart contents), the
-<em>navigation stack</em> of screen keys, per-screen <em>scroll offsets</em>,
-input state (<em>focused field, keyboard open</em>), system surfaces
-(<em>dialog, Control Center, notification shade</em>), a <em>notification
-queue</em>, active <em>timers</em>, a <em>tick counter</em>, and the episode
-<em>outcome</em> (<code>won / wrong_commit / timeout / locked_out</code>).
-Screens are <em>not</em> stored — they are rebuilt from state every frame.
-A <em>semantic hash</em> of this state is taken after every action; determinism
-tests replay whole plans twice and assert identical hash streams.</p>
-
-<h4>2 · Apps are reducers</h4>
-<p>Each app (Settings, QuickPay, Mail, Shop, Messages, …) implements two pure
-hooks: <code>view(state) → Screen</code> (a widget tree: rows, toggles, fields,
-radio lists, alerts) and <code>handle(state, event) → state′</code>. Tapping a
-toggle emits an event; the app's reducer mutates the data tree; the next frame
-re-renders from the new state. The Settings tree itself is largely
-<em>declarative data</em> — ~250 reachable screens defined as specs a generic
-interpreter turns into widgets, so extending the phone is a data edit.</p>
-
-<h4>3 · One geometry, two consumers</h4>
-<p>A deterministic layout pass in Python assigns every widget exact pixel
-bounds. The HTML/CSS renderer <em>projects</em> those same bounds to pixels
-(via headless Chromium for videos), and the gesture grounder resolves commands
-against those same bounds. This is the honesty guarantee: <strong>what you see
-is exactly what you can tap</strong> — there is no hidden hit target and no
-drawn control the engine doesn't know about.</p>
-
-<h4>4 · The action space</h4>
-<p>Commands are natural gestures: a verb (<code>tap / long-press / swipe /
-type / press key / wait</code>) × a grounding (semantic: label, ordinal,
-region, relation — or spatial: point, direction, anchor). Grounding operates
-on the <em>visible</em> widget scene and is honest about failure: ambiguity is
-a first-class refusal (“there are 2 things like ‘Alex’ — which one?”), naming
-something below the fold refuses with “try scrolling”, and naming prose
-refuses with “that's just text”. Swiping from the top-right edge opens Control
-Center, exactly like the device.</p>
-
-<h4>5 · Time, hazards, outcomes</h4>
-<p>The world advances in ticks. Timers drive hazards — a one-time passcode
-expires 30 s after it is texted, a limited-stock cart holds items for 40 s,
-three wrong PINs lock the account — so tasks can be genuinely urgent and a
-wrong turn genuinely costs something. Outcomes are decided by the engine, not
-by a judge.</p>
-
-<h4>6 · Ground truth at scale</h4>
-<p>The complete Apple iPhone User Guide (905 articles, iOS-18-pinned) is
-mirrored locally. A coverage walker replays every <code>Go&nbsp;to Settings&nbsp;&gt;
-…</code> path from the manual against the engine with real gestures —
-<strong>100% of in-scope paths walk end-to-end</strong>, enforced in CI. A
-generator then actuates the controls the manual names and <em>deep-diffs the
-state</em> to learn exactly what changed: the diff becomes the task's goal
-predicate. That is how the 229-task library below was born — every task
-machine-validated, every task citing its manual article.</p>
-</section>
-
-
-<section class="prose" id="osworld">
-<h2>How this differs from OSWorld-2 — and the trade-off</h2>
-
-<p>OSWorld-style benchmarks run a <em>real OS in a virtual machine</em>: real
-apps, real pixels, tasks verified by hand-written scripts that probe the VM
-afterwards. ScreenSim takes the opposite bet: a <em>purpose-built white-box
-engine</em> whose every state bit is observable and controllable. Neither
-dominates — they answer different questions.</p>
-
-<div style="overflow-x:auto">
-<table class="cmp">
-<tr><th></th><th>OSWorld-2 (VM, real software)</th><th>ScreenSim (white-box engine)</th></tr>
-<tr><td>Ground truth</td>
-    <td>Post-hoc validator scripts, hand-written per task; can only check what a script can probe</td>
-    <td>Full state visibility; goals are state predicates and can be <em>auto-generated</em> (229 tasks with machine-verified diffs)</td></tr>
-<tr><td>Determinism</td>
-    <td>Non-deterministic (timing, network, app updates); replays drift</td>
-    <td>Bit-exact replay; per-step semantic state hash; double-replay equality is a unit test</td></tr>
-<tr><td>Speed &amp; cost</td>
-    <td>VM boot + seconds per action; heavy infra (KVM/docker)</td>
-    <td>~1 ms per action headless; runs on any CPU node; videos only need headless Chromium</td></tr>
-<tr><td>Visual realism</td>
-    <td>Perfect — it <em>is</em> the real software</td>
-    <td>Faithful iOS-18-style rendering; a strict VLM judge scores ~6–7/10 against an “indistinguishable from a real device” bar</td></tr>
-<tr><td>Breadth</td>
-    <td>Everything the OS runs, for free</td>
-    <td>Must be built — mitigated by the manual-grounded coverage instrument (Settings: 100% of manual paths), but third-party app flows don't exist unless specced</td></tr>
-<tr><td>Experimental control</td>
-    <td>Hard to inject faults, freeze time, or reproduce a failure exactly</td>
-    <td>Ticks, timers, hazards, seeded state, and (next phase) scripted error injection are first-class</td></tr>
-<tr><td>Human-in-the-loop</td>
-    <td>Hard to standardize across VMs and runs</td>
-    <td>The sim is a deterministic web page — a human study is just a clickable page with the same ground truth</td></tr>
+<h4>1&thinsp;&middot;&thinsp;Verbs</h4>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>verb</th><th>surface forms</th><th>semantics</th><th>precondition</th></tr>
+<tr><td>tap</td><td>tap, click, press, select, choose, open, hit, toggle, turn on/off, enable, disable, go to</td>
+    <td>fire the resolved widget's event</td><td>grounding resolves</td></tr>
+<tr><td>long_press</td><td>long press, long-press, hold</td>
+    <td>secondary event channel (context menus)</td><td>grounding resolves</td></tr>
+<tr><td>swipe</td><td>swipe, scroll — accepted only as the leading verb</td>
+    <td>screen scroll, or a directional gesture on an anchored row; edge origins open system surfaces (from the top right &rarr; Control&nbsp;Center; from the top &rarr; shade)</td>
+    <td>direction <em>d</em> mandatory</td></tr>
+<tr><td>type</td><td>type&nbsp;/ enter&nbsp;/ input &ldquo;&hellip;&rdquo;</td>
+    <td>insert payload into the focused field (rendered keystroke-by-keystroke)</td><td>a field has focus</td></tr>
+<tr><td>press_key</td><td>press back&nbsp;/ home&nbsp;/ recents</td><td>navigation keys</td><td>&mdash;</td></tr>
+<tr><td>wait</td><td>wait; do nothing; hold on</td><td>advance one tick (timers keep running)</td><td>&mdash;</td></tr>
+<tr><td>clear</td><td>clear; delete the text</td><td>empty the focused field</td><td>field focus</td></tr>
 </table></div>
 
-<p><strong>The trade-off in one line:</strong> OSWorld-2 buys realism and
-breadth at the cost of observability, determinism, and control; ScreenSim buys
-observability, determinism, and control at the cost of a fidelity ceiling and
-hand-built breadth.</p>
+<h4>2&thinsp;&middot;&thinsp;Grounding expression</h4>
+<p>&gamma; = (&tau;, o, &rho;, &lambda;, &alpha;, p, d): a target phrase, an
+ordinal, a region, a relation &lambda; = (r, anchor), a swipe anchor, a point,
+and a direction. Channels compose (&ldquo;the second switch near the
+top&rdquo;) and any subset may be empty.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>channel</th><th>example</th><th>resolution rule</th></tr>
+<tr><td>target &tau;</td><td>&ldquo;tap Personal Hotspot&rdquo;</td><td>lexical score, Eq.&nbsp;(1)&ndash;(2)</td></tr>
+<tr><td>ordinal o</td><td>&ldquo;the second one&rdquo;, &ldquo;the last toggle&rdquo;</td><td>index into candidates sorted by (y,&nbsp;x) reading order; top&rarr;0, last/bottom&rarr;&minus;1</td></tr>
+<tr><td>region &rho;</td><td>&ldquo;near the top right&rdquo;</td><td>&rho; &sube; region(w), Eq.&nbsp;(4) &mdash; a preference, not a constraint (R4)</td></tr>
+<tr><td>relation &lambda;</td><td>&ldquo;the switch next to Bluetooth&rdquo;</td><td>geometric predicate about a lexically matched anchor, Eq.&nbsp;(3)</td></tr>
+<tr><td>point p</td><td>&ldquo;tap (206,&nbsp;481)&rdquo;</td><td>smallest-area visible interactive widget containing p; empty space is a legal no-op</td></tr>
+<tr><td>direction d</td><td>&ldquo;swipe up&rdquo;</td><td>scroll axis; a swipe without d is refused</td></tr>
+</table></div>
 
-<p>Our benchmark needs the second bundle. The research question is not “can an
-autonomous agent operate real software?” (OSWorld's question) but <em>“can an
-assistant guide a human through an urgent task in real time?”</em> Grading
-that requires: exact ground truth at every step (to score guidance, not just
-outcomes), reproducible episodes (to compare assistants on identical worlds),
-controlled failure injection (to test recovery guidance), and timers that make
-urgency real. A VM gives none of these cheaply; the engine gives all of them
-by construction — and the manual mirror keeps its content honest against the
-real iPhone.</p>
+<h4>3&thinsp;&middot;&thinsp;Lexical layer</h4>
+<p>Normalization N(s): lowercase; tokenize on non-word characters (retaining
+% $ @ . + &minus;); strip trailing sentence punctuation per token; delete the
+stop set S. Filler prefixes F are stripped before verb detection. All
+vocabularies are closed; the open vocabulary is whatever text the screen
+currently displays.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>set</th><th>members</th><th>role</th></tr>
+<tr><td>S&nbsp;(stop)</td><td>the, a, an, button, icon, option, item, one, please, then, and, labelled, labeled, that, says, this, very, just</td>
+    <td>deleted from queries; prepositions deliberately kept (&ldquo;To&rdquo;, &ldquo;On&rdquo; are real labels)</td></tr>
+<tr><td>F&nbsp;(filler)</td><td>please&nbsp;&middot; just&nbsp;&middot; now&nbsp;&middot; then&nbsp;&middot; ok(ay)&nbsp;&middot; go ahead (and)&nbsp;&middot; can/could/would you</td>
+    <td>stripped before verb detection</td></tr>
+<tr><td>G&nbsp;(generic)</td><td>field, box, button, option, settings, setting, menu, item, screen, page, bar, icon, area, section, tab, list, row, card, toggle, switch, control, text</td>
+    <td>near-zero match weight (+0.1 each)</td></tr>
+<tr><td>T&nbsp;(type)</td><td>toggle/switch&rarr;toggle &middot; row&rarr;row &middot; field/box&rarr;field &middot; slider &middot; checkbox &middot; radio &middot; button</td>
+    <td>widget-kind reference (rule R3)</td></tr>
+<tr><td>O&nbsp;(ordinal)</td><td>first&hellip;fifth, 1st&hellip;5th, last, top, bottom</td><td>positional index</td></tr>
+<tr><td>R&nbsp;(region)</td><td>top, bottom, left, right, middle, center(=middle); hyphenated corners</td>
+    <td>parsed only inside a locative phrase (near/at/in/on/from/towards &hellip;), so &ldquo;Game Center&rdquo; keeps its words</td></tr>
+<tr><td>&Lambda;&nbsp;(relation)</td><td>next to, beside &rarr; next_to &middot; below, under &rarr; below &middot; above &middot; inside, in the &rarr; in</td>
+    <td>bare &ldquo;in&rdquo; requires &ldquo;the&rdquo; (&ldquo;Sign in with Apple&rdquo; survives); optional intensifiers right/directly/immediately</td></tr>
+<tr><td>D&nbsp;(direction)</td><td>up, down, left, right</td><td>swipe axis</td></tr>
+</table></div>
+
+<h4>4&thinsp;&middot;&thinsp;Target scoring</h4>
+<p>A widget&rsquo;s haystack is H(w) = subtok(N(label &oplus; sub &oplus;
+hint)), where subtok additionally splits tokens on [-_.] so
+&ldquo;CoffeeBar_Guest&rdquo; answers to &ldquo;guest&rdquo;. With query
+Q&nbsp;=&nbsp;N(&tau;) and distinctive part D&nbsp;=&nbsp;Q&#8726;G:</p>
+<pre class="eq">           &#9127; 0.55 &middot; &#120793;[&tau; substring of H(w)]                  if Q &cap; H(w) = &empty;
+base(&tau;,w) = &#9128; |Q &cap; H &cap; D| / |D|  +  0.1 &middot; |Q &cap; H &cap; G|          if D &ne; &empty;        (1)
+           &#9129; |Q &cap; H| / |Q|                                  if D = &empty;
+
+s(&tau;,w) = base + 0.5&middot;&#120793;[N(label) = Q]  +  0.15&middot;&#120793;[Q &sube; N(label)]
+       &minus; min(0.1, 0.03&middot;|H &#8726; Q|)                                            (2)</pre>
+<p>Constants: acceptance threshold &theta; = 0.3; tie band and every guard
+margin &delta; = 0.15; relation-anchor threshold 0.6; swipe-anchor threshold
+0.5. The direction of the containment matters: every distinctive word
+<em>uttered</em> must appear in H(w) &mdash; the speaker may omit any part of
+the label but may not introduce words absent from the screen.</p>
+
+<h4>5&thinsp;&middot;&thinsp;Resolution procedure</h4>
+<p>Candidates C = {w : visible(w) &and; interactive(w)}, i.e. the resolver
+sees exactly what the user sees. Rules apply in order; s* denotes the best
+accepted score in C.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>rule</th><th>definition</th></tr>
+<tr><td>R1 point</td><td>p given &rarr; hit-test; smallest containing widget wins; none &rarr; legal no-op tap</td></tr>
+<tr><td>R2 relation</td><td>anchor a = first visible w with s(anchor,&thinsp;w) &ge; 0.6; C &larr; {w &isin; C : rel<sub>r</sub>(a,w)}; empty &rarr; refusal</td></tr>
+<tr><td>R3 type reference</td><td>if Q &sube; G &cup; T and no visible label contains Q: filter C by kind(T); select by ordinal, else nearest to a by |&Delta;cy|, else region, else uniqueness; several &rarr; ambiguity refusal. A phrase that names an actual label (&ldquo;Switch Control&rdquo;) never enters this rule</td></tr>
+<tr><td>R4 score</td><td>keep {w : s(&tau;,w) &gt; &theta;}; if empty and a region was applied, rescore against the pre-region candidates (region = preference)</td></tr>
+<tr><td>R5 hidden guard</td><td>max<sub>w&nbsp;hidden,&nbsp;interactive</sub> s &ge; s* + &delta; &rarr; refuse &ldquo;not on screen yet &mdash; try scrolling&rdquo;</td></tr>
+<tr><td>R6 prose guard</td><td>max<sub>w&nbsp;visible,&nbsp;&not;interactive</sub> s &ge; s* + &delta; &rarr; refuse &ldquo;just text, not something you can tap&rdquo;</td></tr>
+<tr><td>R7 near-ties</td><td>{w : s &ge; s* &minus; &delta;} with |&middot;| &gt; 1 &rarr; ordinal pick, else unique region member, else ambiguity refusal carrying the candidate count</td></tr>
+<tr><td>R8 commit</td><td>top-scored widget; tap point = bounds centre</td></tr>
+</table></div>
+
+<h4>6&thinsp;&middot;&thinsp;Spatial predicates</h4>
+<pre class="eq">next_to(a,b):  |a.cy &minus; b.cy| &lt; max(a.h, b.h)  &and;  |a.cx &minus; b.cx| &lt; 300
+below(a,b):    b.y &ge; a.y&#8322; &minus; 4  &and;  |a.cx &minus; b.cx| &lt; 220        (above symmetric)   (3)
+in(a,b):       a &cap; b &ne; &empty;  &and;  area(b) &lt; area(a)
+
+region(w):     top: cy &lt; 190 &middot; bottom: cy &gt; 594 &middot; left: cx &lt; 137
+               &middot; right: cx &gt; 274 &middot; else middle          (screen 412&times;892)    (4)</pre>
+
+<h4>7&thinsp;&middot;&thinsp;Refusal taxonomy</h4>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>condition</th><th>refusal</th></tr>
+<tr><td>swipe without direction</td><td>&ldquo;which direction should I swipe?&rdquo;</td></tr>
+<tr><td>swipe anchor unmatched / &gt;1 without ordinal</td><td>&ldquo;I don&rsquo;t see X to swipe on&rdquo; / &ldquo;there are N rows like that &mdash; which one?&rdquo;</td></tr>
+<tr><td>relation anchor unmatched</td><td>&ldquo;I can&rsquo;t find X on this screen&rdquo;</td></tr>
+<tr><td>relation predicate empty</td><td>&ldquo;I don&rsquo;t see anything next to/below/above/in X&rdquo;</td></tr>
+<tr><td>no match anywhere</td><td>&ldquo;I can&rsquo;t see &lsquo;X&rsquo; on this screen&rdquo;</td></tr>
+<tr><td>matches inert content only</td><td>&ldquo;&lsquo;X&rsquo; isn&rsquo;t something you can tap&rdquo;</td></tr>
+<tr><td>hidden guard (R5)</td><td>&ldquo;&lsquo;X&rsquo; isn&rsquo;t on screen yet &mdash; try scrolling&rdquo;</td></tr>
+<tr><td>prose guard (R6)</td><td>&ldquo;&lsquo;X&rsquo; is just text on this screen, not something you can tap&rdquo;</td></tr>
+<tr><td>near-tie unresolved (R7)</td><td>&ldquo;there are N things like &lsquo;X&rsquo; &mdash; which one?&rdquo; (count + candidates exposed)</td></tr>
+<tr><td>no usable channel</td><td>&ldquo;I&rsquo;m not sure what you want me to tap&rdquo;</td></tr>
+</table></div>
+
+<h4>8&thinsp;&middot;&thinsp;Empirical robustness</h4>
+<p>Protocol: over six probe screens, an independent generator (Gemini) produced
+144 in-vocabulary commands with declared targets &mdash; exact, partial,
+ordinal, regional, relational and filler-laden phrasings &mdash; and 48
+out-of-vocabulary commands (synonyms, function descriptions, appearance) that
+a strict grounder must refuse. The identical utterance set was re-scored after
+parser refinement.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>metric</th><th>before</th><th>after</th></tr>
+<tr><td>in-vocab &rarr; resolved to intended target</td><td>31.3%</td><td><b>95.1%</b></td></tr>
+<tr><td>in-vocab &rarr; honest ambiguity (&ldquo;which one?&rdquo;)</td><td>1.4%</td><td>2.8%</td></tr>
+<tr><td>in-vocab &rarr; wrongly refused</td><td>67.4%</td><td><b>0%</b></td></tr>
+<tr><td>in-vocab &rarr; resolved to wrong widget</td><td>0%</td><td>2.1%</td></tr>
+<tr><td>out-of-vocab &rarr; correctly refused</td><td>97.9%</td><td>97.9%</td></tr>
+<tr><td>out-of-vocab &rarr; false tap on unintended widget</td><td><b>0</b></td><td><b>0</b></td></tr>
+</table></div>
+<p>Coverage of reasonable phrasing tripled while refusal honesty was invariant;
+the residual 2.1% are ordinal counting-convention ties (&ldquo;the second
+row&rdquo;) on which human annotators also disagree.</p>
 </section>
 
 
@@ -577,7 +607,7 @@ screen graph the assistant must reason about.</p>
   n1["Choose Payee<br/><i>5 options on screen</i><br/>Alex Chen"]
   n2["Amount & Options<br/><i>7 options on screen</i><br/>amount box<br/>type “40”<br/>Note field"]
   n3["Review Transfer<br/><i>2 options on screen</i><br/>Confirm & send"]
-  n4["Verify Code<br/><i>2 options on screen</i><br/>code field<br/>type “572412”<br/>Verify & send"]
+  n4["Verify Code<br/><i>2 options on screen</i><br/>code field<br/>type “658799”<br/>Verify & send"]
   done(["✓ Goal reached"]):::good
   start --> n0
   n0 --> n1
