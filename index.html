@@ -105,6 +105,7 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
   </div>
   <div class="navrow">
     <a href="#action">Action space &amp; grounding</a>
+    <a href="#interaction">Interaction benchmark</a>
     <a href="#curated">Curated tasks</a>
     <a href="#library">Full task library</a>
   </div>
@@ -255,6 +256,68 @@ parser refinement.</p>
 <p>Coverage of reasonable phrasing tripled while refusal honesty was invariant;
 the residual 2.1% are ordinal counting-convention ties (&ldquo;the second
 row&rdquo;) on which human annotators also disagree.</p>
+</section>
+
+
+<section class="prose" id="interaction">
+<h2>The interaction benchmark</h2>
+<p>On top of the world sits a user-in-the-loop measurement apparatus: a
+<strong>simulated human</strong> performs an urgent task while an <strong>AI
+assistant</strong> watches the rendered screen and may speak. The engine
+injects one error into the human's plan at a task-progress anchor; the
+assistant is scored on catching it, on helping recover, and on staying quiet
+when nothing is wrong. Only the spoken sentence crosses between the two
+agents.</p>
+
+<h4>Error taxonomy — transforms on the plan</h4>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>family</th><th>transform</th><th>example</th></tr>
+<tr><td>wrong_value</td><td>a sibling option of the same control group</td><td>&ldquo;Unrestricted Access&rdquo; for &ldquo;Limit Adult Websites&rdquo;</td></tr>
+<tr><td>wrong_target</td><td>a different control on the same screen</td><td>turn off <em>Allow Notifications</em> instead of just <em>Sounds</em></td></tr>
+<tr><td>skip_step</td><td>omit a commit; walk on without acting</td><td>never turn on the master toggle</td></tr>
+<tr><td>early_commit</td><td>confirm before the setup steps are done</td><td>pay before the funding source is set</td></tr>
+<tr><td>intent (benign)</td><td>the same edit, but announced &amp; adopted as the goal</td><td>&ldquo;actually, change of plan…&rdquo; — assistant must stay quiet</td></tr>
+<tr><td>clean (benign)</td><td>no transform</td><td>the reference plan, unperturbed</td></tr>
+</table></div>
+
+<h4>The progress anchor</h4>
+<p>Injection fires on a <strong>checkpoint sequence over committed
+application state</strong> — the ordered list of state-diffs the apps have
+actually recorded (an append to the bank's history, a Settings value reaching
+its committed home). This is path-invariant: two legal routes to the same
+outcome produce the same anchor, unlike screen state or the widget tree. Every
+(error &times; task &times; anchor) case is admitted only by dry-replay: the
+deviation grounds, the goal fails, a repair is validated where the world
+allows one, and the window exceeds the poll cadence. Rejections go to a
+published admissibility ledger.</p>
+
+<h4>The takeover</h4>
+<p>After injection the engine holds the human on the flawed plan so the error
+can happen — with a last-chance HOLD beat before any irreversible commit. It
+releases on a <strong>correct detection the human accepts</strong> (the same
+verdict set the scorer uses, imported from one module), or on
+<strong>maximum hold</strong> the moment the error commits. An accepted repair
+is spliced in at the deviation; a held-back update is reported to the human,
+never dropped.</p>
+
+<h4>Bracketed leaderboard — the scripted sweep</h4>
+<p>57 admitted cases (36 error, 18 clean, 3 intent) over 6 tasks &times; 3
+personas, graded against world-truth predicates with a three-way verdict
+partition (credit / charge / neutral). Two deterministic reference agents
+bracket the metric:</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>agent</th><th>detection</th><th>prevention</th><th>errors committed</th><th>false alarms on benign</th></tr>
+<tr><td>silent floor</td><td>0.00</td><td>0.00</td><td>0.17</td><td>0.00</td></tr>
+<tr><td>oracle ceiling</td><td>1.00</td><td>0.97</td><td>0.00</td><td>0.00</td></tr>
+</table></div>
+<p>The silent stub tops nothing — it detects zero errors and lets the
+irreversible ones commit — which is the property the honesty gates exist to
+guarantee. A live VLM (Gemini) sits between the brackets: in a smoke episode
+it grounded the human's gestures from on-screen text with no coordinate leak,
+gave correct proactive guidance on a clean frame (&ldquo;Tap the green switch
+next to &lsquo;Sounds&rsquo;&rdquo;), and — a real measured miss — failed to
+catch a subtle toggle-off error in one shot. That gap between floor, model and
+ceiling is the benchmark's output.</p>
 </section>
 
 
@@ -607,7 +670,7 @@ screen graph the assistant must reason about.</p>
   n1["Choose Payee<br/><i>5 options on screen</i><br/>Alex Chen"]
   n2["Amount & Options<br/><i>7 options on screen</i><br/>amount box<br/>type “40”<br/>Note field"]
   n3["Review Transfer<br/><i>2 options on screen</i><br/>Confirm & send"]
-  n4["Verify Code<br/><i>2 options on screen</i><br/>code field<br/>type “658799”<br/>Verify & send"]
+  n4["Verify Code<br/><i>2 options on screen</i><br/>code field<br/>type “488223”<br/>Verify & send"]
   done(["✓ Goal reached"]):::good
   start --> n0
   n0 --> n1
