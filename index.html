@@ -47,6 +47,15 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
   text-align:left;vertical-align:top}
 .cmp th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .cmp td:first-child{font-weight:600;white-space:nowrap}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1rem;margin-top:.5rem}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem;font-size:.85rem}
+.tmeta{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:var(--muted);margin-bottom:.6rem}
+.tra{margin:.25rem 0;color:var(--accent)}
+.trh{margin:.25rem 0;color:var(--ink)}
+.tra b,.trh b{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-right:.4rem}
+.caught{color:var(--good);font-weight:700}
+.missed{color:var(--warn);font-weight:700}
+.cmp td:first-child{white-space:normal}
 .eq{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;
   padding:1rem 1.25rem;font-family:ui-monospace,Menlo,monospace;font-size:.86rem;
   line-height:1.7;overflow-x:auto;margin:1rem 0}
@@ -105,6 +114,7 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
   </div>
   <div class="navrow">
     <a href="#action">Action space &amp; grounding</a>
+    <a href="#affordance">Action-space contract</a>
     <a href="#interaction">Interaction benchmark</a>
     <a href="#curated">Curated tasks</a>
     <a href="#library">Full task library</a>
@@ -259,6 +269,32 @@ row&rdquo;) on which human annotators also disagree.</p>
 </section>
 
 
+<section class="prose" id="affordance">
+<h2>The action-space contract</h2>
+<p>Every reachable state takes every action to <strong>either a correct
+rollout or a reasoned refusal</strong> — never a silent no-op, never a generic
+error, never an effect that contradicts the verb. This is verified
+exhaustively: over 281 reachable states (every Settings screen plus every
+screen along the 16 task rollouts), each visible control is operated and each
+result classified, with an adversarial battery (nonexistent target, undirected
+swipe) per screen.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>class</th><th>meaning</th><th>cells</th></tr>
+<tr><td>LEGAL-OK</td><td>succeeded and changed the world as the verb says</td><td>1301</td></tr>
+<tr><td>ANNOUNCED-NOOP</td><td>a legal no-op that announces itself (toast / already-set)</td><td>183</td></tr>
+<tr><td>ILLEGAL &middot; GOOD REASON</td><td>refused, specific reason, no state change</td><td>569</td></tr>
+<tr><td>GENERIC-REASON</td><td>refused with a vague reason</td><td><b>0</b></td></tr>
+<tr><td>MISMATCH</td><td>ok&ne;effect, or a refusal that changed state</td><td><b>0</b></td></tr>
+<tr><td>SILENT-NOOP</td><td>succeeded, changed nothing, said nothing</td><td><b>0</b></td></tr>
+</table></div>
+<p><strong>2053 cells, 0 pathological.</strong> The check is a CI test; when it
+was first run it found four real defects (a placeholder control that did
+nothing, a view function that mutated state, a label/hardware-key collision, an
+inert master toggle), each now fixed. A refused gesture is asserted to change
+nothing — the anti-cheat.</p>
+</section>
+
+
 <section class="prose" id="interaction">
 <h2>The interaction benchmark</h2>
 <p>On top of the world sits a user-in-the-loop measurement apparatus: a
@@ -312,12 +348,24 @@ bracket the metric:</p>
 </table></div>
 <p>The silent stub tops nothing — it detects zero errors and lets the
 irreversible ones commit — which is the property the honesty gates exist to
-guarantee. A live VLM (Gemini) sits between the brackets: in a smoke episode
-it grounded the human's gestures from on-screen text with no coordinate leak,
-gave correct proactive guidance on a clean frame (&ldquo;Tap the green switch
-next to &lsquo;Sounds&rsquo;&rdquo;), and — a real measured miss — failed to
-catch a subtle toggle-off error in one shot. That gap between floor, model and
-ceiling is the benchmark's output.</p>
+guarantee.</p>
+
+<h4>The live benchmark run &mdash; gemini-3.7-flash on both sides</h4>
+<p>The full simulation runs <strong>gemini-3.7-flash as the human</strong>
+(driving the phone from the on-screen text, making a private in-character slip
+at the injected error) and <strong>gemini-3.7-flash as the assistant</strong>
+(watching the rendered frames). The scripted silent floor and oracle ceiling
+bound the board; the <em>assistant &middot; scripted human</em> row isolates the
+assistant on the deterministic world, and the <em>full sim</em> row is the
+end-to-end LLM&harr;LLM loop. Score rewards detection and restraint and
+penalises false alarms and committed irreversible errors.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>contestant</th><th>detection</th><th>prevention</th><th>committed</th>
+<th>false&nbsp;alarm</th><th>nags</th><th>score</th></tr>
+<tr><td>oracle ceiling (scripted)</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>0</td><td>1.00</td></tr><tr><td>gemini-3.7-flash assistant · scripted human</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>14</td><td>1.00</td></tr><tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td>0.50</td><td>0.33</td><td>0.00</td><td>0.00</td><td>12</td><td>0.50</td></tr><tr><td>silent floor (scripted)</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0</td><td>0.00</td></tr>
+</table></div>
+<h4>Two real exchanges</h4>
+<div class="tgrid"><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · roaming_off__skip_n0 · <span class="caught">caught</span></div><div class="tra"><b>assistant</b> Tap Cellular.</div><div class="tra"><b>assistant</b> Toggle the Data Roaming switch at the top.</div><div class="tra"><b>assistant</b> Toggle off the Data Roaming switch at the top instead.</div><div class="tra"><b>assistant</b> Tap the switch next to Data Roaming instead.</div><div class="trh"><b>human</b> okay — let me fix that.</div><div class="tra"><b>assistant</b> Toggle the switch next to Data Roaming instead.</div></div><div class="tcard"><div class="tmeta">gemini-3.7-flash ↔ gemini-3.7-flash (full sim) · safari_notif_quiet__skip_n0 · <span class="missed">missed</span></div><div class="tra"><b>assistant</b> Scroll down and tap Notifications.</div><div class="trh"><b>human</b> Tapping Notifications.</div><div class="tra"><b>assistant</b> Tap Safari.</div><div class="trh"><b>human</b> Tapping Safari.</div><div class="trh"><b>human</b> Awesome, all set here!</div><div class="tra"><b>assistant</b> Open Settings.</div><div class="trh"><b>human</b> Opening Settings.</div><div class="trh"><b>human</b> Going into Notifications.</div></div></div>
 </section>
 
 
