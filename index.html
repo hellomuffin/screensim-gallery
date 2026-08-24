@@ -106,7 +106,7 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
   machine-verified state predicate; every Settings path in Apple's official
   manual replays end-to-end in the engine.</p>
   <div class="stats">
-    <div class="stat"><b>16</b><span>curated tasks</span></div>
+    <div class="stat"><b>20</b><span>curated tasks</span></div>
     <div class="stat"><b>229</b><span>auto-generated from the manual</span></div>
     <div class="stat"><b>100%</b><span>manual Settings paths walkable</span></div>
     <div class="stat"><b>~250</b><span>reachable Settings screens</span></div>
@@ -114,6 +114,7 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
   </div>
   <div class="navrow">
     <a href="benchmark.html" style="background:var(--accent);color:#fff;border-color:var(--accent)">▶ The interaction benchmark (full presentation)</a>
+    <a href="designed_episodes.html">Designed episodes (15)</a>
     <a href="#action">Action space &amp; grounding</a>
     <a href="#affordance">Action-space contract</a>
     <a href="#interaction">Interaction benchmark</a>
@@ -904,6 +905,157 @@ screen graph the assistant must reason about.</p>
   n4 --> done
   trap[/"⚠ trap: nothing sticks unless the Content & Privacy Restrictions master switch"/]:::trapc
   n4 -.-> trap
+  classDef term fill:#e8eefb,stroke:#2f63e0,color:#123;
+  classDef good fill:#e3f3ea,stroke:#1d7a4f,color:#0a3;
+  classDef bad fill:#f9e7e7,stroke:#b03535,color:#900;
+  classDef haz fill:#f8efdb,stroke:#a26a00,color:#7a5000;
+  classDef trapc fill:#fbe3e1,stroke:#a3241a,color:#7a1a12;</pre></div>
+  </div>
+</section>
+
+<section class="task" id="lost_phone_lockdown">
+  <div class="task-head">
+    <span class="fam">security</span>
+    <h3>I&#x27;m travelling somewhere sketchy this week — lock this phone down so that even if it&#x27;s stolen, my data stays safe. Turn on Advanced Data Protection and Stolen Device Protection.</h3>
+    <div class="chips"><span class="chip urg">⏱ flight tonight</span></div>
+    <div class="mirrors">Based on: Apple Support: Advanced Data Protection + Stolen Device Protection</div>
+  </div>
+  <div class="task-body">
+    <div class="video-col">
+      <div class="vcap">completion recording · one frame per action</div></div>
+    <div class="dag-col"><div class="dag-title">Task DAG</div>
+      <pre class="mermaid">flowchart TD
+  start(["📱 Settings"]):::term
+  n0["Settings<br/><i>16 options on screen</i><br/>Chris Morgan<br/>Face ID & Passcode"]
+  n1["Account<br/><i>11 options on screen</i><br/>iCloud"]
+  n2["Icloud<br/><i>9 options on screen</i><br/>Advanced Data Protection"]
+  n3["Adp<br/><i>2 options on screen</i><br/>Turn On Advanced Data Protection"]
+  n4["Confirm<br/><i>2 options on screen</i><br/>Turn On"]
+  n5["Faceid<br/><i>10 options on screen</i><br/>Stolen Device Protection"]
+  n6["Sdp<br/><i>3 options on screen</i><br/>Stolen Device Protection"]
+  done(["✓ Goal reached"]):::good
+  start --> n0
+  n0 --> n1
+  n1 --> n2
+  n2 --> n3
+  n3 --> n4
+  n4 --> n3
+  n3 --> n2
+  n2 --> n1
+  n1 --> n0
+  n0 --> n5
+  n5 --> n6
+  n6 --> done
+  trap[/"⚠ trap: 'Access iCloud Data on the Web' sits right next to ADP and sounds rela"/]:::trapc
+  n6 -.-> trap
+  classDef term fill:#e8eefb,stroke:#2f63e0,color:#123;
+  classDef good fill:#e3f3ea,stroke:#1d7a4f,color:#0a3;
+  classDef bad fill:#f9e7e7,stroke:#b03535,color:#900;
+  classDef haz fill:#f8efdb,stroke:#a26a00,color:#7a5000;
+  classDef trapc fill:#fbe3e1,stroke:#a3241a,color:#7a1a12;</pre></div>
+  </div>
+</section>
+
+<section class="task" id="app_privacy_quarantine">
+  <div class="task-head">
+    <span class="fam">Safety / privacy</span>
+    <h3>TripSnap is following me everywhere. Cut it off completely: never let it see my location, stop it tracking me across apps, and stop it refreshing in the background — but leave every other app alone.</h3>
+    <div class="chips"></div>
+    <div class="mirrors">Based on: Apple Support: control app location + tracking + background refresh</div>
+  </div>
+  <div class="task-body">
+    <div class="video-col">
+      <div class="vcap">completion recording · one frame per action</div></div>
+    <div class="dag-col"><div class="dag-title">Task DAG</div>
+      <pre class="mermaid">flowchart TD
+  start(["📱 Settings"]):::term
+  n0["Settings<br/><i>16 options on screen</i><br/>Privacy & Security<br/>swipe down<br/>General"]
+  n1["Privacy & Security<br/><i>11 options on screen</i><br/>Location Services<br/>Tracking"]
+  n2["Location Services<br/><i>7 options on screen</i><br/>TripSnap"]
+  n3["TripSnap Location<br/><i>5 options on screen</i><br/>Never"]
+  n4["Tracking<br/><i>1 options on screen</i><br/>Allow Apps to Request to Track"]
+  n5["General<br/><i>11 options on screen</i><br/>Background App Refresh"]
+  n6["Background App Refresh<br/><i>9 options on screen</i><br/>TripSnap"]
+  done(["✓ Goal reached"]):::good
+  start --> n0
+  n0 --> n1
+  n1 --> n2
+  n2 --> n3
+  n3 --> n2
+  n2 --> n1
+  n1 --> n4
+  n4 --> n1
+  n1 --> n0
+  n0 --> n5
+  n5 --> n6
+  n6 --> done
+  trap[/"⚠ trap: 'Ask Next Time Or When I Share' still shares location — only Never rev"/]:::trapc
+  n6 -.-> trap
+  classDef term fill:#e8eefb,stroke:#2f63e0,color:#123;
+  classDef good fill:#e3f3ea,stroke:#1d7a4f,color:#0a3;
+  classDef bad fill:#f9e7e7,stroke:#b03535,color:#900;
+  classDef haz fill:#f8efdb,stroke:#a26a00,color:#7a5000;
+  classDef trapc fill:#fbe3e1,stroke:#a3241a,color:#7a1a12;</pre></div>
+  </div>
+</section>
+
+<section class="task" id="parent_phone_readability">
+  <div class="task-head">
+    <span class="fam">accessibility</span>
+    <h3>Help me set up my dad&#x27;s phone so it&#x27;s easy for him to read — bigger and bolder text, clearer buttons, and less motion.</h3>
+    <div class="chips"></div>
+    <div class="mirrors">Based on: Apple Support: make text easier to read; reduce motion</div>
+  </div>
+  <div class="task-body">
+    <div class="video-col">
+      <div class="vcap">completion recording · one frame per action</div></div>
+    <div class="dag-col"><div class="dag-title">Task DAG</div>
+      <pre class="mermaid">flowchart TD
+  start(["📱 Settings"]):::term
+  n0["Settings<br/><i>13 options on screen</i><br/>Accessibility"]
+  n1["Accessibility<br/><i>11 options on screen</i><br/>Display & Text Size<br/>Motion"]
+  n2["Acc Display<br/><i>9 options on screen</i><br/>Bold Text<br/>Larger Text<br/>Button Shapes"]
+  n3["Acc Motion<br/><i>4 options on screen</i><br/>Reduce Motion"]
+  done(["✓ Goal reached"]):::good
+  start --> n0
+  n0 --> n1
+  n1 --> n2
+  n2 --> n1
+  n1 --> n3
+  n3 --> done
+  trap[/"⚠ trap: Larger Text opens its own slider screen — you have to go back before t"/]:::trapc
+  n3 -.-> trap
+  classDef term fill:#e8eefb,stroke:#2f63e0,color:#123;
+  classDef good fill:#e3f3ea,stroke:#1d7a4f,color:#0a3;
+  classDef bad fill:#f9e7e7,stroke:#b03535,color:#900;
+  classDef haz fill:#f8efdb,stroke:#a26a00,color:#7a5000;
+  classDef trapc fill:#fbe3e1,stroke:#a3241a,color:#7a1a12;</pre></div>
+  </div>
+</section>
+
+<section class="task" id="lock_screen_lockdown">
+  <div class="task-head">
+    <span class="fam">Safety / privacy</span>
+    <h3>If someone grabs my locked phone, make sure they can&#x27;t use Control Center, peek at my Today View widgets, open my Wallet, or return my missed calls — all from the lock screen.</h3>
+    <div class="chips"></div>
+    <div class="mirrors">Based on: Apple Support: Allow Access When Locked</div>
+  </div>
+  <div class="task-body">
+    <div class="video-col">
+      <div class="vcap">completion recording · one frame per action</div></div>
+    <div class="dag-col"><div class="dag-title">Task DAG</div>
+      <pre class="mermaid">flowchart TD
+  start(["📱 Settings"]):::term
+  n0["Settings<br/><i>16 options on screen</i><br/>Face ID & Passcode"]
+  n1["Faceid<br/><i>10 options on screen</i><br/>Allow Access When Locked"]
+  n2["Lockaccess<br/><i>9 options on screen</i><br/>Control Center<br/>Today View and Search<br/>Wallet"]
+  done(["✓ Goal reached"]):::good
+  start --> n0
+  n0 --> n1
+  n1 --> n2
+  n2 --> done
+  trap[/"⚠ trap: the screen has ten similar switches; turning off Notification Center o"/]:::trapc
+  n2 -.-> trap
   classDef term fill:#e8eefb,stroke:#2f63e0,color:#123;
   classDef good fill:#e3f3ea,stroke:#1d7a4f,color:#0a3;
   classDef bad fill:#f9e7e7,stroke:#b03535,color:#900;

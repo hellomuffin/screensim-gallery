@@ -1,0 +1,218 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScreenSim — designed episodes</title>
+<style>
+:root{--ground:#0d1017;--surface:#161b24;--ink:#e8ecf5;--muted:#98a2b6;
+  --accent:#4da3ff;--accent-soft:#16233c;--line:#252c38;--good:#4ec98a;
+  --warn:#e0a83f;--bad:#e57676}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);margin:0;padding:0 1.25rem 6rem;
+  font-family:-apple-system,'SF Pro Text',system-ui,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+.wrap{max-width:74rem;margin:0 auto}
+header{max-width:74rem;margin:3.5rem auto 1rem;border-bottom:1px solid var(--line);padding-bottom:1.4rem}
+.eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent)}
+h1{font-size:2rem;margin:.4rem 0 .4rem}
+.lead{color:var(--muted);max-width:50rem}
+.legend{display:flex;gap:1.3rem;flex-wrap:wrap;margin-top:1rem;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.sq{width:12px;height:12px;background:var(--bad);border-radius:2px;display:inline-block}
+.tr{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+  border-top:12px solid var(--warn);display:inline-block}
+.ci{width:13px;height:13px;background:var(--accent);border-radius:50%;display:inline-block}
+.nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
+.nav a{font-size:.78rem;padding:.3rem .65rem;border:1px solid var(--line);border-radius:999px;
+  color:var(--ink);text-decoration:none;background:var(--surface)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+section.task{max-width:74rem;margin:2.4rem auto;scroll-margin-top:1rem}
+h2{font-size:1.35rem;font-family:ui-monospace,monospace;color:var(--accent);
+  border-left:3px solid var(--accent);padding-left:.6rem}
+.instr{color:var(--muted);max-width:54rem}
+.ep{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}
+.ephead{display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap;margin-bottom:.3rem}
+.epid{font-family:ui-monospace,monospace;font-weight:700}
+.pat{font-family:ui-monospace,monospace;background:var(--accent-soft);color:var(--accent);
+  padding:.1rem .5rem;border-radius:6px;letter-spacing:.15em;font-weight:700}
+.meta{color:var(--muted);font-size:.8rem}
+svg.tl{width:100%;height:auto}
+.tl-lab{fill:var(--muted);font-size:12px;font-family:ui-monospace,monospace}
+.tl-node{fill:var(--ink);font-size:11px;text-anchor:middle;font-family:ui-monospace,monospace}
+.pin-n{fill:#0b0e14;font-size:9px;font-weight:700;text-anchor:middle;font-family:ui-monospace,monospace}
+table.ev{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:.5rem}
+table.ev th,table.ev td{padding:.45rem .6rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.ev th{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+table.ev td:first-child{width:2rem;color:var(--muted);font-family:ui-monospace,monospace}
+.chip{font-size:.72rem;padding:.1rem .5rem;border-radius:999px;font-weight:700}
+.chip.bad{background:rgba(229,118,118,.16);color:var(--bad)}
+.chip.warn{background:rgba(224,168,63,.16);color:var(--warn)}
+.chip.acc{background:rgba(77,163,255,.16);color:var(--accent)}
+.gt{color:var(--muted);font-size:.8rem;margin-top:.2rem}
+.gt b{color:var(--good)}
+</style></head><body>
+<header>
+  <p class="eyebrow">ScreenSim · designed episodes</p>
+  <h1>15 designed episodes across 5 hard tasks</h1>
+  <p class="lead">Three episodes per task, each a diverse mix of an injected
+  error, a legitimate intent deviation the assistant must NOT flag, and a
+  spot-check question whose answer the engine computes from the screen.
+  Everything below is recomputed from the engine — the plan axis, each event's
+  anchor, and every question's ground truth.</p>
+  <div class="legend">
+    <span><span class="sq"></span> error — assistant must catch</span>
+    <span><span class="tr"></span> intent deviation — assistant must stay quiet</span>
+    <span><span class="ci"></span> question — assistant must answer</span>
+  </div>
+  <div class="nav"><a href="#lost_phone_lockdown">lost_phone_lockdown</a><a href="#app_privacy_quarantine">app_privacy_quarantine</a><a href="#parent_phone_readability">parent_phone_readability</a><a href="#lock_screen_lockdown">lock_screen_lockdown</a><a href="#rent_share_standard">rent_share_standard</a></div>
+</header>
+<div class="wrap">
+
+<section class="task" id="lost_phone_lockdown">
+  <h2>lost_phone_lockdown</h2>
+  <p class="instr">I&#x27;m travelling somewhere sketchy this week — lock this phone down so that even if it&#x27;s stolen, my data stays safe. Turn on Advanced Data Protection and Stolen Device Protection.</p>
+  
+<div class="ep">
+  <div class="ephead"><span class="epid">lost_phone_lockdown__ep1</span>
+    <span class="pat">QE</span>
+    <span class="meta">2 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.icloud.adp = True</title></circle><text x="150" y="28" class="tl-node">adp</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.faceid.sdp = True</title></circle><text x="820" y="28" class="tl-node">sdp</text><circle cx="142" cy="70" r="6.5" fill="var(--accent)"><title>1. question — “What are my options on this screen?”</title></circle><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="822" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>2. error — the human taps “Always” instead of “Stolen Device Protection”.</title></rect><text x="828" y="74" class="pin-n">2</text><line x1="820" y1="45" x2="828" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip acc'>question</span></td><td>node&nbsp;0</td><td>“What are my options on this screen?”<div class='gt'>engine ground truth: <b>2 controls incl. Turn On, Cancel</b></div></td></tr><tr><td>2</td><td><span class='chip bad'>error</span></td><td>node&nbsp;1</td><td>the human taps “Always” instead of “Stolen Device Protection”.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">lost_phone_lockdown__ep2</span>
+    <span class="pat">ED</span>
+    <span class="meta">2 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.icloud.adp = True</title></circle><text x="150" y="28" class="tl-node">adp</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.faceid.sdp = True</title></circle><text x="820" y="28" class="tl-node">sdp</text><rect x="806" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human taps “Always” instead of “Stolen Device Protection”.</title></rect><text x="812" y="74" class="pin-n">1</text><line x1="820" y1="45" x2="812" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><polygon points="828,63 821,76 835,76" fill="var(--warn)"><title>2. deviation — Actually, hold off on Stolen Device Protection for now — the iCloud encryption is enough for this trip.</title></polygon><text x="828" y="74" class="pin-n">2</text><line x1="820" y1="45" x2="828" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;1</td><td>the human taps “Always” instead of “Stolen Device Protection”.</td></tr><tr><td>2</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;1</td><td>Actually, hold off on Stolen Device Protection for now — the iCloud encryption is enough for this trip.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">lost_phone_lockdown__ep3</span>
+    <span class="pat">EQD</span>
+    <span class="meta">2 plan nodes · 3 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.icloud.adp = True</title></circle><text x="150" y="28" class="tl-node">adp</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.faceid.sdp = True</title></circle><text x="820" y="28" class="tl-node">sdp</text><rect x="798" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human taps “Always” instead of “Stolen Device Protection”.</title></rect><text x="804" y="74" class="pin-n">1</text><line x1="820" y1="45" x2="804" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><circle cx="820" cy="70" r="6.5" fill="var(--accent)"><title>2. question — “On this screen — “Away from Familiar Locations”, “Always” — which one is picked right now?”</title></circle><text x="820" y="74" class="pin-n">2</text><line x1="820" y1="45" x2="820" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><polygon points="836,63 829,76 843,76" fill="var(--warn)"><title>3. deviation — Actually, hold off on Stolen Device Protection for now — the iCloud encryption is enough for this trip.</title></polygon><text x="836" y="74" class="pin-n">3</text><line x1="820" y1="45" x2="836" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;1</td><td>the human taps “Always” instead of “Stolen Device Protection”.</td></tr><tr><td>2</td><td><span class='chip acc'>question</span></td><td>node&nbsp;1</td><td>“On this screen — “Away from Familiar Locations”, “Always” — which one is picked right now?”<div class='gt'>engine ground truth: <b>Away from Familiar Locations</b></div></td></tr><tr><td>3</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;1</td><td>Actually, hold off on Stolen Device Protection for now — the iCloud encryption is enough for this trip.</td></tr></table>
+</div>
+</section>
+
+<section class="task" id="app_privacy_quarantine">
+  <h2>app_privacy_quarantine</h2>
+  <p class="instr">TripSnap is following me everywhere. Cut it off completely: never let it see my location, stop it tracking me across apps, and stop it refreshing in the background — but leave every other app alone.</p>
+  
+<div class="ep">
+  <div class="ephead"><span class="epid">app_privacy_quarantine__ep1</span>
+    <span class="pat">QE</span>
+    <span class="meta">3 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.apps.TripSnap.loc_mode = Never</title></circle><text x="150" y="28" class="tl-node">loc_mode</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>settings.spec.priv.tracking = False</title></circle><text x="485" y="28" class="tl-node">tracking</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.apps.TripSnap.bg = False</title></circle><text x="820" y="28" class="tl-node">bg</text><circle cx="142" cy="70" r="6.5" fill="var(--accent)"><title>1. question — “On this screen — “Never”, “Ask Next Time Or When I Share”, “While Using the App”, “Always” — which one is picked right now?”</title></circle><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="487" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>2. error — the human moves on WITHOUT doing “Allow Apps to Request to Track”.</title></rect><text x="493" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="493" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip acc'>question</span></td><td>node&nbsp;0</td><td>“On this screen — “Never”, “Ask Next Time Or When I Share”, “While Using the App”, “Always” — which one is picked right now?”<div class='gt'>engine ground truth: <b>While Using the App</b></div></td></tr><tr><td>2</td><td><span class='chip bad'>error</span></td><td>node&nbsp;1</td><td>the human moves on WITHOUT doing “Allow Apps to Request to Track”.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">app_privacy_quarantine__ep2</span>
+    <span class="pat">ED</span>
+    <span class="meta">3 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.apps.TripSnap.loc_mode = Never</title></circle><text x="150" y="28" class="tl-node">loc_mode</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>settings.spec.priv.tracking = False</title></circle><text x="485" y="28" class="tl-node">tracking</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.apps.TripSnap.bg = False</title></circle><text x="820" y="28" class="tl-node">bg</text><rect x="136" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human taps “Ask Next Time Or When I Share” instead of “Never”.</title></rect><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><polygon points="493,63 486,76 500,76" fill="var(--warn)"><title>2. deviation — Actually, let TripSnap use my location While Using the App — I do check its map sometimes, I just don&#x27;t want it in the background.</title></polygon><text x="493" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="493" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;0</td><td>the human taps “Ask Next Time Or When I Share” instead of “Never”.</td></tr><tr><td>2</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;1</td><td>Actually, let TripSnap use my location While Using the App — I do check its map sometimes, I just don&#x27;t want it in the background.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">app_privacy_quarantine__ep3</span>
+    <span class="pat">EQE</span>
+    <span class="meta">3 plan nodes · 3 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.apps.TripSnap.loc_mode = Never</title></circle><text x="150" y="28" class="tl-node">loc_mode</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>settings.spec.priv.tracking = False</title></circle><text x="485" y="28" class="tl-node">tracking</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.apps.TripSnap.bg = False</title></circle><text x="820" y="28" class="tl-node">bg</text><rect x="128" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human taps “Ask Next Time Or When I Share” instead of “Never”.</title></rect><text x="134" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="134" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><circle cx="485" cy="70" r="6.5" fill="var(--accent)"><title>2. question — “Is the “Allow Apps to Request to Track” switch on or off right now?”</title></circle><text x="485" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="485" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="830" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>3. error — the human taps “QuickPay” instead of “TripSnap”.</title></rect><text x="836" y="74" class="pin-n">3</text><line x1="820" y1="45" x2="836" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;0</td><td>the human taps “Ask Next Time Or When I Share” instead of “Never”.</td></tr><tr><td>2</td><td><span class='chip acc'>question</span></td><td>node&nbsp;1</td><td>“Is the “Allow Apps to Request to Track” switch on or off right now?”<div class='gt'>engine ground truth: <b>on</b></div></td></tr><tr><td>3</td><td><span class='chip bad'>error</span></td><td>node&nbsp;2</td><td>the human taps “QuickPay” instead of “TripSnap”.</td></tr></table>
+</div>
+</section>
+
+<section class="task" id="parent_phone_readability">
+  <h2>parent_phone_readability</h2>
+  <p class="instr">Help me set up my dad&#x27;s phone so it&#x27;s easy for him to read — bigger and bolder text, clearer buttons, and less motion.</p>
+  
+<div class="ep">
+  <div class="ephead"><span class="epid">parent_phone_readability__ep1</span>
+    <span class="pat">QE</span>
+    <span class="meta">5 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.bold = True</title></circle><text x="150" y="28" class="tl-node">bold</text><circle cx="318" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.larger = True</title></circle><text x="318" y="28" class="tl-node">larger</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.button_shapes = True</title></circle><text x="485" y="28" class="tl-node">button_shapes</text><circle cx="652" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.increase_contrast = True</title></circle><text x="652" y="28" class="tl-node">increase_contrast</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.reduce_motion = True</title></circle><text x="820" y="28" class="tl-node">reduce_motion</text><circle cx="142" cy="70" r="6.5" fill="var(--accent)"><title>1. question — “Is the “Bold Text” switch on or off right now?”</title></circle><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="487" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>2. error — the human moves on WITHOUT doing “Button Shapes”.</title></rect><text x="493" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="493" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip acc'>question</span></td><td>node&nbsp;0</td><td>“Is the “Bold Text” switch on or off right now?”<div class='gt'>engine ground truth: <b>off</b></div></td></tr><tr><td>2</td><td><span class='chip bad'>error</span></td><td>node&nbsp;2</td><td>the human moves on WITHOUT doing “Button Shapes”.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">parent_phone_readability__ep2</span>
+    <span class="pat">ED</span>
+    <span class="meta">5 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.bold = True</title></circle><text x="150" y="28" class="tl-node">bold</text><circle cx="318" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.larger = True</title></circle><text x="318" y="28" class="tl-node">larger</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.button_shapes = True</title></circle><text x="485" y="28" class="tl-node">button_shapes</text><circle cx="652" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.increase_contrast = True</title></circle><text x="652" y="28" class="tl-node">increase_contrast</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.reduce_motion = True</title></circle><text x="820" y="28" class="tl-node">reduce_motion</text><rect x="136" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human moves on WITHOUT doing “Bold Text”.</title></rect><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><polygon points="493,63 486,76 500,76" fill="var(--warn)"><title>2. deviation — Actually skip the button shapes — my dad finds them cluttered.</title></polygon><text x="493" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="493" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;0</td><td>the human moves on WITHOUT doing “Bold Text”.</td></tr><tr><td>2</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;2</td><td>Actually skip the button shapes — my dad finds them cluttered.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">parent_phone_readability__ep3</span>
+    <span class="pat">EQE</span>
+    <span class="meta">5 plan nodes · 3 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.bold = True</title></circle><text x="150" y="28" class="tl-node">bold</text><circle cx="318" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.larger = True</title></circle><text x="318" y="28" class="tl-node">larger</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.button_shapes = True</title></circle><text x="485" y="28" class="tl-node">button_shapes</text><circle cx="652" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.increase_contrast = True</title></circle><text x="652" y="28" class="tl-node">increase_contrast</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.accessibility.reduce_motion = True</title></circle><text x="820" y="28" class="tl-node">reduce_motion</text><rect x="128" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human moves on WITHOUT doing “Bold Text”.</title></rect><text x="134" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="134" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><circle cx="485" cy="70" r="6.5" fill="var(--accent)"><title>2. question — “Is the “Bold Text” switch on or off right now?”</title></circle><text x="485" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="485" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="830" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>3. error — the human taps “Auto-Play Message Effects” instead of “Reduce Motion”.</title></rect><text x="836" y="74" class="pin-n">3</text><line x1="820" y1="45" x2="836" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;0</td><td>the human moves on WITHOUT doing “Bold Text”.</td></tr><tr><td>2</td><td><span class='chip acc'>question</span></td><td>node&nbsp;2</td><td>“Is the “Bold Text” switch on or off right now?”<div class='gt'>engine ground truth: <b>on</b></div></td></tr><tr><td>3</td><td><span class='chip bad'>error</span></td><td>node&nbsp;4</td><td>the human taps “Auto-Play Message Effects” instead of “Reduce Motion”.</td></tr></table>
+</div>
+</section>
+
+<section class="task" id="lock_screen_lockdown">
+  <h2>lock_screen_lockdown</h2>
+  <p class="instr">If someone grabs my locked phone, make sure they can&#x27;t use Control Center, peek at my Today View widgets, open my Wallet, or return my missed calls — all from the lock screen.</p>
+  
+<div class="ep">
+  <div class="ephead"><span class="epid">lock_screen_lockdown__ep1</span>
+    <span class="pat">QE</span>
+    <span class="meta">4 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.cc = False</title></circle><text x="150" y="28" class="tl-node">cc</text><circle cx="373" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.today = False</title></circle><text x="373" y="28" class="tl-node">today</text><circle cx="597" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.wallet = False</title></circle><text x="597" y="28" class="tl-node">wallet</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.return_missed = False</title></circle><text x="820" y="28" class="tl-node">return_missed</text><circle cx="142" cy="70" r="6.5" fill="var(--accent)"><title>1. question — “Is the “Today View and Search” switch on or off right now?”</title></circle><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="599" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>2. error — the human taps “Notification Center” instead of “Wallet”.</title></rect><text x="605" y="74" class="pin-n">2</text><line x1="597" y1="45" x2="605" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip acc'>question</span></td><td>node&nbsp;0</td><td>“Is the “Today View and Search” switch on or off right now?”<div class='gt'>engine ground truth: <b>on</b></div></td></tr><tr><td>2</td><td><span class='chip bad'>error</span></td><td>node&nbsp;2</td><td>the human taps “Notification Center” instead of “Wallet”.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">lock_screen_lockdown__ep2</span>
+    <span class="pat">ED</span>
+    <span class="meta">4 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.cc = False</title></circle><text x="150" y="28" class="tl-node">cc</text><circle cx="373" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.today = False</title></circle><text x="373" y="28" class="tl-node">today</text><circle cx="597" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.wallet = False</title></circle><text x="597" y="28" class="tl-node">wallet</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.return_missed = False</title></circle><text x="820" y="28" class="tl-node">return_missed</text><rect x="136" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human taps “Notification Center” instead of “Control Center”.</title></rect><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><polygon points="605,63 598,76 612,76" fill="var(--warn)"><title>2. deviation — Actually keep Wallet on the lock screen — he taps it for the bus.</title></polygon><text x="605" y="74" class="pin-n">2</text><line x1="597" y1="45" x2="605" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;0</td><td>the human taps “Notification Center” instead of “Control Center”.</td></tr><tr><td>2</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;2</td><td>Actually keep Wallet on the lock screen — he taps it for the bus.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">lock_screen_lockdown__ep3</span>
+    <span class="pat">EQE</span>
+    <span class="meta">4 plan nodes · 3 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.cc = False</title></circle><text x="150" y="28" class="tl-node">cc</text><circle cx="373" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.today = False</title></circle><text x="373" y="28" class="tl-node">today</text><circle cx="597" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.wallet = False</title></circle><text x="597" y="28" class="tl-node">wallet</text><circle cx="820" cy="40" r="5" fill="var(--muted)"><title>settings.spec.lockaccess.return_missed = False</title></circle><text x="820" y="28" class="tl-node">return_missed</text><rect x="128" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human taps “Notification Center” instead of “Control Center”.</title></rect><text x="134" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="134" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><circle cx="597" cy="70" r="6.5" fill="var(--accent)"><title>2. question — “Is the “Today View and Search” switch on or off right now?”</title></circle><text x="597" y="74" class="pin-n">2</text><line x1="597" y1="45" x2="597" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="830" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>3. error — the human taps “Notification Center” instead of “Return Missed Calls”.</title></rect><text x="836" y="74" class="pin-n">3</text><line x1="820" y1="45" x2="836" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;0</td><td>the human taps “Notification Center” instead of “Control Center”.</td></tr><tr><td>2</td><td><span class='chip acc'>question</span></td><td>node&nbsp;2</td><td>“Is the “Today View and Search” switch on or off right now?”<div class='gt'>engine ground truth: <b>off</b></div></td></tr><tr><td>3</td><td><span class='chip bad'>error</span></td><td>node&nbsp;3</td><td>the human taps “Notification Center” instead of “Return Missed Calls”.</td></tr></table>
+</div>
+</section>
+
+<section class="task" id="rent_share_standard">
+  <h2>rent_share_standard</h2>
+  <p class="instr">Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it&#x27;s not urgent — and put &#x27;March rent share&#x27; in the note.</p>
+  
+<div class="ep">
+  <div class="ephead"><span class="epid">rent_share_standard__ep1</span>
+    <span class="pat">QE</span>
+    <span class="meta">7 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.note = </title></circle><text x="150" y="28" class="tl-node">note</text><circle cx="262" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.amount = 40</title></circle><text x="262" y="28" class="tl-node">amount</text><circle cx="373" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.note = March rent share</title></circle><text x="373" y="28" class="tl-node">note</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.speed = standard</title></circle><text x="485" y="28" class="tl-node">speed</text><circle cx="597" cy="40" r="5" fill="var(--muted)"><title>bank.otp.expected = 488223</title></circle><text x="597" y="28" class="tl-node">expected</text><circle cx="708" cy="40" r="5" fill="var(--muted)"><title>bank.otp.code = 488223</title></circle><text x="708" y="28" class="tl-node">code</text><circle cx="820" cy="40" r="5" fill="var(--bad)"><title>bank.balance = 5244.55</title></circle><text x="820" y="28" class="tl-node">balance</text><circle cx="142" cy="70" r="6.5" fill="var(--accent)"><title>1. question — “What are my options on this Send money screen?”</title></circle><text x="142" y="74" class="pin-n">1</text><line x1="150" y1="45" x2="142" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><rect x="487" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>2. error — the human moves on WITHOUT doing “1-3 business days”.</title></rect><text x="493" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="493" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip acc'>question</span></td><td>node&nbsp;0</td><td>“What are my options on this Send money screen?”<div class='gt'>engine ground truth: <b>5 controls incl. To, Alex Chen, Alex Kim</b></div></td></tr><tr><td>2</td><td><span class='chip bad'>error</span></td><td>node&nbsp;3</td><td>the human moves on WITHOUT doing “1-3 business days”.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">rent_share_standard__ep2</span>
+    <span class="pat">ED</span>
+    <span class="meta">7 plan nodes · 2 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.note = </title></circle><text x="150" y="28" class="tl-node">note</text><circle cx="262" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.amount = 40</title></circle><text x="262" y="28" class="tl-node">amount</text><circle cx="373" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.note = March rent share</title></circle><text x="373" y="28" class="tl-node">note</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.speed = standard</title></circle><text x="485" y="28" class="tl-node">speed</text><circle cx="597" cy="40" r="5" fill="var(--muted)"><title>bank.otp.expected = 488223</title></circle><text x="597" y="28" class="tl-node">expected</text><circle cx="708" cy="40" r="5" fill="var(--muted)"><title>bank.otp.code = 488223</title></circle><text x="708" y="28" class="tl-node">code</text><circle cx="820" cy="40" r="5" fill="var(--bad)"><title>bank.balance = 5244.55</title></circle><text x="820" y="28" class="tl-node">balance</text><rect x="359" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human moves on WITHOUT doing “type &quot;March rent share&quot;”.</title></rect><text x="365" y="74" class="pin-n">1</text><line x1="373" y1="45" x2="365" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><polygon points="493,63 486,76 500,76" fill="var(--warn)"><title>2. deviation — Actually make it Instant — he needs it today and the fee&#x27;s fine.</title></polygon><text x="493" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="493" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;2</td><td>the human moves on WITHOUT doing “type &quot;March rent share&quot;”.</td></tr><tr><td>2</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;3</td><td>Actually make it Instant — he needs it today and the fee&#x27;s fine.</td></tr></table>
+</div>
+<div class="ep">
+  <div class="ephead"><span class="epid">rent_share_standard__ep3</span>
+    <span class="pat">EQD</span>
+    <span class="meta">7 plan nodes · 3 events</span></div>
+  <svg viewBox="0 0 860 108" class="tl"><line x1="150" y1="40" x2="820" y2="40" stroke="var(--line)" stroke-width="2"/><text x="20" y="44" class="tl-lab">plan &rarr;</text><circle cx="150" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.note = </title></circle><text x="150" y="28" class="tl-node">note</text><circle cx="262" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.amount = 40</title></circle><text x="262" y="28" class="tl-node">amount</text><circle cx="373" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.note = March rent share</title></circle><text x="373" y="28" class="tl-node">note</text><circle cx="485" cy="40" r="5" fill="var(--muted)"><title>bank.transfer.speed = standard</title></circle><text x="485" y="28" class="tl-node">speed</text><circle cx="597" cy="40" r="5" fill="var(--muted)"><title>bank.otp.expected = 488223</title></circle><text x="597" y="28" class="tl-node">expected</text><circle cx="708" cy="40" r="5" fill="var(--muted)"><title>bank.otp.code = 488223</title></circle><text x="708" y="28" class="tl-node">code</text><circle cx="820" cy="40" r="5" fill="var(--bad)"><title>bank.balance = 5244.55</title></circle><text x="820" y="28" class="tl-node">balance</text><rect x="351" y="64" width="12" height="12" rx="2" fill="var(--bad)"><title>1. error — the human moves on WITHOUT doing “type &quot;March rent share&quot;”.</title></rect><text x="357" y="74" class="pin-n">1</text><line x1="373" y1="45" x2="357" y2="62" stroke="var(--bad)" stroke-width="1" opacity=".4"/><circle cx="485" cy="70" r="6.5" fill="var(--accent)"><title>2. question — “On this screen — “QuickPay balance · $5,284.55”, “Visa ···· 4821 · 3% fee”, “Instant · arrives in seconds”, “1-3 business days · no fee” — which one is picked right now?”</title></circle><text x="485" y="74" class="pin-n">2</text><line x1="485" y1="45" x2="485" y2="62" stroke="var(--accent)" stroke-width="1" opacity=".4"/><polygon points="836,63 829,76 843,76" fill="var(--warn)"><title>3. deviation — Actually make it Instant — he needs it today and the fee&#x27;s fine.</title></polygon><text x="836" y="74" class="pin-n">3</text><line x1="820" y1="45" x2="836" y2="62" stroke="var(--warn)" stroke-width="1" opacity=".4"/></svg>
+  <table class="ev"><tr><th>#</th><th>type</th><th>anchor</th><th>what happens</th></tr>
+  <tr><td>1</td><td><span class='chip bad'>error</span></td><td>node&nbsp;2</td><td>the human moves on WITHOUT doing “type &quot;March rent share&quot;”.</td></tr><tr><td>2</td><td><span class='chip acc'>question</span></td><td>node&nbsp;3</td><td>“On this screen — “QuickPay balance · $5,284.55”, “Visa ···· 4821 · 3% fee”, “Instant · arrives in seconds”, “1-3 business days · no fee” — which one is picked right now?”<div class='gt'>engine ground truth: <b>QuickPay balance · $5,284.55</b></div></td></tr><tr><td>3</td><td><span class='chip warn'>deviation</span></td><td>node&nbsp;6</td><td>Actually make it Instant — he needs it today and the fee&#x27;s fine.</td></tr></table>
+</div>
+</section>
+</div></body></html>
