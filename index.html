@@ -113,6 +113,7 @@ h4{font-size:.95rem;margin:1.4rem 0 .4rem}
     <div class="stat"><b>85</b><span>engine tests</span></div>
   </div>
   <div class="navrow">
+    <a href="benchmark.html" style="background:var(--accent);color:#fff;border-color:var(--accent)">▶ The interaction benchmark (full presentation)</a>
     <a href="#action">Action space &amp; grounding</a>
     <a href="#affordance">Action-space contract</a>
     <a href="#interaction">Interaction benchmark</a>
@@ -362,10 +363,10 @@ penalises false alarms and committed irreversible errors.</p>
 <div style="overflow-x:auto"><table class="cmp">
 <tr><th>contestant</th><th>detection</th><th>prevention</th><th>committed</th>
 <th>false&nbsp;alarm</th><th>nags</th><th>score</th></tr>
-<tr><td>oracle ceiling (scripted)</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>0</td><td>1.00</td></tr><tr><td>gemini-3.7-flash assistant · scripted human</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>14</td><td>1.00</td></tr><tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td>0.50</td><td>0.33</td><td>0.00</td><td>0.00</td><td>12</td><td>0.50</td></tr><tr><td>silent floor (scripted)</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0</td><td>0.00</td></tr>
+<tr><td>oracle ceiling (scripted)</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>0</td><td>1.00</td></tr><tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td>0.83</td><td>0.25</td><td>0.00</td><td>0.00</td><td>25</td><td>0.83</td></tr><tr><td>gemini-3.7-flash assistant · scripted human</td><td>0.83</td><td>0.67</td><td>0.00</td><td>0.14</td><td>29</td><td>0.69</td></tr><tr><td>silent floor (scripted)</td><td>0.00</td><td>0.00</td><td>0.17</td><td>0.00</td><td>0</td><td>-0.17</td></tr>
 </table></div>
 <h4>Two real exchanges</h4>
-<div class="tgrid"><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · roaming_off__skip_n0 · <span class="caught">caught</span></div><div class="tra"><b>assistant</b> Tap Cellular.</div><div class="tra"><b>assistant</b> Toggle the Data Roaming switch at the top.</div><div class="tra"><b>assistant</b> Toggle off the Data Roaming switch at the top instead.</div><div class="tra"><b>assistant</b> Tap the switch next to Data Roaming instead.</div><div class="trh"><b>human</b> okay — let me fix that.</div><div class="tra"><b>assistant</b> Toggle the switch next to Data Roaming instead.</div></div><div class="tcard"><div class="tmeta">gemini-3.7-flash ↔ gemini-3.7-flash (full sim) · safari_notif_quiet__skip_n0 · <span class="missed">missed</span></div><div class="tra"><b>assistant</b> Scroll down and tap Notifications.</div><div class="trh"><b>human</b> Tapping Notifications.</div><div class="tra"><b>assistant</b> Tap Safari.</div><div class="trh"><b>human</b> Tapping Safari.</div><div class="trh"><b>human</b> Awesome, all set here!</div><div class="tra"><b>assistant</b> Open Settings.</div><div class="trh"><b>human</b> Opening Settings.</div><div class="trh"><b>human</b> Going into Notifications.</div></div></div>
+<div class="tgrid"><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · roaming_off__skip_n0 · <span class="caught">caught</span></div><div class="tra"><b>assistant</b> Tap where it says Cellular.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top to turn it off.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top instead.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top instead.</div><div class="trh"><b>human</b> okay — let me fix that.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top instead to turn it off.</div></div><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · precise_off_weatherly__skip_n0 · <span class="missed">missed</span></div><div class="tra"><b>assistant</b> Tap the Search bar at the top and type Weatherly.</div><div class="tra"><b>assistant</b> Tap Weatherly.</div></div></div>
 </section>
 
 

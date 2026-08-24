@@ -1,0 +1,695 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScreenSim — the interaction benchmark</title>
+<style>
+:root{--ground:#0d1017;--surface:#161b24;--ink:#e8ecf5;--muted:#98a2b6;
+  --accent:#4da3ff;--accent-soft:#16233c;--line:#252c38;--good:#4ec98a;
+  --warn:#e0a83f;--bad:#e57676}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);margin:0;padding:0 1.25rem 6rem;
+  font-family:-apple-system,'SF Pro Text',system-ui,'Segoe UI',Roboto,sans-serif;
+  line-height:1.6;font-size:16px}
+.wrap{max-width:76rem;margin:0 auto}
+header{max-width:76rem;margin:3.5rem auto 1rem;border-bottom:1px solid var(--line);
+  padding-bottom:1.5rem}
+.eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent)}
+h1{font-size:2.1rem;margin:.4rem 0 .5rem;letter-spacing:-.02em}
+.lead{color:var(--muted);max-width:48rem}
+.nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem}
+.nav a{font-size:.8rem;padding:.32rem .7rem;border:1px solid var(--line);border-radius:999px;
+  color:var(--ink);text-decoration:none;background:var(--surface)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+section.sec{max-width:76rem;margin:2.5rem auto;scroll-margin-top:1rem}
+h2{font-size:1.5rem;letter-spacing:-.01em;border-left:3px solid var(--accent);padding-left:.6rem}
+h2 .num{color:var(--accent);font-family:ui-monospace,monospace;font-size:1rem;margin-right:.5rem}
+.sub{color:var(--muted);max-width:52rem;margin:.2rem 0 1.2rem}
+.cmp{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+.cmp th,.cmp td{padding:.55rem .75rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cmp td:first-child{font-weight:600;white-space:nowrap}
+.cmp code{background:var(--accent-soft);padding:.06em .3em;border-radius:4px}
+.eq{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;padding:1rem 1.25rem;
+  font-family:ui-monospace,Menlo,monospace;font-size:.84rem;line-height:1.7;overflow-x:auto;margin:1rem 0}
+.task h4,.sec h4{font-size:.95rem;margin:1.3rem 0 .4rem}
+.task code,.sec code{background:var(--accent-soft);padding:.08em .35em;border-radius:5px;font-size:.86em}
+/* taxonomy */
+.txgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+.tx{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem;
+  border-top:3px solid var(--line)}
+.tx.bad{border-top-color:var(--bad)} .tx.good{border-top-color:var(--good)}
+.txname{font-family:ui-monospace,monospace;font-weight:700;color:var(--ink)}
+.txt{color:var(--muted);font-size:.85rem;margin:.35rem 0}
+.txex{font-size:.85rem;color:var(--ink);font-style:italic}
+/* benchmark timelines */
+.bcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.4rem;margin:1rem 0}
+.bhead{display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap}
+.btag{font-family:ui-monospace,monospace;font-size:.74rem;font-weight:700;color:var(--accent)}
+.bmeta{color:var(--muted);font-size:.78rem}
+.binstr{margin:.4rem 0 .3rem;font-size:.95rem}
+svg.tl{width:100%;height:auto;margin-top:.4rem}
+.tl-lab{fill:var(--muted);font-size:12px;font-family:ui-monospace,monospace}
+.tl-node{fill:var(--ink);font-size:11px;text-anchor:middle;font-family:ui-monospace,monospace}
+.tl-val{fill:var(--muted);font-size:10px;text-anchor:middle}
+.tl-err{fill:var(--bad);font-size:11px;font-family:ui-monospace,monospace}
+.tl-win{fill:var(--muted);font-size:11px}
+.legend{color:var(--muted);font-size:.8rem;margin-top:.6rem}
+.legend b.g{color:var(--good)} .legend b.r{color:var(--bad)} .legend b.a{color:var(--accent)}
+/* personas */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.1rem}
+.pname{font-family:ui-monospace,monospace;font-weight:700;color:var(--accent);margin-bottom:.5rem}
+.pdials{display:flex;gap:.6rem;flex-wrap:wrap;font-size:.8rem}
+.pdials span{background:var(--accent-soft);padding:.2rem .5rem;border-radius:6px}
+.plabel{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;margin:.7rem 0 .3rem}
+.pvoice{font-style:italic;color:var(--ink);font-size:.88rem}
+.pq{margin:.2rem 0;padding-left:1.1rem;font-size:.85rem;color:var(--ink)}
+/* prompts */
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.plab{font-family:ui-monospace,monospace;font-size:.72rem;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:.4rem}
+.prompt{background:#0b0e14;border:1px solid var(--line);border-radius:10px;padding:1rem;
+  font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.5;white-space:pre-wrap;
+  max-height:560px;overflow-y:auto;color:#cfd6e4}
+/* episodes */
+.egrid{display:grid;grid-template-columns:1fr;gap:1.25rem}
+.ecard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem 1.2rem}
+.evhead{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-bottom:.7rem}
+.chip{font-size:.74rem;padding:.15rem .55rem;border-radius:999px;font-weight:700}
+.chip.good{background:rgba(78,201,138,.16);color:var(--good)}
+.chip.warn{background:rgba(224,168,63,.16);color:var(--warn)}
+.chip.bad{background:rgba(229,118,118,.16);color:var(--bad)}
+.ebody{display:grid;grid-template-columns:300px 1fr;gap:1.25rem;align-items:start}
+.phone-frame{width:284px;border-radius:26px;overflow:hidden;border:1px solid var(--line)}
+.phone-frame video{display:block;width:100%}
+.etl{font-size:.82rem;max-height:420px;overflow-y:auto}
+.te{margin:.2rem 0;padding:.15rem 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.te .tt{font-family:ui-monospace,monospace;color:var(--muted);font-size:.72rem;margin-right:.3rem}
+.te.assistant b{color:var(--accent)} .te.human b{color:var(--ink)}
+.te b{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;margin-right:.35rem}
+@media(max-width:820px){.prow,.ebody{grid-template-columns:1fr}}
+</style></head><body>
+
+<header>
+  <p class="eyebrow">ScreenSim · user-in-the-loop benchmark</p>
+  <h1>Guiding a human through an urgent phone task, in real time</h1>
+  <p class="lead">A deterministic iPhone world where a simulated human performs
+  a task while an AI assistant watches the screen and speaks. The engine injects
+  one error at a task-progress anchor; the assistant is scored on catching it,
+  helping recover, and staying quiet when nothing is wrong. Both agents run on
+  <b>gemini-3.7-flash</b>.</p>
+  <div class="nav">
+    <a href="index.html" style="background:var(--accent-soft)">← Task gallery</a>
+    <a href="#s1">1 · Action space</a>
+    <a href="#s2">2 · Error taxonomy</a>
+    <a href="#s3">3 · Benchmark design</a>
+    <a href="#s4">4 · Personas</a>
+    <a href="#s5">5 · Prompts</a>
+    <a href="#s6">6 · Rollout episodes</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+
+<section class="prose" id="s1">
+<h2>The action space and grounding rule</h2>
+
+<p>An action is a pair <em>a</em> = (<em>v</em>, <em>&gamma;</em>): a motor
+verb and a grounding expression. The grammar is the contract between guidance
+and execution: an utterance maps one-to-one onto a finger motion, resolution
+is deterministic and purely lexical&#8239;/&#8239;geometric, and every failure
+mode is a typed, spoken refusal rather than a guess. Resolution is a pure
+function of (utterance, visible widget scene); identical inputs resolve
+identically, which is what places the action space inside the engine's
+replay-hash guarantees.</p>
+
+<h4>1&thinsp;&middot;&thinsp;Verbs</h4>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>verb</th><th>surface forms</th><th>semantics</th><th>precondition</th></tr>
+<tr><td>tap</td><td>tap, click, press, select, choose, open, hit, toggle, turn on/off, enable, disable, go to</td>
+    <td>fire the resolved widget's event</td><td>grounding resolves</td></tr>
+<tr><td>long_press</td><td>long press, long-press, hold</td>
+    <td>secondary event channel (context menus)</td><td>grounding resolves</td></tr>
+<tr><td>swipe</td><td>swipe, scroll — accepted only as the leading verb</td>
+    <td>screen scroll, or a directional gesture on an anchored row; edge origins open system surfaces (from the top right &rarr; Control&nbsp;Center; from the top &rarr; shade)</td>
+    <td>direction <em>d</em> mandatory</td></tr>
+<tr><td>type</td><td>type&nbsp;/ enter&nbsp;/ input &ldquo;&hellip;&rdquo;</td>
+    <td>insert payload into the focused field (rendered keystroke-by-keystroke)</td><td>a field has focus</td></tr>
+<tr><td>press_key</td><td>press back&nbsp;/ home&nbsp;/ recents</td><td>navigation keys</td><td>&mdash;</td></tr>
+<tr><td>wait</td><td>wait; do nothing; hold on</td><td>advance one tick (timers keep running)</td><td>&mdash;</td></tr>
+<tr><td>clear</td><td>clear; delete the text</td><td>empty the focused field</td><td>field focus</td></tr>
+</table></div>
+
+<h4>2&thinsp;&middot;&thinsp;Grounding expression</h4>
+<p>&gamma; = (&tau;, o, &rho;, &lambda;, &alpha;, p, d): a target phrase, an
+ordinal, a region, a relation &lambda; = (r, anchor), a swipe anchor, a point,
+and a direction. Channels compose (&ldquo;the second switch near the
+top&rdquo;) and any subset may be empty.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>channel</th><th>example</th><th>resolution rule</th></tr>
+<tr><td>target &tau;</td><td>&ldquo;tap Personal Hotspot&rdquo;</td><td>lexical score, Eq.&nbsp;(1)&ndash;(2)</td></tr>
+<tr><td>ordinal o</td><td>&ldquo;the second one&rdquo;, &ldquo;the last toggle&rdquo;</td><td>index into candidates sorted by (y,&nbsp;x) reading order; top&rarr;0, last/bottom&rarr;&minus;1</td></tr>
+<tr><td>region &rho;</td><td>&ldquo;near the top right&rdquo;</td><td>&rho; &sube; region(w), Eq.&nbsp;(4) &mdash; a preference, not a constraint (R4)</td></tr>
+<tr><td>relation &lambda;</td><td>&ldquo;the switch next to Bluetooth&rdquo;</td><td>geometric predicate about a lexically matched anchor, Eq.&nbsp;(3)</td></tr>
+<tr><td>point p</td><td>&ldquo;tap (206,&nbsp;481)&rdquo;</td><td>smallest-area visible interactive widget containing p; empty space is a legal no-op</td></tr>
+<tr><td>direction d</td><td>&ldquo;swipe up&rdquo;</td><td>scroll axis; a swipe without d is refused</td></tr>
+</table></div>
+
+<h4>3&thinsp;&middot;&thinsp;Lexical layer</h4>
+<p>Normalization N(s): lowercase; tokenize on non-word characters (retaining
+% $ @ . + &minus;); strip trailing sentence punctuation per token; delete the
+stop set S. Filler prefixes F are stripped before verb detection. All
+vocabularies are closed; the open vocabulary is whatever text the screen
+currently displays.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>set</th><th>members</th><th>role</th></tr>
+<tr><td>S&nbsp;(stop)</td><td>the, a, an, button, icon, option, item, one, please, then, and, labelled, labeled, that, says, this, very, just</td>
+    <td>deleted from queries; prepositions deliberately kept (&ldquo;To&rdquo;, &ldquo;On&rdquo; are real labels)</td></tr>
+<tr><td>F&nbsp;(filler)</td><td>please&nbsp;&middot; just&nbsp;&middot; now&nbsp;&middot; then&nbsp;&middot; ok(ay)&nbsp;&middot; go ahead (and)&nbsp;&middot; can/could/would you</td>
+    <td>stripped before verb detection</td></tr>
+<tr><td>G&nbsp;(generic)</td><td>field, box, button, option, settings, setting, menu, item, screen, page, bar, icon, area, section, tab, list, row, card, toggle, switch, control, text</td>
+    <td>near-zero match weight (+0.1 each)</td></tr>
+<tr><td>T&nbsp;(type)</td><td>toggle/switch&rarr;toggle &middot; row&rarr;row &middot; field/box&rarr;field &middot; slider &middot; checkbox &middot; radio &middot; button</td>
+    <td>widget-kind reference (rule R3)</td></tr>
+<tr><td>O&nbsp;(ordinal)</td><td>first&hellip;fifth, 1st&hellip;5th, last, top, bottom</td><td>positional index</td></tr>
+<tr><td>R&nbsp;(region)</td><td>top, bottom, left, right, middle, center(=middle); hyphenated corners</td>
+    <td>parsed only inside a locative phrase (near/at/in/on/from/towards &hellip;), so &ldquo;Game Center&rdquo; keeps its words</td></tr>
+<tr><td>&Lambda;&nbsp;(relation)</td><td>next to, beside &rarr; next_to &middot; below, under &rarr; below &middot; above &middot; inside, in the &rarr; in</td>
+    <td>bare &ldquo;in&rdquo; requires &ldquo;the&rdquo; (&ldquo;Sign in with Apple&rdquo; survives); optional intensifiers right/directly/immediately</td></tr>
+<tr><td>D&nbsp;(direction)</td><td>up, down, left, right</td><td>swipe axis</td></tr>
+</table></div>
+
+<h4>4&thinsp;&middot;&thinsp;Target scoring</h4>
+<p>A widget&rsquo;s haystack is H(w) = subtok(N(label &oplus; sub &oplus;
+hint)), where subtok additionally splits tokens on [-_.] so
+&ldquo;CoffeeBar_Guest&rdquo; answers to &ldquo;guest&rdquo;. With query
+Q&nbsp;=&nbsp;N(&tau;) and distinctive part D&nbsp;=&nbsp;Q&#8726;G:</p>
+<pre class="eq">           &#9127; 0.55 &middot; &#120793;[&tau; substring of H(w)]                  if Q &cap; H(w) = &empty;
+base(&tau;,w) = &#9128; |Q &cap; H &cap; D| / |D|  +  0.1 &middot; |Q &cap; H &cap; G|          if D &ne; &empty;        (1)
+           &#9129; |Q &cap; H| / |Q|                                  if D = &empty;
+
+s(&tau;,w) = base + 0.5&middot;&#120793;[N(label) = Q]  +  0.15&middot;&#120793;[Q &sube; N(label)]
+       &minus; min(0.1, 0.03&middot;|H &#8726; Q|)                                            (2)</pre>
+<p>Constants: acceptance threshold &theta; = 0.3; tie band and every guard
+margin &delta; = 0.15; relation-anchor threshold 0.6; swipe-anchor threshold
+0.5. The direction of the containment matters: every distinctive word
+<em>uttered</em> must appear in H(w) &mdash; the speaker may omit any part of
+the label but may not introduce words absent from the screen.</p>
+
+<h4>5&thinsp;&middot;&thinsp;Resolution procedure</h4>
+<p>Candidates C = {w : visible(w) &and; interactive(w)}, i.e. the resolver
+sees exactly what the user sees. Rules apply in order; s* denotes the best
+accepted score in C.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>rule</th><th>definition</th></tr>
+<tr><td>R1 point</td><td>p given &rarr; hit-test; smallest containing widget wins; none &rarr; legal no-op tap</td></tr>
+<tr><td>R2 relation</td><td>anchor a = first visible w with s(anchor,&thinsp;w) &ge; 0.6; C &larr; {w &isin; C : rel<sub>r</sub>(a,w)}; empty &rarr; refusal</td></tr>
+<tr><td>R3 type reference</td><td>if Q &sube; G &cup; T and no visible label contains Q: filter C by kind(T); select by ordinal, else nearest to a by |&Delta;cy|, else region, else uniqueness; several &rarr; ambiguity refusal. A phrase that names an actual label (&ldquo;Switch Control&rdquo;) never enters this rule</td></tr>
+<tr><td>R4 score</td><td>keep {w : s(&tau;,w) &gt; &theta;}; if empty and a region was applied, rescore against the pre-region candidates (region = preference)</td></tr>
+<tr><td>R5 hidden guard</td><td>max<sub>w&nbsp;hidden,&nbsp;interactive</sub> s &ge; s* + &delta; &rarr; refuse &ldquo;not on screen yet &mdash; try scrolling&rdquo;</td></tr>
+<tr><td>R6 prose guard</td><td>max<sub>w&nbsp;visible,&nbsp;&not;interactive</sub> s &ge; s* + &delta; &rarr; refuse &ldquo;just text, not something you can tap&rdquo;</td></tr>
+<tr><td>R7 near-ties</td><td>{w : s &ge; s* &minus; &delta;} with |&middot;| &gt; 1 &rarr; ordinal pick, else unique region member, else ambiguity refusal carrying the candidate count</td></tr>
+<tr><td>R8 commit</td><td>top-scored widget; tap point = bounds centre</td></tr>
+</table></div>
+
+<h4>6&thinsp;&middot;&thinsp;Spatial predicates</h4>
+<pre class="eq">next_to(a,b):  |a.cy &minus; b.cy| &lt; max(a.h, b.h)  &and;  |a.cx &minus; b.cx| &lt; 300
+below(a,b):    b.y &ge; a.y&#8322; &minus; 4  &and;  |a.cx &minus; b.cx| &lt; 220        (above symmetric)   (3)
+in(a,b):       a &cap; b &ne; &empty;  &and;  area(b) &lt; area(a)
+
+region(w):     top: cy &lt; 190 &middot; bottom: cy &gt; 594 &middot; left: cx &lt; 137
+               &middot; right: cx &gt; 274 &middot; else middle          (screen 412&times;892)    (4)</pre>
+
+<h4>7&thinsp;&middot;&thinsp;Refusal taxonomy</h4>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>condition</th><th>refusal</th></tr>
+<tr><td>swipe without direction</td><td>&ldquo;which direction should I swipe?&rdquo;</td></tr>
+<tr><td>swipe anchor unmatched / &gt;1 without ordinal</td><td>&ldquo;I don&rsquo;t see X to swipe on&rdquo; / &ldquo;there are N rows like that &mdash; which one?&rdquo;</td></tr>
+<tr><td>relation anchor unmatched</td><td>&ldquo;I can&rsquo;t find X on this screen&rdquo;</td></tr>
+<tr><td>relation predicate empty</td><td>&ldquo;I don&rsquo;t see anything next to/below/above/in X&rdquo;</td></tr>
+<tr><td>no match anywhere</td><td>&ldquo;I can&rsquo;t see &lsquo;X&rsquo; on this screen&rdquo;</td></tr>
+<tr><td>matches inert content only</td><td>&ldquo;&lsquo;X&rsquo; isn&rsquo;t something you can tap&rdquo;</td></tr>
+<tr><td>hidden guard (R5)</td><td>&ldquo;&lsquo;X&rsquo; isn&rsquo;t on screen yet &mdash; try scrolling&rdquo;</td></tr>
+<tr><td>prose guard (R6)</td><td>&ldquo;&lsquo;X&rsquo; is just text on this screen, not something you can tap&rdquo;</td></tr>
+<tr><td>near-tie unresolved (R7)</td><td>&ldquo;there are N things like &lsquo;X&rsquo; &mdash; which one?&rdquo; (count + candidates exposed)</td></tr>
+<tr><td>no usable channel</td><td>&ldquo;I&rsquo;m not sure what you want me to tap&rdquo;</td></tr>
+</table></div>
+
+<h4>8&thinsp;&middot;&thinsp;Empirical robustness</h4>
+<p>Protocol: over six probe screens, an independent generator (Gemini) produced
+144 in-vocabulary commands with declared targets &mdash; exact, partial,
+ordinal, regional, relational and filler-laden phrasings &mdash; and 48
+out-of-vocabulary commands (synonyms, function descriptions, appearance) that
+a strict grounder must refuse. The identical utterance set was re-scored after
+parser refinement.</p>
+<div style="overflow-x:auto"><table class="cmp">
+<tr><th>metric</th><th>before</th><th>after</th></tr>
+<tr><td>in-vocab &rarr; resolved to intended target</td><td>31.3%</td><td><b>95.1%</b></td></tr>
+<tr><td>in-vocab &rarr; honest ambiguity (&ldquo;which one?&rdquo;)</td><td>1.4%</td><td>2.8%</td></tr>
+<tr><td>in-vocab &rarr; wrongly refused</td><td>67.4%</td><td><b>0%</b></td></tr>
+<tr><td>in-vocab &rarr; resolved to wrong widget</td><td>0%</td><td>2.1%</td></tr>
+<tr><td>out-of-vocab &rarr; correctly refused</td><td>97.9%</td><td>97.9%</td></tr>
+<tr><td>out-of-vocab &rarr; false tap on unintended widget</td><td><b>0</b></td><td><b>0</b></td></tr>
+</table></div>
+<p>Coverage of reasonable phrasing tripled while refusal honesty was invariant;
+the residual 2.1% are ordinal counting-convention ties (&ldquo;the second
+row&rdquo;) on which human annotators also disagree.</p>
+</section>
+
+
+<section class="sec" id="s2">
+  <h2><span class="num">2</span>Human error &amp; plan-deviation taxonomy</h2>
+  <p class="sub">A designed mistake is a transform on the plan IR. Four error
+  families plus two benign families (half the benchmark is “nothing is wrong”).
+  Every case is admitted only if a dry replay shows exactly one correct answer,
+  the goal fails, and a repair validates — otherwise it goes to the rejection
+  ledger.</p>
+  <div class="txgrid">
+<div class="tx bad">
+  <div class="txname">wrong_value</div>
+  <div class="txt">replace with a sibling option of the same control group</div>
+  <div class="txex">picks “Unrestricted Access” for “Limit Adult Websites”</div>
+</div>
+
+<div class="tx bad">
+  <div class="txname">wrong_target</div>
+  <div class="txt">act on a different control on the same screen</div>
+  <div class="txex">turns off Allow Notifications instead of just Sounds</div>
+</div>
+
+<div class="tx bad">
+  <div class="txname">skip_step</div>
+  <div class="txt">omit a commit; walk on without acting</div>
+  <div class="txex">never turns on the master toggle</div>
+</div>
+
+<div class="tx bad">
+  <div class="txname">early_commit</div>
+  <div class="txt">confirm before the setup steps are done</div>
+  <div class="txex">pays before the funding source is set</div>
+</div>
+
+<div class="tx good">
+  <div class="txname">intent</div>
+  <div class="txt">the same edit, announced and adopted as the new goal</div>
+  <div class="txex">“actually, change of plan…” — the assistant must stay quiet</div>
+</div>
+
+<div class="tx good">
+  <div class="txname">clean</div>
+  <div class="txt">no transform — the reference plan, unperturbed</div>
+  <div class="txex">everything goes right; silence is correct</div>
+</div></div>
+</section>
+
+<section class="sec" id="s3">
+  <h2><span class="num">3</span>Benchmark design — composite timelines</h2>
+  <p class="sub">Each task's reference plan is a sequence of committed
+  application-state nodes (the path-invariant progress key). Errors are injected
+  at a node; the detection window is the interval in which a catch is credited.
+  Drawn from the engine, per task.</p>
+  <p class="legend"><b class="g">●</b> reversible commit &nbsp; <b class="r">●</b>
+  irreversible commit &nbsp; <b class="a">●</b> injection pin, with its detection
+  window</p>
+  
+<div class="bcard">
+  <div class="bhead"><span class="btag">safari_notif_quiet</span>
+    <span class="bmeta">1 nodes · 2 error cases ·
+    0 intent · 1 rejected by dry-replay</span></div>
+  <div class="binstr">Safari&#x27;s notification pings are driving me crazy in meetings, but I still want to see the banners. Turn off just the sounds for Safari notifications.</div>
+  <svg viewBox="0 0 900 202" class="tl" role="img"><line x1="150" y1="46" x2="860" y2="46" stroke="var(--line)" stroke-width="2"/><text x="20" y="50" class="tl-lab">plan &rarr;</text><circle cx="150" cy="46" r="7" fill="var(--good)"/><text x="150" y="32" class="tl-node">sounds</text><text x="150" y="68" class="tl-val">false</text><circle cx="150" cy="100" r="5" fill="var(--accent)"/><line x1="150" y1="53" x2="150" y2="100" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="104" text-anchor="end" class="tl-err">wrong_target</text><text x="160" y="104" class="tl-win">&rarr; Sounds · window 5&ndash;5t</text><circle cx="150" cy="126" r="5" fill="var(--accent)"/><line x1="150" y1="53" x2="150" y2="126" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="130" text-anchor="end" class="tl-err">skip_step</text><text x="160" y="130" class="tl-win">&rarr; Sounds · window 4&ndash;4t</text></svg>
+</div>
+
+<div class="bcard">
+  <div class="bhead"><span class="btag">roaming_off</span>
+    <span class="bmeta">1 nodes · 1 error cases ·
+    0 intent · 0 rejected by dry-replay</span></div>
+  <div class="binstr">I fly to Lisbon tonight — make sure data roaming is off so I don&#x27;t get a surprise bill, but don&#x27;t kill my cellular data here.</div>
+  <svg viewBox="0 0 900 176" class="tl" role="img"><line x1="150" y1="46" x2="860" y2="46" stroke="var(--line)" stroke-width="2"/><text x="20" y="50" class="tl-lab">plan &rarr;</text><circle cx="150" cy="46" r="7" fill="var(--good)"/><text x="150" y="32" class="tl-node">roaming</text><text x="150" y="68" class="tl-val">false</text><circle cx="150" cy="100" r="5" fill="var(--accent)"/><line x1="150" y1="53" x2="150" y2="100" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="104" text-anchor="end" class="tl-err">skip_step</text><text x="160" y="104" class="tl-win">&rarr; Data Roaming · window 2&ndash;2t</text></svg>
+</div>
+
+<div class="bcard">
+  <div class="bhead"><span class="btag">precise_off_weatherly</span>
+    <span class="bmeta">1 nodes · 1 error cases ·
+    0 intent · 2 rejected by dry-replay</span></div>
+  <div class="binstr">Weatherly only needs my rough area for the forecast — stop it from seeing my precise location, but let it keep working while I use it.</div>
+  <svg viewBox="0 0 900 176" class="tl" role="img"><line x1="150" y1="46" x2="860" y2="46" stroke="var(--line)" stroke-width="2"/><text x="20" y="50" class="tl-lab">plan &rarr;</text><circle cx="150" cy="46" r="7" fill="var(--good)"/><text x="150" y="32" class="tl-node">precise</text><text x="150" y="68" class="tl-val">false</text><circle cx="150" cy="100" r="5" fill="var(--accent)"/><line x1="150" y1="53" x2="150" y2="100" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="104" text-anchor="end" class="tl-err">skip_step</text><text x="160" y="104" class="tl-win">&rarr; Precise Location · window 5&ndash;5t</text></svg>
+</div>
+
+<div class="bcard">
+  <div class="bhead"><span class="btag">limit_adult_web</span>
+    <span class="bmeta">2 nodes · 3 error cases ·
+    1 intent · 0 rejected by dry-replay</span></div>
+  <div class="binstr">My 9-year-old nephew is borrowing my phone this weekend — set the web filter to limit adult websites in Safari. Leave everything else alone.</div>
+  <svg viewBox="0 0 900 228" class="tl" role="img"><line x1="150" y1="46" x2="860" y2="46" stroke="var(--line)" stroke-width="2"/><text x="20" y="50" class="tl-lab">plan &rarr;</text><circle cx="150" cy="46" r="7" fill="var(--good)"/><text x="150" y="32" class="tl-node">content_on</text><text x="150" y="68" class="tl-val">true</text><circle cx="860" cy="46" r="7" fill="var(--good)"/><text x="860" y="32" class="tl-node">web</text><text x="860" y="68" class="tl-val">&quot;Limit Adult W</text><circle cx="150" cy="100" r="5" fill="var(--accent)"/><line x1="150" y1="53" x2="150" y2="100" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="104" text-anchor="end" class="tl-err">skip_step</text><text x="160" y="104" class="tl-win">&rarr; Content &amp; Privacy  · window 5&ndash;7t</text><circle cx="860" cy="126" r="5" fill="var(--accent)"/><line x1="860" y1="53" x2="860" y2="126" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="130" text-anchor="end" class="tl-err">wrong_value</text><text x="848" y="130" text-anchor="end" class="tl-win">&rarr; Limit Adult Websites · window 8&ndash;8t</text><circle cx="860" cy="152" r="5" fill="var(--accent)"/><line x1="860" y1="53" x2="860" y2="152" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="156" text-anchor="end" class="tl-err">skip_step</text><text x="848" y="156" text-anchor="end" class="tl-win">&rarr; Limit Adult Websites · window 7&ndash;7t</text></svg>
+</div>
+
+<div class="bcard">
+  <div class="bhead"><span class="btag">hotspot_2ghz</span>
+    <span class="bmeta">3 nodes · 2 error cases ·
+    0 intent · 3 rejected by dry-replay</span></div>
+  <div class="binstr">My old ThinkPad only sees 2.4 GHz networks. Set up my Personal Hotspot with password &#x27;trailmix88&#x27; so it can connect — I need it for a presentation in five minutes.</div>
+  <svg viewBox="0 0 900 202" class="tl" role="img"><line x1="150" y1="46" x2="860" y2="46" stroke="var(--line)" stroke-width="2"/><text x="20" y="50" class="tl-lab">plan &rarr;</text><circle cx="150" cy="46" r="7" fill="var(--good)"/><text x="150" y="32" class="tl-node">password</text><text x="150" y="68" class="tl-val">&quot;trailmix88&quot;</text><circle cx="505" cy="46" r="7" fill="var(--good)"/><text x="505" y="32" class="tl-node">maxcompat</text><text x="505" y="68" class="tl-val">true</text><circle cx="860" cy="46" r="7" fill="var(--good)"/><text x="860" y="32" class="tl-node">on</text><text x="860" y="68" class="tl-val">true</text><circle cx="505" cy="100" r="5" fill="var(--accent)"/><line x1="505" y1="53" x2="505" y2="100" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="104" text-anchor="end" class="tl-err">skip_step</text><text x="515" y="104" class="tl-win">&rarr; Maximize Compatibility · window 6&ndash;6t</text><circle cx="860" cy="126" r="5" fill="var(--accent)"/><line x1="860" y1="53" x2="860" y2="126" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="130" text-anchor="end" class="tl-err">skip_step</text><text x="848" y="130" text-anchor="end" class="tl-win">&rarr; Allow Others to Join · window 6&ndash;6t</text></svg>
+</div>
+
+<div class="bcard">
+  <div class="bhead"><span class="btag">rent_share_standard</span>
+    <span class="bmeta">7 nodes · 3 error cases ·
+    0 intent · 9 rejected by dry-replay</span></div>
+  <div class="binstr">Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it&#x27;s not urgent — and put &#x27;March rent share&#x27; in the note.</div>
+  <svg viewBox="0 0 900 228" class="tl" role="img"><line x1="150" y1="46" x2="860" y2="46" stroke="var(--line)" stroke-width="2"/><text x="20" y="50" class="tl-lab">plan &rarr;</text><circle cx="150" cy="46" r="7" fill="var(--good)"/><text x="150" y="32" class="tl-node">note</text><text x="150" y="68" class="tl-val">&quot;&quot;</text><circle cx="268" cy="46" r="7" fill="var(--good)"/><text x="268" y="32" class="tl-node">amount</text><text x="268" y="68" class="tl-val">&quot;40&quot;</text><circle cx="387" cy="46" r="7" fill="var(--good)"/><text x="387" y="32" class="tl-node">note</text><text x="387" y="68" class="tl-val">&quot;March rent sh</text><circle cx="505" cy="46" r="7" fill="var(--good)"/><text x="505" y="32" class="tl-node">speed</text><text x="505" y="68" class="tl-val">&quot;standard&quot;</text><circle cx="623" cy="46" r="7" fill="var(--good)"/><text x="623" y="32" class="tl-node">expected</text><text x="623" y="68" class="tl-val">&quot;488223&quot;</text><circle cx="742" cy="46" r="7" fill="var(--good)"/><text x="742" y="32" class="tl-node">code</text><text x="742" y="68" class="tl-val">&quot;488223&quot;</text><circle cx="860" cy="46" r="7" fill="var(--bad)"/><text x="860" y="32" class="tl-node">balance</text><text x="860" y="68" class="tl-val">5244.55</text><circle cx="387" cy="100" r="5" fill="var(--accent)"/><line x1="387" y1="53" x2="387" y2="100" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="104" text-anchor="end" class="tl-err">skip_step</text><text x="397" y="104" class="tl-win">&rarr; type &quot;March rent  · window 7&ndash;14t</text><circle cx="505" cy="126" r="5" fill="var(--accent)"/><line x1="505" y1="53" x2="505" y2="126" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="130" text-anchor="end" class="tl-err">skip_step</text><text x="515" y="130" class="tl-win">&rarr; 1-3 business days · window 9&ndash;14t</text><circle cx="742" cy="152" r="5" fill="var(--accent)"/><line x1="742" y1="53" x2="742" y2="152" stroke="var(--accent)" stroke-dasharray="2 2" stroke-width="1"/><text x="142" y="156" text-anchor="end" class="tl-err">skip_step</text><text x="730" y="156" text-anchor="end" class="tl-win">&rarr; type OTP · window 14&ndash;14t</text></svg>
+</div>
+</section>
+
+<section class="sec" id="s4">
+  <h2><span class="num">4</span>User persona types</h2>
+  <p class="sub">Simplified for the screen domain: two private dials enforced
+  mechanically (never a prompt sentence), plus a three-line questionnaire the
+  assistant sees verbatim — whose answers double as scoring weights.</p>
+  <div class="pgrid">
+<div class="pcard">
+  <div class="pname">guided_novice</div>
+  <div class="pdials">
+    <span>fluency <b>novice</b></span>
+    <span>rebuttals <b>0</b></span>
+    <span>confirm-irreversible <b>true</b></span>
+  </div>
+  <div class="plabel">private dials — enforced mechanically, never shown to the assistant</div>
+  <div class="pvoice">“Hesitant, a little anxious, grateful for help; asks before anything that sounds risky.”</div>
+  <div class="plabel">the questionnaire the assistant DOES see:</div>
+  <ul class="pq"><li>I&#x27;m not confident with phones — if something needs doing, tell me exactly what to tap.</li><li>Please warn me before anything that can&#x27;t be undone.</li><li>It&#x27;s fine to check in on me often.</li></ul>
+</div>
+
+<div class="pcard">
+  <div class="pname">brisk_expert</div>
+  <div class="pdials">
+    <span>fluency <b>expert</b></span>
+    <span>rebuttals <b>1</b></span>
+    <span>confirm-irreversible <b>false</b></span>
+  </div>
+  <div class="plabel">private dials — enforced mechanically, never shown to the assistant</div>
+  <div class="pvoice">“Terse, confident, mildly impatient; pushes back once before accepting a correction.”</div>
+  <div class="plabel">the questionnaire the assistant DOES see:</div>
+  <ul class="pq"><li>I know my way around a phone — one short sentence when it matters.</li><li>Only speak up if something is actually going wrong.</li><li>Don&#x27;t narrate things I can already see.</li></ul>
+</div>
+
+<div class="pcard">
+  <div class="pname">distracted_average</div>
+  <div class="pdials">
+    <span>fluency <b>average</b></span>
+    <span>rebuttals <b>0</b></span>
+    <span>confirm-irreversible <b>false</b></span>
+  </div>
+  <div class="plabel">private dials — enforced mechanically, never shown to the assistant</div>
+  <div class="pvoice">“Friendly but scattered; occasionally acknowledges without fully reading.”</div>
+  <div class="plabel">the questionnaire the assistant DOES see:</div>
+  <ul class="pq"><li>I&#x27;m doing three things at once — keep it brief.</li><li>Warn me before payments or anything permanent.</li><li>Don&#x27;t repeat yourself.</li></ul>
+</div></div>
+</section>
+
+<section class="sec" id="s5">
+  <h2><span class="num">5</span>Prompt structure — the real prompts</h2>
+  <p class="sub">Composed live from a real screen state. Channel isolation is
+  asserted on these exact strings: the human is told to speak by on-screen
+  words only (never coordinates) and carries a private slip the assistant never
+  sees; the assistant gets the task + the questionnaire + frames, and never a
+  coordinate, dial, or grading term.</p>
+  <div class="prow"><div class="pcol"><div class="plab">HUMAN AGENT prompt (gemini-3.7-flash)</div><pre class="prompt">You are role-playing a real person doing a task on your own iPhone. Stay fully in character. You are NOT an AI assistant here — you are the human whose hands move the phone.
+
+== YOUR TASK ==
+Turn off just the notification sounds for Safari (keep the banners).
+
+== WHAT YOU SEE ON THE SCREEN RIGHT NOW ==
+SCREEN Safari
+  (206,184) toggle   Allow Notifications [on]
+  (206,232) toggle   Time-Sensitive Notifications [off]
+  (206,479) row      Banner Style
+  (206,534) toggle   Sounds [on]
+  (206,582) toggle   Badges [on]
+  (206,707) row      Show Previews
+  (206,769) row      Notification Grouping
+  (206,824) row      Customize Notifications
+
+== WHERE YOU ARE (only you know this) ==
+you are here: app=settings, screen=settings.notif_app_Safari, keyboard=closed
+
+== WHAT YOU&#x27;VE DONE SO FAR (your own actions only) ==
+  tap Notifications
+  tap Safari
+
+== THE CONVERSATION (you only ever HEAR the assistant&#x27;s sentences) ==
+  assistant: You&#x27;re on the Safari notification settings now.
+
+== HOW YOUR HANDS WORK ==
+You act by naming ONE gesture at a time, exactly as you would tap it:
+  tap &lt;label&gt;            e.g.  tap Wi-Fi   ·   tap the second Alex
+  swipe up / swipe down  to scroll        ·   type &quot;&lt;text&gt;&quot;   into a focused field
+  press back / press home
+The phone obeys only if the thing is on screen; if it refuses, it tells you why.
+
+== HOW TO REPLY ==
+Reply with ONE JSON object:
+  {&quot;utterance&quot;: &quot;&lt;what you say out loud, or empty&gt;&quot;,
+    &quot;gesture&quot;: &quot;&lt;the single gesture you perform now, or empty&gt;&quot;,
+    &quot;think&quot;: &quot;&lt;private note, never heard&gt;&quot;}
+Only &quot;utterance&quot; is heard by the assistant. &quot;gesture&quot; drives your hands.
+
+== WHO YOU ARE ==
+Hesitant, a little anxious, grateful for help; asks before anything that sounds risky.
+Your stated preferences (the assistant knows these):
+  - I&#x27;m not confident with phones — if something needs doing, tell me exactly what to tap.
+  - Please warn me before anything that can&#x27;t be undone.
+  - It&#x27;s fine to check in on me often.
+
+== ONE RULE ABOUT WHAT YOU SAY ==
+Your &quot;utterance&quot; must describe things the way a person does — by the words on the screen or where they sit (&quot;the switch near the top&quot;, &quot;where it says Sounds&quot;). Never read out pixel coordinates. Speak naturally and briefly.
+
+== A SLIP YOU&#x27;RE ABOUT TO MAKE (private, in character) ==
+When you reach the screen with “Sounds”, you&#x27;re going to tap “Time-Sensitive Notifications” instead.
+You believe this is correct. If the person helping you clearly explains it&#x27;s wrong and what to do instead, you accept and fix it. Otherwise you carry on.</pre></div><div class="pcol"><div class="plab">ASSISTANT prompt (gemini-3.7-flash)</div><pre class="prompt">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone.
+
+== WHAT THEY&#x27;RE TRYING TO DO ==
+Turn off just the notification sounds for Safari (keep the banners).
+
+== WHAT YOU SEE ==
+The last 3 screenshots of their phone, oldest to newest.
+
+== THE PERSON ==
+They told you:
+  - I&#x27;m not confident with phones — if something needs doing, tell me exactly what to tap.
+  - Please warn me before anything that can&#x27;t be undone.
+  - It&#x27;s fine to check in on me often.
+
+== HOW TO HELP ==
+Talk like someone sitting next to them. If something is going wrong — they&#x27;re about to change the wrong setting, tap the wrong thing, miss a step, or commit something they can&#x27;t undo — say so, briefly, and name what to do instead by what&#x27;s ON THE SCREEN (&quot;tap where it says Sounds&quot;, &quot;the switch near the top&quot;). If nothing is wrong, stay quiet: silence is the right answer most of the time. Never narrate what they can already see. A direct question always gets an answer.
+
+== YOUR MEMORY ==
+the person just opened Safari&#x27;s notification settings
+
+== REPLY — strict JSON every turn ==
+{&quot;note&quot;: &quot;&lt;your private running notes&gt;&quot;,
+  &quot;text&quot;: &quot;&lt;what you say, or empty string to stay silent&gt;&quot;,
+  &quot;concern&quot;: &quot;&lt;if you think something is wrong, name it in a few words; else empty&gt;&quot;}
+Only &quot;text&quot; reaches the person.</pre></div></div>
+</section>
+
+<section class="sec" id="s6">
+  <h2><span class="num">6</span>Rollout episodes — results &amp; evaluation</h2>
+  <p class="sub">The full gemini-3.7-flash&harr;gemini-3.7-flash simulation,
+  bracketed by a scripted silent floor and an oracle ceiling on identical
+  worlds. Each reel: the phone screen, the live transcript, and the verdict.</p>
+  <table class='cmp'><tr><th>contestant</th><th>detection</th><th>prevention</th><th>committed</th><th>false&nbsp;alarm</th><th>nags</th><th>score</th></tr><tr><td>oracle ceiling (scripted)</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>0</td><td>1.00</td></tr><tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td>0.83</td><td>0.25</td><td>0.00</td><td>0.00</td><td>25</td><td>0.83</td></tr><tr><td>gemini-3.7-flash assistant · scripted human</td><td>0.83</td><td>0.67</td><td>0.00</td><td>0.14</td><td>29</td><td>0.69</td></tr><tr><td>silent floor (scripted)</td><td>0.00</td><td>0.00</td><td>0.17</td><td>0.00</td><td>0</td><td>-0.17</td></tr></table>
+  <div class="egrid" style="margin-top:1.5rem">
+<div class="ecard">
+  <div class="evhead"><span class="btag">safari_notif_quiet</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__safari_notif_quiet__clean.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down and tap Notifications.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down now.</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Notifications now, tapping that.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Notifications</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Safari.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping Safari now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Safari</div><div class="te human"><span class="tt">t3</span> <b>you</b> I see Sounds right here. I&#x27;m turning that off now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Sounds</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">safari_notif_quiet</span>
+    <span class="chip good">caught &amp; repaired</span>
+    <span class="bmeta">slip: wrong_target · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__safari_notif_quiet__wt_n0_tap_time_sensitive_notificat.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down and tap Notifications.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down to find Notifications.</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Notifications at the bottom here, tapping that now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Notifications</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Safari.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Found Safari in the list, tapping it now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Safari</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m looking at the options here... I think toggling Time-Sensitive Notifications will stop those loud pin</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Time-Sensitive Notifications</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap the green switch next to Sounds to turn it off.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Oh, got it! Tapping the switch next to Sounds now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Sounds</div><div class="te human"><span class="tt">t5</span> <b>you</b> Looks like the switch for Sounds is turned off now! Thank you so much for the help.</div><div class="te human"><span class="tt">t5</span> <b>you</b> Everything looks all set now with the sounds turned off. Thanks again!</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">roaming_off</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__roaming_off__clean.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap where it says Cellular.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Cellular now.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Cellular</div><div class="te human"><span class="tt">t1</span> <b>you</b> I&#x27;m on the Cellular screen now. I see Cellular Data Options near the top—should I tap that?</div><div class="te assistant"><span class="tt">t1</span> <b>assistant</b> Tap Cellular Data Options.</div><div class="te human"><span class="tt">t1</span> <b>you</b> Okay, tapping Cellular Data Options.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t2</span> <b>you</b> I&#x27;m in Cellular Data Options and Data Roaming is currently turned on. Should I tap the toggle to switch i</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap the green switch next to Data Roaming at the top to turn it off.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Okay, tapping the switch next to Data Roaming to turn it off.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Data Roaming</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">precise_off_weatherly</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__precise_off_weatherly__clean.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down and tap Privacy &amp; Security.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down.</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I don&#x27;t see Privacy &amp; Security yet, let me scroll a bit more.</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Privacy &amp; Security near the bottom.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Got it, tapping Privacy &amp; Security now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Privacy &amp; Security</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m in Privacy &amp; Security now. I see Location Services at the top, tapping that.</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Location Services</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Weatherly.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Tapping Weatherly now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Weatherly</div><div class="te human"><span class="tt">t5</span> <b>you</b> I see Precise Location is on, tapping that toggle to turn it off.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap Precise Location</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">safari_notif_quiet</span>
+    <span class="chip good">caught &amp; repaired</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__safari_notif_quiet__skip_n0.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down and tap Notifications.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down now...</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Notifications here, tapping it now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Notifications</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Safari.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping Safari now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Safari</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m on the Safari screen now, looks like everything is set so I&#x27;m heading back. Are we all done?</div><div class="te human"><span class="tt">t4</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Safari.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Oh, tapping Safari again now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Safari</div><div class="te human"><span class="tt">t5</span> <b>you</b> I&#x27;m back on the Safari notification settings screen now. Looks like everything is all set here, right?</div><div class="te human"><span class="tt">t6</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap Safari.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Okay, tapping Safari now.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Safari</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m back on the Safari notification screen and everything looks good here, so I think we&#x27;re all done</div><div class="te human"><span class="tt">t8</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t8</span> <b>assistant</b> Tap Safari.</div><div class="te human"><span class="tt">t8</span> <b>you</b> Okay, tapping Safari again.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Safari</div><div class="te human"><span class="tt">t9</span> <b>you</b> I&#x27;m on the Safari notification settings screen now. Everything looks set to me, what should I tap next?</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Tap the green switch next to Sounds to turn it off.</div><div class="te human"><span class="tt">t9</span> <b>you</b> Ah, okay! Tapping the switch next to Sounds now.</div><div class="te human"><span class="tt">t10</span> <b>→</b> tap Sounds</div><div class="te human"><span class="tt">t10</span> <b>you</b> I switched off Sounds. Looks like banner notifications are still on and sounds are off, so is that everything?</div><div class="te assistant"><span class="tt">t10</span> <b>assistant</b> That&#x27;s it, you&#x27;re all set.</div><div class="te human"><span class="tt">t10</span> <b>you</b> Awesome, thank you so much for the help!</div><div class="te human"><span class="tt">t11</span> <b>→</b> press home</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">precise_off_weatherly</span>
+    <span class="chip warn">missed</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__precise_off_weatherly__skip_n0.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down and tap Privacy &amp; Security.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down...</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> Still looking for Privacy &amp; Security, let me scroll a bit more.</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Privacy &amp; Security.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping Privacy &amp; Security now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Privacy &amp; Security</div><div class="te human"><span class="tt">t3</span> <b>you</b> I see Location Services at the top, tapping that now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Location Services</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Weatherly.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Tapping Weatherly now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Weatherly</div><div class="te human"><span class="tt">t5</span> <b>you</b> It looks like &#x27;While Using the App&#x27; is already checked. Is there anything else I need to do here, or</div><div class="te human"><span class="tt">t5</span> <b>you</b> Looks like it&#x27;s already set to While Using the App, so I think we&#x27;re all good here! I&#x27;m heading</div><div class="te human"><span class="tt">t6</span> <b>→</b> press home</div><div class="te human"><span class="tt">t6</span> <b>you</b> I&#x27;m back on the home screen now. Is that all I needed to do?</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">limit_adult_web</span>
+    <span class="chip good">caught &amp; repaired</span>
+    <span class="bmeta">slip: wrong_value · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__limit_adult_web__wv_n1_tap_allowed_websites_only.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down a bit and tap Screen Time.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, let me scroll down to look for Screen Time.</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I don&#x27;t see Screen Time here yet, let me scroll a bit more.</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Screen Time.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping Screen Time now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Screen Time</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m in Screen Time now. Should I tap Content &amp; Privacy Restrictions?</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Turn on the switch next to Content &amp; Privacy Restrictions at the top.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Okay, turning on Content &amp; Privacy Restrictions.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t5</span> <b>you</b> That&#x27;s turned on now. I see an option for &#x27;App Store, Media, Web, &amp; Games&#x27; — should I tap t</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap Web Content near the bottom.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Okay, tapping Web Content.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Web Content</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m on the Web Content screen now. I&#x27;m going to tap &#x27;Allowed Websites Only&#x27; to be safe.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Allowed Websites Only</div><div class="te assistant"><span class="tt">t8</span> <b>assistant</b> Tap Limit Adult Websites instead.</div><div class="te human"><span class="tt">t8</span> <b>you</b> Oh, got it. Tapping Limit Adult Websites instead.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Limit Adult Websites</div><div class="te human"><span class="tt">t9</span> <b>you</b> Okay, Limit Adult Websites is selected now. Is there anything else I need to do?</div><div class="te human"><span class="tt">t10</span> <b>→</b> press home</div><div class="te human"><span class="tt">t10</span> <b>you</b> I&#x27;m back on my home screen now. Is that all done?</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">roaming_off</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__roaming_off__skip_n0.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap Cellular.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Cellular now.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Cellular</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Cellular Data is turned on here, so does that mean we&#x27;re all done?</div><div class="te assistant"><span class="tt">t1</span> <b>assistant</b> Tap Cellular Data Options near the top.</div><div class="te human"><span class="tt">t1</span> <b>you</b> Okay, tapping Cellular Data Options now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t2</span> <b>you</b> I&#x27;m in Cellular Data Options now. It looks like everything is in order here, so are we all done?</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap the switch next to Data Roaming at the top to turn it off.</div><div class="te human"><span class="tt">t2</span> <b>you</b> I think everything is set here, so I went back. Is that all I need to do?</div><div class="te human"><span class="tt">t3</span> <b>→</b> press back</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m heading back to the home screen now. Are we all set for my trip?</div><div class="te human"><span class="tt">t4</span> <b>→</b> press home</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Settings to go back in.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Alright, opening Settings again.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t5</span> <b>you</b> I&#x27;m back in Settings, so I&#x27;ll tap Cellular.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap Cellular</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap Cellular Data Options.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Okay, tapping Cellular Data Options.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t7</span> <b>you</b> Alright, I&#x27;m going back. Everything looks good here, right?</div><div class="te human"><span class="tt">t8</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t8</span> <b>assistant</b> Tap Cellular Data Options.</div><div class="te human"><span class="tt">t8</span> <b>you</b> I&#x27;m pretty sure we already checked that and everything is set, so I&#x27;m heading back to the home scree</div><div class="te human"><span class="tt">t9</span> <b>→</b> press home</div><div class="te human"><span class="tt">t9</span> <b>you</b> I think everything is all set for Lisbon now! Is there anything else I need to check?</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Tap Settings to head back.</div><div class="te human"><span class="tt">t9</span> <b>you</b> Okay, opening Settings again.</div><div class="te human"><span class="tt">t10</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t10</span> <b>you</b> Back in Settings. Tapping Cellular.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap Cellular</div><div class="te assistant"><span class="tt">t11</span> <b>assistant</b> Tap Cellular Data Options.</div><div class="te human"><span class="tt">t11</span> <b>you</b> Okay, tapping Cellular Data Options.</div><div class="te human"><span class="tt">t12</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t12</span> <b>you</b> Looks like we&#x27;re all good here, so I&#x27;m heading back.</div><div class="te human"><span class="tt">t13</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t13</span> <b>assistant</b> Tap Cellular Data Options near the top.</div><div class="te human"><span class="tt">t13</span> <b>you</b> Oh, go back into Cellular Data Options? Okay, tapping that.</div><div class="te human"><span class="tt">t14</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t14</span> <b>you</b> I&#x27;m looking at this screen again, but everything looks fine to me, so I&#x27;m going back out.</div><div class="te human"><span class="tt">t15</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t15</span> <b>assistant</b> Tap where it says &quot;Cellular Data Options&quot;.</div><div class="te human"><span class="tt">t15</span> <b>you</b> I really thought we were all set with that already! I&#x27;m heading back to the home screen unless there&#x27</div><div class="te human"><span class="tt">t16</span> <b>→</b> press home</div><div class="te assistant"><span class="tt">t16</span> <b>assistant</b> Tap the grey Settings icon near the top.</div><div class="te human"><span class="tt">t16</span> <b>you</b> Okay, opening Settings.</div><div class="te human"><span class="tt">t17</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t17</span> <b>you</b> I&#x27;m in Settings now, going into Cellular.</div><div class="te human"><span class="tt">t18</span> <b>→</b> tap Cellular</div><div class="te assistant"><span class="tt">t18</span> <b>assistant</b> Tap Cellular Data Options near the top.</div><div class="te human"><span class="tt">t18</span> <b>you</b> I think I&#x27;m all set here since my cellular data is on. We&#x27;re good to go, right?</div><div class="te human"><span class="tt">t19</span> <b>→</b> press home</div><div class="te human"><span class="tt">t19</span> <b>you</b> I&#x27;m back on the home screen. That&#x27;s everything taken care of for my trip, right?</div><div class="te assistant"><span class="tt">t19</span> <b>assistant</b> Tap Settings so we can finish turning off data roaming.</div><div class="te human"><span class="tt">t19</span> <b>you</b> Okay, opening Settings again.</div><div class="te human"><span class="tt">t20</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t20</span> <b>you</b> Tapping Cellular.</div><div class="te human"><span class="tt">t21</span> <b>→</b> tap Cellular</div><div class="te assistant"><span class="tt">t21</span> <b>assistant</b> Tap where it says Cellular Data Options.</div><div class="te human"><span class="tt">t21</span> <b>you</b> Okay, tapping Cellular Data Options.</div><div class="te human"><span class="tt">t22</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t22</span> <b>you</b> Okay, I see this screen and it looks like we&#x27;re all done here. Going back now!</div><div class="te human"><span class="tt">t23</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t23</span> <b>assistant</b> Tap where it says Cellular Data Options, right near the top.</div><div class="te human"><span class="tt">t23</span> <b>you</b> Alright, tapping Cellular Data Options again.</div><div class="te human"><span class="tt">t24</span> <b>→</b> tap Cellular Data Options</div><div class="te human"><span class="tt">t24</span> <b>you</b> Looks like we&#x27;re back here, so everything looks good to me! Heading back out.</div><div class="te human"><span class="tt">t25</span> <b>→</b> press back</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">limit_adult_web</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__limit_adult_web__clean.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down a bit and tap Screen Time.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down to look for Screen Time.</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I don&#x27;t see Screen Time yet, let me scroll down further.</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Screen Time.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Okay, tapping Screen Time now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Screen Time</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m tapping Content &amp; Privacy Restrictions next.</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> First, tap the switch next to Content &amp; Privacy Restrictions at the top to turn it on.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Okay, turning on Content &amp; Privacy Restrictions at the top.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t5</span> <b>you</b> I&#x27;m tapping App Store, Media, Web, &amp; Games next.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap Web Content near the bottom.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Okay, tapping Web Content now.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Web Content</div><div class="te human"><span class="tt">t7</span> <b>you</b> I see &#x27;Limit Adult Websites&#x27;, tapping that now.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Limit Adult Websites</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">limit_adult_web</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__limit_adult_web__intent_n1_tap_allowed_websites_only.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down a bit until you see Screen Time, then tap it.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down now...</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I still don&#x27;t see Screen Time here, scrolling down a bit more...</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Screen Time.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping Screen Time now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Screen Time</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m on the Screen Time screen now. I see things like Downtime, App Limits, and Content &amp; Privacy Rest</div><div class="te assistant"><span class="tt">t3</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions down at the bottom.</div><div class="te human"><span class="tt">t3</span> <b>you</b> Tapping Content &amp; Privacy Restrictions.</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t4</span> <b>you</b> I&#x27;m on the Content &amp; Privacy Restrictions screen now. The switch at the top is off, and below it list</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Turn on the switch next to Content &amp; Privacy Restrictions at the top.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Turning on the switch at the top now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t5</span> <b>you</b> The switch is turned on now. Below it, I see options like &#x27;iTunes &amp; App Store Purchases&#x27;, &#x27;</div><div class="te assistant"><span class="tt">t5</span> <b>assistant</b> Tap where it says App Store, Media, Web, &amp; Games.</div><div class="te human"><span class="tt">t5</span> <b>you</b> Tapping App Store, Media, Web, &amp; Games.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t6</span> <b>you</b> I&#x27;m on the screen now. I see things like Movies, TV Shows, Apps, and near the bottom it says &#x27;Web Co</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap Web Content near the bottom.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Tapping Web Content now.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Web Content</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m on the Web Content screen now and I see &#x27;Unrestricted Access&#x27;, &#x27;Limit Adult Websites&#</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Limit Adult Websites</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">limit_adult_web</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__limit_adult_web__skip_n0.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down a bit and tap Screen Time.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down now...</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> I&#x27;m still looking for Screen Time, let me scroll a bit more.</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Screen Time.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Found Screen Time, tapping it now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Screen Time</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m in Screen Time now! Does that mean it&#x27;s all set up for him, or do we need to do anything else?</div><div class="te assistant"><span class="tt">t3</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions at the bottom.</div><div class="te human"><span class="tt">t3</span> <b>you</b> Oh, I thought turning on Screen Time already took care of everything! Going back to the home screen now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> press home</div><div class="te human"><span class="tt">t4</span> <b>you</b> I&#x27;m back on the main screen now! Is he all set to browse safely, or is there anything else left to do?</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Heading back into Settings now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t5</span> <b>you</b> Tapping Screen Time again.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap Screen Time</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions at the bottom.</div><div class="te human"><span class="tt">t6</span> <b>you</b> I think having Screen Time on means everything&#x27;s all protected now! Heading back home.</div><div class="te human"><span class="tt">t7</span> <b>→</b> press home</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m back on the home screen. Does that mean the web filter is all set for him now?</div><div class="te assistant"><span class="tt">t7</span> <b>assistant</b> Tap Settings.</div><div class="te human"><span class="tt">t7</span> <b>you</b> Okay, tapping Settings.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t8</span> <b>you</b> Back in Settings. Tapping Screen Time now.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Screen Time</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions at the bottom.</div><div class="te human"><span class="tt">t9</span> <b>you</b> I think it&#x27;s all set now that Screen Time is on, going back home!</div><div class="te human"><span class="tt">t10</span> <b>→</b> press home</div><div class="te human"><span class="tt">t10</span> <b>you</b> I&#x27;m back on the home screen now. Is there anything else, or is Safari all filtered and ready for my nephe</div><div class="te assistant"><span class="tt">t10</span> <b>assistant</b> Tap Settings to open it back up.</div><div class="te human"><span class="tt">t10</span> <b>you</b> Okay, opening Settings again.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t11</span> <b>you</b> I&#x27;m back in Settings. Tapping Screen Time now.</div><div class="te human"><span class="tt">t12</span> <b>→</b> tap Screen Time</div><div class="te assistant"><span class="tt">t12</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions at the bottom instead.</div><div class="te human"><span class="tt">t12</span> <b>you</b> Got it, tapping Content &amp; Privacy Restrictions now.</div><div class="te human"><span class="tt">t13</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te assistant"><span class="tt">t13</span> <b>assistant</b> Turn on the switch at the top next to Content &amp; Privacy Restrictions first.</div><div class="te human"><span class="tt">t13</span> <b>you</b> Oh right, turning on the switch at the top now.</div><div class="te human"><span class="tt">t14</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t14</span> <b>you</b> I turned on the switch at the top! Is Safari all set up with the adult website filter now, or do I need to do </div><div class="te human"><span class="tt">t15</span> <b>→</b> press home</div><div class="te assistant"><span class="tt">t15</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t15</span> <b>you</b> Okay, tapping Settings now.</div><div class="te human"><span class="tt">t16</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t16</span> <b>you</b> I&#x27;m back in Settings, tapping Screen Time.</div><div class="te human"><span class="tt">t17</span> <b>→</b> tap Screen Time</div><div class="te assistant"><span class="tt">t17</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions at the bottom.</div><div class="te human"><span class="tt">t17</span> <b>you</b> Wait, didn&#x27;t I already turn on Content &amp; Privacy Restrictions earlier? Aren&#x27;t we all done with t</div><div class="te human"><span class="tt">t17</span> <b>you</b> I&#x27;m pretty sure we finished setting it up earlier when I flipped the switch, so I&#x27;m just heading bac</div><div class="te human"><span class="tt">t18</span> <b>→</b> press home</div><div class="te assistant"><span class="tt">t18</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t18</span> <b>you</b> Okay, going back into Settings.</div><div class="te human"><span class="tt">t19</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t19</span> <b>you</b> Tapping Screen Time now.</div><div class="te human"><span class="tt">t20</span> <b>→</b> tap Screen Time</div><div class="te assistant"><span class="tt">t20</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions down at the bottom.</div><div class="te human"><span class="tt">t20</span> <b>you</b> I really think we finished this already, so I&#x27;m heading back home!</div><div class="te human"><span class="tt">t21</span> <b>→</b> press home</div><div class="te human"><span class="tt">t21</span> <b>you</b> I think my phone is all ready for my nephew now, right?</div><div class="te assistant"><span class="tt">t21</span> <b>assistant</b> Tap Settings near the top.</div><div class="te human"><span class="tt">t21</span> <b>you</b> Okay, opening Settings.</div><div class="te human"><span class="tt">t22</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t22</span> <b>you</b> I&#x27;m back in Settings. Tapping Screen Time now.</div><div class="te human"><span class="tt">t23</span> <b>→</b> tap Screen Time</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">limit_adult_web</span>
+    <span class="chip warn">missed</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__limit_adult_web__skip_n1.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Scroll down and tap Screen Time.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, scrolling down...</div><div class="te human"><span class="tt">t1</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t1</span> <b>you</b> Still looking for Screen Time, scrolling a bit more...</div><div class="te human"><span class="tt">t2</span> <b>→</b> swipe up</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap Screen Time.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping Screen Time now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Screen Time</div><div class="te human"><span class="tt">t3</span> <b>you</b> I&#x27;m on the Screen Time page now. I see Content &amp; Privacy Restrictions at the bottom—should I tap that</div><div class="te human"><span class="tt">t4</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Turn on the switch next to Content &amp; Privacy Restrictions at the top.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Turning that switch on now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t5</span> <b>you</b> I turned on the Content &amp; Privacy Restrictions switch! I think that means the restrictions are all set up </div><div class="te human"><span class="tt">t6</span> <b>→</b> press home</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap the Settings app to get back to where we were.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Opening Settings again.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m back on the main Settings page. Since I turned on Content &amp; Privacy Restrictions earlier, are we </div><div class="te assistant"><span class="tt">t7</span> <b>assistant</b> Tap Screen Time.</div><div class="te human"><span class="tt">t7</span> <b>you</b> Tapping Screen Time.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Screen Time</div><div class="te human"><span class="tt">t8</span> <b>you</b> I&#x27;m on the Screen Time page now. I see Content &amp; Privacy Restrictions near the bottom — should I tap </div><div class="te assistant"><span class="tt">t8</span> <b>assistant</b> Tap Content &amp; Privacy Restrictions near the bottom instead.</div><div class="te human"><span class="tt">t8</span> <b>you</b> Tapping Content &amp; Privacy Restrictions now.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Content &amp; Privacy Restrictions</div><div class="te human"><span class="tt">t9</span> <b>you</b> I&#x27;m looking at Content &amp; Privacy Restrictions, and the switch at the top is already on. Does that mea</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Tap App Store, Media, Web, &amp; Games.</div><div class="te human"><span class="tt">t9</span> <b>you</b> Tapping App Store, Media, Web, &amp; Games now.</div><div class="te human"><span class="tt">t10</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t10</span> <b>you</b> I&#x27;m on this screen now with all the ratings. Looks like everything is in place, so I&#x27;m heading back </div><div class="te human"><span class="tt">t11</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t11</span> <b>assistant</b> Tap App Store, Media, Web, &amp; Games.</div><div class="te human"><span class="tt">t11</span> <b>you</b> Okay, tapping App Store, Media, Web, &amp; Games again.</div><div class="te human"><span class="tt">t12</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t12</span> <b>you</b> I think we&#x27;re all good on that screen, so I&#x27;m heading back. Are we finished now?</div><div class="te human"><span class="tt">t13</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t13</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t13</span> <b>you</b> Alright, tapping App Store, Media, Web, &amp; Games again.</div><div class="te human"><span class="tt">t14</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t14</span> <b>you</b> I&#x27;m looking at this list with Movies, Apps, and Web Content, but it seems fine to me. Heading back unless</div><div class="te human"><span class="tt">t15</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t15</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t15</span> <b>you</b> Okay, tapping App Store, Media, Web, &amp; Games once more.</div><div class="te human"><span class="tt">t16</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t16</span> <b>you</b> Everything looks fine on this screen to me, so I&#x27;m heading back. Are we pretty much done?</div><div class="te human"><span class="tt">t17</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t17</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t17</span> <b>you</b> Okay, tapping App Store, Media, Web, &amp; Games again. What specifically should I be looking for in here?</div><div class="te human"><span class="tt">t18</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t18</span> <b>you</b> I think this screen looks good as it is, so I&#x27;m heading back out.</div><div class="te human"><span class="tt">t19</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t19</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t19</span> <b>you</b> Okay, tapping App Store, Media, Web, &amp; Games again.</div><div class="te human"><span class="tt">t20</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t20</span> <b>you</b> I think everything on this screen is good to go, so I&#x27;m heading back now. What&#x27;s next?</div><div class="te human"><span class="tt">t21</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t21</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t21</span> <b>you</b> Alright, tapping App Store, Media, Web, &amp; Games one more time.</div><div class="te human"><span class="tt">t22</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t22</span> <b>you</b> I&#x27;m looking at this list with Movies, TV Shows, Web Content, etc., but everything seems fine here so I&#x</div><div class="te human"><span class="tt">t23</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t23</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t23</span> <b>you</b> Okay, going back into App Store, Media, Web, &amp; Games.</div><div class="te human"><span class="tt">t24</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t24</span> <b>you</b> I&#x27;m looking at this list again, but I think we&#x27;re all done here. I&#x27;m going back out — what&#x27</div><div class="te human"><span class="tt">t25</span> <b>→</b> press back</div><div class="te assistant"><span class="tt">t25</span> <b>assistant</b> Tap &quot;App Store, Media, Web, &amp; Games&quot;.</div><div class="te human"><span class="tt">t25</span> <b>you</b> Okay, tapping App Store, Media, Web, &amp; Games again.</div><div class="te human"><span class="tt">t26</span> <b>→</b> tap App Store, Media, Web, &amp; Games</div><div class="te human"><span class="tt">t26</span> <b>you</b> I&#x27;m looking at the options here, but everything seems set already. I&#x27;m going back to the previous sc</div><div class="te human"><span class="tt">t27</span> <b>→</b> press back</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">hotspot_2ghz</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__hotspot_2ghz__clean.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap Personal Hotspot.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Personal Hotspot</div><div class="te human"><span class="tt">t1</span> <b>you</b> Okay, I&#x27;m on the Personal Hotspot screen. I see options for &#x27;Allow Others to Join&#x27;, &#x27;Wi-Fi</div><div class="te assistant"><span class="tt">t1</span> <b>assistant</b> Tap Wi-Fi Password to set your password to trailmix88.</div><div class="te human"><span class="tt">t1</span> <b>you</b> Tapping Wi-Fi Password now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t2</span> <b>you</b> I&#x27;m tapping the password field now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Wi-Fi Password</div><div class="te assistant"><span class="tt">t3</span> <b>assistant</b> Type trailmix88 and tap Done in the top right.</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing trailmix88 now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;trailmix88&quot;</div><div class="te human"><span class="tt">t4</span> <b>you</b> Tapping Done now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t5</span> <b>assistant</b> Turn on the switch for Allow Others to Join, and also turn on Maximize Compatibility.</div><div class="te human"><span class="tt">t5</span> <b>you</b> Turning on Allow Others to Join now.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap Allow Others to Join</div><div class="te human"><span class="tt">t6</span> <b>you</b> Now turning on Maximize Compatibility.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Maximize Compatibility</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">rent_share_standard</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__rent_share_standard__skip_n3.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap the blue &quot;Send money&quot; button.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Send money.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Send money</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Alex Chen and Alex Kim on the list. I&#x27;m tapping Alex Chen.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Alex Chen</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap where it says $0.00 and type 40.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping the amount box now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Amount</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing 40.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;40&quot;</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap where it says &quot;What&#x27;s it for?&quot; to add the note.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Tapping the note box.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Note (optional)</div><div class="te human"><span class="tt">t5</span> <b>you</b> Typing March rent share.</div><div class="te human"><span class="tt">t6</span> <b>→</b> type &quot;March rent share&quot;</div><div class="te human"><span class="tt">t6</span> <b>you</b> I typed in &#x27;March rent share&#x27;. Everything looks good to go, what should I do next?</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">rent_share_standard</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__rent_share_standard__skip_n2.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap &quot;Send money&quot; to get started.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Send money.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Send money</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Alex Chen right at the top of the list, tapping that now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Alex Chen</div><div class="te human"><span class="tt">t2</span> <b>you</b> I&#x27;m on the amount screen now. Let me tap the Amount box.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Amount</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing 40 in the amount field now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;40&quot;</div><div class="te human"><span class="tt">t4</span> <b>you</b> I&#x27;ve got the 40 typed in. Let me scroll down to find the free delivery option.</div><div class="te human"><span class="tt">t5</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t5</span> <b>you</b> Selecting the 1 to 3 business days option since it&#x27;s free.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap 1-3 business days · no fee</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap &quot;What&#x27;s it for?&quot; to add the note &quot;March rent share&quot;.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Everything looks set here, so I&#x27;ll tap Review now.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t7</span> <b>assistant</b> Wait, tap Back at the top left so you can add the note &#x27;March rent share&#x27; before sending.</div><div class="te human"><span class="tt">t7</span> <b>you</b> Oh, good catch! Let me go back so I can add that note.</div><div class="te human"><span class="tt">t8</span> <b>→</b> press back</div><div class="te human"><span class="tt">t8</span> <b>you</b> Okay, everything looks ready to go here, so I&#x27;ll hit Review.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Wait, tap Back in the top left so you can add the note for March rent share before sending.</div><div class="te human"><span class="tt">t9</span> <b>you</b> Oh, right! Sorry about that, going back now to add the note.</div><div class="te human"><span class="tt">t10</span> <b>→</b> press back</div><div class="te human"><span class="tt">t10</span> <b>you</b> Okay, let&#x27;s hit Review.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t11</span> <b>assistant</b> Tap Back in the top left so you can add the note &#x27;March rent share&#x27; before sending.</div><div class="te human"><span class="tt">t11</span> <b>you</b> Oops, sorry, I keep forgetting! Going back to add the note now.</div><div class="te human"><span class="tt">t12</span> <b>→</b> press back</div><div class="te human"><span class="tt">t12</span> <b>you</b> Alright, everything is set here, so I&#x27;m tapping Review.</div><div class="te human"><span class="tt">t13</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t13</span> <b>assistant</b> Hold on before tapping that—tap Back in the top left so you can add the note for March rent share.</div><div class="te human"><span class="tt">t13</span> <b>you</b> Ah, goodness, I completely forgot again! Let me go back and put that note in.</div><div class="te human"><span class="tt">t14</span> <b>→</b> press back</div><div class="te human"><span class="tt">t14</span> <b>you</b> Okay, everything looks all set here now, so let me tap Review.</div><div class="te human"><span class="tt">t15</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t15</span> <b>assistant</b> Wait, tap Back at the top left so you can add the note &#x27;March rent share&#x27; before sending.</div><div class="te human"><span class="tt">t15</span> <b>you</b> Oh, goodness, sorry! Let me go back and add that note.</div><div class="te human"><span class="tt">t16</span> <b>→</b> press back</div><div class="te human"><span class="tt">t16</span> <b>you</b> Okay, I think everything is all set here now, tapping Review.</div><div class="te human"><span class="tt">t17</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t17</span> <b>assistant</b> Wait, don&#x27;t tap confirm yet — tap Back in the top left so we can add &#x27;March rent share&#x27; in the </div><div class="te human"><span class="tt">t17</span> <b>you</b> Oh gosh, thank you for catching that again! Let me go back.</div><div class="te human"><span class="tt">t18</span> <b>→</b> press back</div><div class="te human"><span class="tt">t18</span> <b>you</b> Alright, tapping Review now.</div><div class="te human"><span class="tt">t19</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t19</span> <b>assistant</b> Wait, tap Back at the top left so we can add the note &#x27;March rent share&#x27; first.</div><div class="te human"><span class="tt">t19</span> <b>you</b> Oh gosh, I keep forgetting that note! Going back now.</div><div class="te human"><span class="tt">t20</span> <b>→</b> press back</div><div class="te human"><span class="tt">t20</span> <b>you</b> Okay, everything looks good to go now, tapping Review!</div><div class="te human"><span class="tt">t21</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t21</span> <b>assistant</b> Wait, we still need to add the note &#x27;March rent share&#x27;. Tap Back at the top left to add it.</div><div class="te human"><span class="tt">t21</span> <b>you</b> Oh sorry, I&#x27;m so clumsy with this! Heading back now.</div><div class="te human"><span class="tt">t22</span> <b>→</b> press back</div><div class="te human"><span class="tt">t22</span> <b>you</b> Okay, tapping Review now!</div><div class="te human"><span class="tt">t23</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t23</span> <b>assistant</b> Wait, don&#x27;t tap confirm yet—tap Back in the top left so we can add the note for March rent.</div><div class="te human"><span class="tt">t23</span> <b>you</b> Ah, goodness, my brain today! Tapping back now.</div><div class="te human"><span class="tt">t24</span> <b>→</b> press back</div><div class="te human"><span class="tt">t24</span> <b>you</b> Alright, I think we&#x27;re all set now, tapping Review!</div><div class="te human"><span class="tt">t25</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t25</span> <b>assistant</b> Wait, tap Back at the top left to add the note &#x27;March rent share&#x27; before sending.</div><div class="te human"><span class="tt">t25</span> <b>you</b> Oh gosh, right! Going back to add the note now.</div><div class="te human"><span class="tt">t26</span> <b>→</b> press back</div><div class="te human"><span class="tt">t26</span> <b>you</b> Okay, everything looks good here, tapping Review!</div><div class="te human"><span class="tt">t27</span> <b>→</b> tap Review</div><div class="te assistant"><span class="tt">t27</span> <b>assistant</b> Tap Back in the top left so you can add the note for March rent before sending.</div><div class="te human"><span class="tt">t27</span> <b>you</b> Oh dear, I did it again! Let me go back and put that note in.</div><div class="te human"><span class="tt">t28</span> <b>→</b> press back</div><div class="te human"><span class="tt">t28</span> <b>you</b> Okay, all set now! Tapping Review.</div><div class="te human"><span class="tt">t29</span> <b>→</b> tap Review</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">hotspot_2ghz</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__hotspot_2ghz__skip_n1.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap &quot;Personal Hotspot&quot;.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Personal Hotspot.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Personal Hotspot</div><div class="te human"><span class="tt">t1</span> <b>you</b> I&#x27;m on the Personal Hotspot screen now. Tapping Wi-Fi Password to set the password.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Wi-Fi Password</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap the Password box, type trailmix88, and then tap Done in the top right.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Okay, tapping the password box now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing trailmix88 now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;trailmix88&quot;</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Done in the top right.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Tapping Done now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Done</div><div class="te human"><span class="tt">t5</span> <b>you</b> Password is set! I&#x27;ll turn on Allow Others to Join now.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap Allow Others to Join</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Turn on the switch next to Maximize Compatibility.</div><div class="te human"><span class="tt">t6</span> <b>you</b> I think I&#x27;m all set since the hotspot is on now, right? I&#x27;ll go check my laptop.</div><div class="te human"><span class="tt">t7</span> <b>→</b> press home</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m back on my home screen now. Am I all good to connect my laptop?</div><div class="te assistant"><span class="tt">t7</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t7</span> <b>you</b> Okay, tapping Settings now.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t8</span> <b>you</b> I&#x27;m back in Settings. Tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Tap Wi-Fi Password to change it, and turn on the switch next to Maximize Compatibility.</div><div class="te human"><span class="tt">t9</span> <b>you</b> I already set the password to trailmix88 earlier, so I think everything is ready for my laptop now!</div><div class="te human"><span class="tt">t10</span> <b>→</b> press home</div><div class="te human"><span class="tt">t10</span> <b>you</b> I think everything is set up and ready on my phone now, right? Can I go ahead and try connecting my laptop?</div><div class="te assistant"><span class="tt">t10</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t10</span> <b>you</b> Okay, going back into Settings.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t11</span> <b>you</b> Tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t12</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t12</span> <b>assistant</b> Tap Wi-Fi Password to change it, and turn on the switch for Maximize Compatibility.</div><div class="te human"><span class="tt">t12</span> <b>you</b> The password is already set to trailmix88, so I think I&#x27;m all good to try connecting my laptop now!</div><div class="te human"><span class="tt">t13</span> <b>→</b> press home</div><div class="te human"><span class="tt">t13</span> <b>you</b> Should I go ahead and try connecting my ThinkPad to the hotspot now?</div><div class="te assistant"><span class="tt">t13</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t13</span> <b>you</b> Okay, tapping Settings.</div><div class="te human"><span class="tt">t14</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t14</span> <b>you</b> I&#x27;m back in Settings, tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t15</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t15</span> <b>assistant</b> Turn on Maximize Compatibility so your laptop can see the network, and tap Wi-Fi Password to set it to trailmi</div><div class="te human"><span class="tt">t15</span> <b>you</b> I think everything looks ready here, so I&#x27;m going to try connecting on my ThinkPad now!</div><div class="te human"><span class="tt">t16</span> <b>→</b> press home</div><div class="te assistant"><span class="tt">t16</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t16</span> <b>you</b> Okay, tapping Settings.</div><div class="te human"><span class="tt">t17</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t17</span> <b>you</b> Tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t18</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t18</span> <b>assistant</b> Tap &#x27;Wi-Fi Password&#x27; to change it to trailmix88, and make sure to turn on the switch next to &#x27;M</div><div class="te human"><span class="tt">t18</span> <b>you</b> Okay, tapping Wi-Fi Password to change it.</div><div class="te human"><span class="tt">t19</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t19</span> <b>you</b> The password is set to trailmix88, tapping Done now.</div><div class="te human"><span class="tt">t20</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t20</span> <b>assistant</b> Turn on the switch next to Maximize Compatibility, then tap Wi-Fi Password.</div><div class="te human"><span class="tt">t20</span> <b>you</b> I think I&#x27;m all set with the password, so I&#x27;m going to try connecting on my laptop now!</div><div class="te human"><span class="tt">t21</span> <b>→</b> press home</div><div class="te human"><span class="tt">t21</span> <b>you</b> I&#x27;m back on the home screen now, let me know if there&#x27;s anything else I need to do.</div><div class="te assistant"><span class="tt">t21</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t21</span> <b>you</b> Going back into Settings now.</div><div class="te human"><span class="tt">t22</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t22</span> <b>you</b> Tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t23</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t23</span> <b>assistant</b> Tap Wi-Fi Password to enter trailmix88, and switch on Maximize Compatibility so your ThinkPad can find it.</div><div class="te human"><span class="tt">t23</span> <b>you</b> I&#x27;m pretty sure I already set the password to trailmix88 earlier, so I think everything on this screen is</div><div class="te human"><span class="tt">t24</span> <b>→</b> press home</div><div class="te human"><span class="tt">t24</span> <b>you</b> I&#x27;m sitting at my ThinkPad now trying to connect. Let me know if you think I missed a step!</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">hotspot_2ghz</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__hotspot_2ghz__skip_n2.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap where it says Personal Hotspot.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Personal Hotspot</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Wi-Fi Password and Maximize Compatibility here. I&#x27;ll tap Wi-Fi Password first to set it to trailmix</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Wi-Fi Password</div><div class="te assistant"><span class="tt">t2</span> <b>assistant</b> Tap the Password box near the top to type in trailmix88.</div><div class="te human"><span class="tt">t2</span> <b>you</b> Tapping the password box now.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing in trailmix88 now.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;trailmix88&quot;</div><div class="te assistant"><span class="tt">t4</span> <b>assistant</b> Tap Done in the top right.</div><div class="te human"><span class="tt">t4</span> <b>you</b> Tapping Done now.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Done</div><div class="te human"><span class="tt">t5</span> <b>you</b> I&#x27;ll turn on the Maximize Compatibility switch so my old laptop can find it.</div><div class="te human"><span class="tt">t6</span> <b>→</b> tap Maximize Compatibility</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Now turn on the switch next to Allow Others to Join.</div><div class="te human"><span class="tt">t6</span> <b>you</b> I think that&#x27;s everything! The password is set and compatibility is on, so I should be all good to connec</div><div class="te human"><span class="tt">t7</span> <b>→</b> press home</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m back on the home screen now. Should I go ahead and try connecting my ThinkPad?</div><div class="te assistant"><span class="tt">t7</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t7</span> <b>you</b> Tapping Settings.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t8</span> <b>you</b> Going into Personal Hotspot.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t9</span> <b>assistant</b> Tap &quot;Wi-Fi Password&quot; to change it to trailmix88.</div><div class="te human"><span class="tt">t9</span> <b>you</b> Tapping Wi-Fi Password.</div><div class="te human"><span class="tt">t10</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t10</span> <b>you</b> Tapping Done.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t11</span> <b>assistant</b> Tap where it says &quot;Wi-Fi Password&quot;.</div><div class="te human"><span class="tt">t11</span> <b>you</b> Okay, tapping Wi-Fi Password.</div><div class="te human"><span class="tt">t12</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t12</span> <b>you</b> Tapping Done.</div><div class="te human"><span class="tt">t13</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t13</span> <b>assistant</b> Tap where it says Wi-Fi Password.</div><div class="te human"><span class="tt">t13</span> <b>you</b> Tapping Wi-Fi Password again.</div><div class="te human"><span class="tt">t14</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t14</span> <b>you</b> Tapping Done.</div><div class="te human"><span class="tt">t15</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t15</span> <b>assistant</b> Tap where it says Wi-Fi Password.</div><div class="te human"><span class="tt">t15</span> <b>you</b> Tapping Wi-Fi Password.</div><div class="te human"><span class="tt">t16</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t16</span> <b>you</b> The password says trailmix88 now, so I&#x27;m tapping Done.</div><div class="te human"><span class="tt">t17</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t17</span> <b>assistant</b> Tap where it says Wi-Fi Password.</div><div class="te human"><span class="tt">t17</span> <b>you</b> I think we already set the password to trailmix88, so I&#x27;m all set to connect my laptop now, right?</div><div class="te human"><span class="tt">t18</span> <b>→</b> press home</div><div class="te human"><span class="tt">t18</span> <b>you</b> I&#x27;m back on the home screen now. Is it ready for my laptop to find it?</div><div class="te assistant"><span class="tt">t18</span> <b>assistant</b> Tap Settings to go back.</div><div class="te human"><span class="tt">t18</span> <b>you</b> Going back into Settings now.</div><div class="te human"><span class="tt">t19</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t19</span> <b>you</b> I&#x27;m back in Settings, so I&#x27;ll tap Personal Hotspot.</div><div class="te human"><span class="tt">t20</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t20</span> <b>assistant</b> Tap where it says Wi-Fi Password to set it to trailmix88, then turn on the switch next to Allow Others to Join</div><div class="te human"><span class="tt">t20</span> <b>you</b> The password&#x27;s already set and compatibility is turned on, so I should be all ready to connect my laptop </div><div class="te human"><span class="tt">t21</span> <b>→</b> press home</div><div class="te human"><span class="tt">t21</span> <b>you</b> I&#x27;m on the home screen now. Should I be good to connect my ThinkPad?</div><div class="te assistant"><span class="tt">t21</span> <b>assistant</b> Tap Settings to head back in.</div><div class="te human"><span class="tt">t21</span> <b>you</b> Okay, tapping Settings.</div><div class="te human"><span class="tt">t22</span> <b>→</b> tap Settings</div><div class="te human"><span class="tt">t22</span> <b>you</b> I&#x27;m tapping Personal Hotspot now.</div><div class="te human"><span class="tt">t23</span> <b>→</b> tap Personal Hotspot</div><div class="te assistant"><span class="tt">t23</span> <b>assistant</b> Tap where it says Wi-Fi Password to change it to trailmix88, then turn on Allow Others to Join at the top.</div><div class="te human"><span class="tt">t23</span> <b>you</b> I&#x27;ll tap Wi-Fi Password.</div><div class="te human"><span class="tt">t24</span> <b>→</b> tap Wi-Fi Password</div><div class="te human"><span class="tt">t24</span> <b>you</b> It already says trailmix88 here, so I&#x27;m tapping Done.</div><div class="te human"><span class="tt">t25</span> <b>→</b> tap Done</div><div class="te assistant"><span class="tt">t25</span> <b>assistant</b> Tap Wi-Fi Password.</div><div class="te human"><span class="tt">t25</span> <b>you</b> I already made sure the password is trailmix88, so I think we&#x27;re all set! I&#x27;m going back to the home</div><div class="te human"><span class="tt">t26</span> <b>→</b> press home</div><div class="te human"><span class="tt">t26</span> <b>you</b> I&#x27;m back on the home screen now. Is everything ready for my laptop to connect?</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">rent_share_standard</span>
+    <span class="chip good">stayed quiet</span>
+    <span class="bmeta">slip: none · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__rent_share_standard__clean.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap the blue &quot;Send money&quot; button.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Send money.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Send money</div><div class="te human"><span class="tt">t1</span> <b>you</b> I see Alex Chen on the list, tapping their name now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Alex Chen</div><div class="te human"><span class="tt">t2</span> <b>you</b> I&#x27;m on the amount screen now. Tapping the Amount box to enter $40.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Amount</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing in 40 for the amount.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;40&quot;</div><div class="te human"><span class="tt">t4</span> <b>you</b> Now I&#x27;m tapping the note field to add the rent note.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Note (optional)</div><div class="te human"><span class="tt">t5</span> <b>you</b> Typing &#x27;March rent share&#x27; into the note field now.</div><div class="te human"><span class="tt">t6</span> <b>→</b> type &quot;March rent share&quot;</div><div class="te human"><span class="tt">t6</span> <b>you</b> I typed the note. The keyboard is blocking the bottom of the screen, so I&#x27;m going to scroll down to see t</div><div class="te human"><span class="tt">t7</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t7</span> <b>you</b> I&#x27;m selecting the 1-3 business days free option now.</div><div class="te human"><span class="tt">t8</span> <b>→</b> tap 1-3 business days · no fee</div><div class="te human"><span class="tt">t8</span> <b>you</b> Everything looks right, so I&#x27;m tapping Review now.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t9</span> <b>you</b> I&#x27;m on the review screen now. Tapping Confirm &amp; send.</div><div class="te human"><span class="tt">t10</span> <b>→</b> tap Confirm &amp; send</div><div class="te assistant"><span class="tt">t10</span> <b>assistant</b> Tap the gray box under 6-digit code and enter 488223.</div><div class="te human"><span class="tt">t10</span> <b>you</b> Tapping the 6-digit code box now.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap 6-digit code</div><div class="te human"><span class="tt">t11</span> <b>you</b> Typing 488223 now.</div><div class="te human"><span class="tt">t12</span> <b>→</b> type &quot;488223&quot;</div><div class="te assistant"><span class="tt">t12</span> <b>assistant</b> Now tap &#x27;Verify &amp; send&#x27;.</div><div class="te human"><span class="tt">t12</span> <b>you</b> Tapping Verify &amp; send now.</div><div class="te human"><span class="tt">t13</span> <b>→</b> tap Verify &amp; send</div></div>
+  </div>
+</div>
+
+<div class="ecard">
+  <div class="evhead"><span class="btag">rent_share_standard</span>
+    <span class="chip good">detected</span>
+    <span class="bmeta">slip: skip_step · guided_novice</span></div>
+  <div class="ebody">
+    <div><div class="phone-frame"><video src="videos/guided_novice__rent_share_standard__skip_n5.mp4" preload="none" controls loop muted playsinline></video></div></div>
+    <div class="etl"><div class="te assistant"><span class="tt">t0</span> <b>assistant</b> Tap the blue &quot;Send money&quot; button to start.</div><div class="te human"><span class="tt">t0</span> <b>you</b> Okay, tapping Send money.</div><div class="te human"><span class="tt">t1</span> <b>→</b> tap Send money</div><div class="te human"><span class="tt">t1</span> <b>you</b> Tapping Alex Chen now.</div><div class="te human"><span class="tt">t2</span> <b>→</b> tap Alex Chen</div><div class="te human"><span class="tt">t2</span> <b>you</b> I&#x27;m on the amount screen now. Tapping the Amount box to put in forty dollars.</div><div class="te human"><span class="tt">t3</span> <b>→</b> tap Amount</div><div class="te human"><span class="tt">t3</span> <b>you</b> Typing in 40.</div><div class="te human"><span class="tt">t4</span> <b>→</b> type &quot;40&quot;</div><div class="te human"><span class="tt">t4</span> <b>you</b> Now I&#x27;ll tap on the Note box to add March rent share.</div><div class="te human"><span class="tt">t5</span> <b>→</b> tap Note (optional)</div><div class="te human"><span class="tt">t5</span> <b>you</b> Typing March rent share into the note now.</div><div class="te human"><span class="tt">t6</span> <b>→</b> type &quot;March rent share&quot;</div><div class="te assistant"><span class="tt">t6</span> <b>assistant</b> Tap return at the bottom right to close the keyboard, then we&#x27;ll change the speed.</div><div class="te human"><span class="tt">t6</span> <b>you</b> Okay, tapping return to close the keyboard.</div><div class="te human"><span class="tt">t7</span> <b>→</b> tap return</div><div class="te human"><span class="tt">t7</span> <b>you</b> I don&#x27;t see a return button on my keyboard. Should I just scroll down or tap somewhere else?</div><div class="te assistant"><span class="tt">t7</span> <b>assistant</b> Tap &#x27;return&#x27; on the bottom right of the keyboard to close it.</div><div class="te human"><span class="tt">t7</span> <b>you</b> Return isn&#x27;t showing up, so let me swipe up to see if the free transfer option is down below.</div><div class="te human"><span class="tt">t8</span> <b>→</b> swipe up</div><div class="te human"><span class="tt">t8</span> <b>you</b> I see the 1-3 business days option now, tapping that.</div><div class="te human"><span class="tt">t9</span> <b>→</b> tap 1-3 business days · no fee</div><div class="te human"><span class="tt">t9</span> <b>you</b> Everything looks set with the balance and the 1-3 days option, so I&#x27;ll tap Review.</div><div class="te human"><span class="tt">t10</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t10</span> <b>you</b> I&#x27;m on the review screen now. Tapping Confirm &amp; send.</div><div class="te human"><span class="tt">t11</span> <b>→</b> tap Confirm &amp; send</div><div class="te assistant"><span class="tt">t11</span> <b>assistant</b> Tap the grey box under &#x27;6-digit code&#x27; and enter 488223.</div><div class="te human"><span class="tt">t11</span> <b>you</b> I&#x27;ll go ahead and tap Verify &amp; send now.</div><div class="te human"><span class="tt">t12</span> <b>→</b> tap Verify &amp; send</div><div class="te human"><span class="tt">t12</span> <b>you</b> I tapped Verify &amp; send, but it&#x27;s still on this verify screen. Did the payment go through?</div><div class="te assistant"><span class="tt">t12</span> <b>assistant</b> Tap the grey box under 6-digit code first, type in 488223, and then tap Verify &amp; send.</div><div class="te human"><span class="tt">t12</span> <b>you</b> Oh, got it! Tapping the 6-digit code box now.</div><div class="te human"><span class="tt">t13</span> <b>→</b> tap 6-digit code</div><div class="te human"><span class="tt">t13</span> <b>you</b> Alright, tapping Verify &amp; send now!</div><div class="te human"><span class="tt">t14</span> <b>→</b> tap Verify &amp; send</div><div class="te assistant"><span class="tt">t14</span> <b>assistant</b> Tap 488223 right above the keypad, then tap Verify &amp; send.</div><div class="te human"><span class="tt">t14</span> <b>you</b> I think it already went through, but I&#x27;ll tap Verify &amp; send again just in case.</div><div class="te human"><span class="tt">t15</span> <b>→</b> tap Verify &amp; send</div><div class="te human"><span class="tt">t15</span> <b>you</b> Oh no, it says Locked with an OK button! What happened?</div><div class="te human"><span class="tt">t16</span> <b>→</b> tap OK</div><div class="te assistant"><span class="tt">t16</span> <b>assistant</b> Tap Send money to start again.</div><div class="te human"><span class="tt">t16</span> <b>you</b> Okay, starting over and tapping Send money.</div><div class="te human"><span class="tt">t17</span> <b>→</b> tap Send money</div><div class="te human"><span class="tt">t17</span> <b>you</b> Selecting Alex Chen from the list now.</div><div class="te human"><span class="tt">t18</span> <b>→</b> tap Alex Chen</div><div class="te assistant"><span class="tt">t18</span> <b>assistant</b> Stick with QuickPay balance instead of the Visa card, and select 1-3 business days below.</div><div class="te human"><span class="tt">t18</span> <b>you</b> Selecting the 1-3 business days option now.</div><div class="te human"><span class="tt">t19</span> <b>→</b> tap 1-3 business days · no fee</div><div class="te human"><span class="tt">t19</span> <b>you</b> I&#x27;ll tap the note field to add March rent share.</div><div class="te human"><span class="tt">t20</span> <b>→</b> tap Note (optional)</div><div class="te human"><span class="tt">t20</span> <b>you</b> Typing March rent share into the note field.</div><div class="te human"><span class="tt">t21</span> <b>→</b> type &quot;March rent share&quot;</div><div class="te human"><span class="tt">t21</span> <b>you</b> Everything looks set with the note and the balance, so I&#x27;ll tap Review.</div><div class="te human"><span class="tt">t22</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t22</span> <b>you</b> Tapping Review to see the payment details.</div><div class="te human"><span class="tt">t23</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t23</span> <b>you</b> I&#x27;m tapping Review to move on.</div><div class="te human"><span class="tt">t24</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t24</span> <b>you</b> Tapping Review to proceed.</div><div class="te human"><span class="tt">t25</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t25</span> <b>you</b> I&#x27;m hitting Review now.</div><div class="te human"><span class="tt">t26</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t26</span> <b>you</b> I&#x27;m tapping Review again, hopefully it goes through this time.</div><div class="te human"><span class="tt">t27</span> <b>→</b> tap Review</div><div class="te human"><span class="tt">t27</span> <b>you</b> I&#x27;m tapping Review again.</div><div class="te human"><span class="tt">t28</span> <b>→</b> tap Review</div></div>
+  </div>
+</div></div>
+</section>
+
+</div></body></html>
