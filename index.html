@@ -364,10 +364,10 @@ penalises false alarms and committed irreversible errors.</p>
 <div style="overflow-x:auto"><table class="cmp">
 <tr><th>contestant</th><th>detection</th><th>prevention</th><th>committed</th>
 <th>false&nbsp;alarm</th><th>nags</th><th>score</th></tr>
-<tr><td>oracle ceiling (scripted)</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>0</td><td>1.00</td></tr><tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td>0.83</td><td>0.25</td><td>0.00</td><td>0.00</td><td>25</td><td>0.83</td></tr><tr><td>gemini-3.7-flash assistant · scripted human</td><td>0.83</td><td>0.67</td><td>0.00</td><td>0.14</td><td>29</td><td>0.69</td></tr><tr><td>silent floor (scripted)</td><td>0.00</td><td>0.00</td><td>0.17</td><td>0.00</td><td>0</td><td>-0.17</td></tr>
+<tr><td>oracle ceiling (scripted)</td><td>1.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>0</td><td>1.00</td></tr><tr><td>gemini-3.7-flash assistant · scripted human</td><td>1.00</td><td>0.79</td><td>0.00</td><td>0.17</td><td>31</td><td>0.83</td></tr><tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td>0.83</td><td>0.42</td><td>0.08</td><td>0.00</td><td>30</td><td>0.75</td></tr><tr><td>silent floor (scripted)</td><td>0.00</td><td>0.00</td><td>0.10</td><td>0.00</td><td>0</td><td>-0.10</td></tr>
 </table></div>
 <h4>Two real exchanges</h4>
-<div class="tgrid"><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · roaming_off__skip_n0 · <span class="caught">caught</span></div><div class="tra"><b>assistant</b> Tap where it says Cellular.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top to turn it off.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top instead.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top instead.</div><div class="trh"><b>human</b> okay — let me fix that.</div><div class="tra"><b>assistant</b> Tap the green switch next to Data Roaming at the top instead to turn it off.</div></div><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · precise_off_weatherly__skip_n0 · <span class="missed">missed</span></div><div class="tra"><b>assistant</b> Tap the Search bar at the top and type Weatherly.</div><div class="tra"><b>assistant</b> Tap Weatherly.</div></div></div>
+<div class="tgrid"><div class="tcard"><div class="tmeta">gemini-3.7-flash assistant · scripted human · lost_phone_lockdown__wt_n6_tap_always · <span class="caught">caught</span></div><div class="tra"><b>assistant</b> Tap your name at the top to start with Advanced Data Protection.</div><div class="tra"><b>assistant</b> Tap Turn On Advanced Data Protection.</div><div class="tra"><b>assistant</b> Go back out to the main Settings menu, then tap Face ID &amp; Passcode.</div><div class="tra"><b>assistant</b> Tap Settings in the top left, then go to Face ID &amp; Passcode.</div><div class="tra"><b>assistant</b> Turn on the switch next to Stolen Device Protection at the top.</div><div class="tra"><b>assistant</b> Turn on the toggle at the top next to Stolen Device Protection.</div><div class="trh"><b>human</b> okay — let me fix that.</div></div><div class="tcard"><div class="tmeta">gemini-3.7-flash ↔ gemini-3.7-flash (full sim) · app_privacy_quarantine__skip_n5 · <span class="missed">missed</span></div><div class="tra"><b>assistant</b> Tap the search bar at the top and type TripSnap.</div><div class="trh"><b>human</b> Searching TripSnap now.</div><div class="tra"><b>assistant</b> Type TripSnap.</div><div class="trh"><b>human</b> Typing TripSnap into the search bar.</div></div></div>
 </section>
 
 
@@ -921,7 +921,7 @@ screen graph the assistant must reason about.</p>
     <div class="mirrors">Based on: Apple Support: Advanced Data Protection + Stolen Device Protection</div>
   </div>
   <div class="task-body">
-    <div class="video-col">
+    <div class="video-col"><div class="phone-frame"><video src="videos/lost_phone_lockdown.mp4" preload="none" controls loop muted playsinline></video></div>
       <div class="vcap">completion recording · one frame per action</div></div>
     <div class="dag-col"><div class="dag-title">Task DAG</div>
       <pre class="mermaid">flowchart TD
@@ -964,7 +964,7 @@ screen graph the assistant must reason about.</p>
     <div class="mirrors">Based on: Apple Support: control app location + tracking + background refresh</div>
   </div>
   <div class="task-body">
-    <div class="video-col">
+    <div class="video-col"><div class="phone-frame"><video src="videos/app_privacy_quarantine.mp4" preload="none" controls loop muted playsinline></video></div>
       <div class="vcap">completion recording · one frame per action</div></div>
     <div class="dag-col"><div class="dag-title">Task DAG</div>
       <pre class="mermaid">flowchart TD
@@ -1007,7 +1007,7 @@ screen graph the assistant must reason about.</p>
     <div class="mirrors">Based on: Apple Support: make text easier to read; reduce motion</div>
   </div>
   <div class="task-body">
-    <div class="video-col">
+    <div class="video-col"><div class="phone-frame"><video src="videos/parent_phone_readability.mp4" preload="none" controls loop muted playsinline></video></div>
       <div class="vcap">completion recording · one frame per action</div></div>
     <div class="dag-col"><div class="dag-title">Task DAG</div>
       <pre class="mermaid">flowchart TD
@@ -1041,7 +1041,7 @@ screen graph the assistant must reason about.</p>
     <div class="mirrors">Based on: Apple Support: Allow Access When Locked</div>
   </div>
   <div class="task-body">
-    <div class="video-col">
+    <div class="video-col"><div class="phone-frame"><video src="videos/lock_screen_lockdown.mp4" preload="none" controls loop muted playsinline></video></div>
       <div class="vcap">completion recording · one frame per action</div></div>
     <div class="dag-col"><div class="dag-title">Task DAG</div>
       <pre class="mermaid">flowchart TD
