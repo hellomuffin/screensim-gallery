@@ -48,7 +48,7 @@ a{color:var(--accent)}
   <p class="eyebrow">ScreenSim · multi-error assistant leaderboard</p>
   <h1>Assistants tested on the multi-error benchmark, across 3 personas</h1>
   <p class="lead">Every one of the 15 composite episodes (each carrying ≥2 injected
-  errors) is run against three personas and a roster of 6 assistants —
+  errors) is run against three personas and a roster of 8 assistants —
   hosted Gemini and GPT models plus an open-source VLM served locally on GPU —
   bracketed by a silent floor and an oracle ceiling. The harness and metrics follow
   the CookSim references; scores are means over the 15 episodes per persona.</p>
@@ -177,6 +177,21 @@ a{color:var(--accent)}
       <td class="num" style="background:hsla(23,55%,45%,0.14)">0.17</td><td class="num" style="background:hsla(17,55%,45%,0.13)">0.12</td><td class="num" style="background:hsla(17,55%,45%,0.13)">0.12</td><td class="num" style="background:hsla(23,55%,45%,0.14)">0.17</td>
       <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td>
       <td class="num">1.00</td></tr>
+<tr class="grp-first"><td rowspan="3" class="cname model">phi-3.5-vision</td>
+      <td class="pers">guided_novice</td>
+      <td class="num" style="background:hsla(19,55%,45%,0.13)">0.13</td><td class="num" style="background:hsla(122,55%,45%,0.29)">0.88</td><td class="num" style="background:hsla(23,55%,45%,0.14)">0.17</td><td class="num" style="background:hsla(16,55%,45%,0.13)">0.12</td>
+      <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(108,55%,45%,0.27)">0.77</td>
+      <td class="num">0.07</td></tr>
+<tr>
+      <td class="pers">brisk_expert</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(12,55%,45%,0.12)">0.09</td><td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td>
+      <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(110,55%,45%,0.27)">0.79</td>
+      <td class="num">0.00</td></tr>
+<tr>
+      <td class="pers">distracted_average</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(56,55%,45%,0.19)">0.40</td><td class="num" style="background:hsla(12,55%,45%,0.12)">0.09</td><td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td>
+      <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(111,55%,45%,0.27)">0.79</td>
+      <td class="num">0.27</td></tr>
 <tr class="grp-first"><td rowspan="3" class="cname model">qwen2.5-vl-32b</td>
       <td class="pers">guided_novice</td>
       <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(16,55%,45%,0.12)">0.11</td><td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td>
@@ -192,6 +207,21 @@ a{color:var(--accent)}
       <td class="num" style="background:hsla(47,55%,45%,0.17)">0.33</td><td class="num" style="background:hsla(117,55%,45%,0.28)">0.83</td><td class="num" style="background:hsla(47,55%,45%,0.17)">0.33</td><td class="num" style="background:hsla(47,55%,45%,0.17)">0.33</td>
       <td class="num" style="background:hsla(47,55%,45%,0.17)">0.33</td><td class="num" style="background:hsla(6,55%,45%,0.11)">0.04</td>
       <td class="num">0.07</td></tr>
+<tr class="grp-first"><td rowspan="3" class="cname model">qwen2.5-vl-3b</td>
+      <td class="pers">guided_novice</td>
+      <td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(6,55%,45%,0.11)">0.04</td><td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td>
+      <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(138,55%,45%,0.32)">0.98</td>
+      <td class="num">0.00</td></tr>
+<tr>
+      <td class="pers">brisk_expert</td>
+      <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num">—</td><td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td>
+      <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td>
+      <td class="num">0.00</td></tr>
+<tr>
+      <td class="pers">distracted_average</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td>
+      <td class="num">0.00</td></tr>
 <tr class="grp-first"><td rowspan="3" class="cname model">qwen2.5-vl-7b</td>
       <td class="pers">guided_novice</td>
       <td class="num" style="background:hsla(19,55%,45%,0.13)">0.13</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(25,55%,45%,0.14)">0.18</td><td class="num" style="background:hsla(14,55%,45%,0.12)">0.10</td>
@@ -227,6 +257,7 @@ a{color:var(--accent)}
         <li><b>Two errors is much harder than one.</b> Even the best model catches only ~40% of injected errors (F₁ far below the oracle's 1.0) — it fixates on the first mistake and misses the second.</li>
         <li><b>Two opposite failure modes.</b> The largest model (<code>gpt-5.5</code>) <b>over-flags</b> — it talks constantly and its precision collapses under false alarms. The open-source <code>qwen2.5-vl-7b</code> <b>under-flags</b> — near-silent, near-perfect precision, but it misses most errors. <code>gpt-5.4-mini</code> sits between and wins.</li>
         <li><b>Bigger is not better.</b> <code>gpt-5.4-mini</code> beats <code>gpt-5.5</code>, and <code>gemini-3.7-flash</code> beats <code>gemini-3.1-pro-preview</code> — restraint, not scale, wins this task.</li>
+        <li><b>A clean scale curve.</b> Across <code>qwen2.5-vl</code> 3B→7B→32B, recall rises (0.03→0.10→0.17) but precision <i>collapses</i> (1.00→0.89→0.40) and the model gets far louder (quiet 0.99→0.03): scaling trades restraint for reach, without ever approaching the ceiling.</li>
         <li><b>The skeptical persona is hardest for everyone.</b> <code>brisk_expert</code> drops even the <b>oracle's</b> success to 0.40 — a genuine user-model effect the benchmark surfaces.</li>
       </ul>
     </div>
