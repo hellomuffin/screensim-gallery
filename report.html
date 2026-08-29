@@ -1,0 +1,557 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScreenSim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f7f9;--surface:#ffffff;--surface2:#f0f2f6;--ink:#1a1f2b;--muted:#5a6478;
+  --faint:#8b94a6;--line:#e3e7ee;--line2:#d3d9e4;--accent:#3b6ea5;--accent-soft:#e8eff7;
+  --good:#2f8f5b;--good-soft:#e6f3ec;--warn:#b4791f;--warn-soft:#f7efdf;
+  --bad:#c0473f;--bad-soft:#f8e8e6;--human:#7b52c7;--assist:#3b6ea5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1116;--surface:#161b22;--surface2:#1b212b;--ink:#e6e9f0;--muted:#9aa4b6;
+  --faint:#6b7688;--line:#242b36;--line2:#303845;--accent:#6ea6dd;--accent-soft:#16243a;
+  --good:#5fc98a;--good-soft:#12271b;--warn:#e0b155;--warn-soft:#2a2413;
+  --bad:#e58076;--bad-soft:#2c1715;--human:#b48bf0;--assist:#6ea6dd}}
+:root[data-theme="dark"]{
+  --bg:#0e1116;--surface:#161b22;--surface2:#1b212b;--ink:#e6e9f0;--muted:#9aa4b6;
+  --faint:#6b7688;--line:#242b36;--line2:#303845;--accent:#6ea6dd;--accent-soft:#16243a;
+  --good:#5fc98a;--good-soft:#12271b;--warn:#e0b155;--warn-soft:#2a2413;
+  --bad:#e58076;--bad-soft:#2c1715;--human:#b48bf0;--assist:#6ea6dd}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16.5px;line-height:1.66;
+  -webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:15.5rem minmax(0,1fr);gap:0;max-width:82rem;margin:0 auto}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  padding:2.2rem 1.1rem 2rem 1.4rem;border-right:1px solid var(--line);font-size:.82rem}
+nav.toc .brand{font-family:"Spectral",serif;font-weight:600;font-size:1.15rem;color:var(--ink);margin-bottom:.1rem}
+nav.toc .kicker{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem}
+nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;
+  padding-left:.7rem;margin-left:-.7rem;transition:color .15s,border-color .15s}
+nav.toc a:hover{color:var(--ink);border-left-color:var(--line2)}
+nav.toc a .n{font-family:"IBM Plex Mono",monospace;color:var(--faint);margin-right:.45rem;font-size:.76rem}
+nav.toc .grp{margin-top:.9rem;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--faint)}
+main{padding:2.2rem clamp(1.1rem,3vw,3.2rem) 7rem;min-width:0}
+header.mast{max-width:46rem;margin-bottom:1rem}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:"Spectral",serif;font-weight:600;font-size:2.7rem;line-height:1.1;letter-spacing:-.015em;margin:.5rem 0 .3rem}
+.subtitle{font-family:"Spectral",serif;font-style:italic;font-size:1.28rem;color:var(--muted);font-weight:400;margin:0 0 1rem}
+.abstract{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem;font-size:.97rem}
+.abstract b{font-weight:600}
+.meta-row{display:flex;gap:1.3rem;flex-wrap:wrap;margin-top:1rem;font-size:.78rem;color:var(--faint);font-family:"IBM Plex Mono",monospace}
+.meta-row b{color:var(--muted);font-weight:500}
+section{max-width:46rem;margin-top:3rem;scroll-margin-top:1rem}
+section.wide{max-width:56rem}
+h2{font-family:"Spectral",serif;font-weight:600;font-size:1.7rem;letter-spacing:-.01em;margin:0 0 .2rem;
+  display:flex;gap:.7rem;align-items:baseline}
+h2 .sn{font-family:"IBM Plex Mono",monospace;font-size:1rem;color:var(--accent);font-weight:500}
+h3{font-weight:600;font-size:1.06rem;margin:1.8rem 0 .4rem}
+.lead{color:var(--muted);font-size:1.02rem;margin:.2rem 0 1rem}
+p{margin:.7rem 0}a{color:var(--accent)}strong{font-weight:600}
+.term{font-weight:600;color:var(--ink)}
+code,.mono{font-family:"IBM Plex Mono",monospace;font-size:.86em}
+p code,li code,td code{background:var(--surface2);border:1px solid var(--line);border-radius:4px;padding:.02em .34em;color:var(--accent);font-size:.83em}
+.def{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0}
+.def .dh{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem}
+.def .dt{font-weight:600}.def p{margin:.4rem 0 0;font-size:.94rem;color:var(--muted)}
+.def .formula{font-family:"IBM Plex Mono",monospace;font-size:.88rem;color:var(--ink);background:var(--surface2);
+  border:1px solid var(--line);border-radius:6px;padding:.6rem .8rem;margin:.55rem 0 .2rem;overflow-x:auto;white-space:pre;line-height:1.7}
+.tbl{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+caption{caption-side:bottom;text-align:left;color:var(--faint);font-size:.77rem;padding:.5rem .2rem 0;font-style:italic}
+th,td{text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--surface2);font-weight:600;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line2)}
+tbody tr:last-child td{border-bottom:none}
+td.mono,th.mono{font-family:"IBM Plex Mono",monospace;font-size:.79rem}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.chip{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.68rem;padding:.06rem .5rem;border-radius:999px;border:1px solid var(--line2);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.note{border:1px solid var(--line);border-left:3px solid var(--warn);background:var(--surface);border-radius:8px;padding:.8rem 1.05rem;margin:1rem 0;font-size:.91rem;color:var(--muted)}
+.note b{color:var(--ink)}.note.excl{border-left-color:var(--bad)}.note.key{border-left-color:var(--good)}
+ul.tight{margin:.5rem 0;padding-left:1.15rem}ul.tight li{margin:.28rem 0}
+ol.phases{list-style:none;counter-reset:ph;padding:0;margin:1rem 0}
+ol.phases li{counter-increment:ph;position:relative;padding:.6rem 0 .6rem 2.5rem;border-bottom:1px solid var(--line)}
+ol.phases li:last-child{border-bottom:none}
+ol.phases li::before{content:counter(ph);position:absolute;left:0;top:.6rem;width:1.6rem;height:1.6rem;border-radius:50%;
+  background:var(--accent-soft);color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.foot{max-width:46rem;margin-top:3.5rem;padding-top:1.1rem;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+hr.rule{border:none;border-top:1px solid var(--line);margin:2.4rem 0;max-width:46rem}
+.hl{background:var(--accent-soft);border-radius:3px;padding:0 .2em}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}
+  nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:.35rem .9rem;padding:1.1rem 1.3rem}
+  nav.toc .brand,nav.toc .kicker,nav.toc .grp{width:100%}
+  nav.toc a{border-left:none;padding-left:0;margin-left:0}}
+</style>
+</head><body>
+<div class="wrap">
+<nav class="toc">
+  <div class="brand">ScreenSim</div>
+  <div class="kicker">Full report</div>
+  <div class="grp">The setting</div>
+  <a href="#s1"><span class="n">1</span>Overview</a>
+  <a href="#s2"><span class="n">2</span>Environment</a>
+  <a href="#s3"><span class="n">3</span>Observation &amp; action</a>
+  <a href="#s4"><span class="n">4</span>Tasks &amp; plans</a>
+  <a href="#s5"><span class="n">5</span>Interaction protocol</a>
+  <a href="#s6"><span class="n">6</span>Error taxonomy</a>
+  <a href="#s7"><span class="n">7</span>Personas</a>
+  <div class="grp">The benchmarks</div>
+  <a href="#s8"><span class="n">8</span>Metrics</a>
+  <a href="#s9"><span class="n">9</span>Benchmark A · single-error</a>
+  <a href="#s10"><span class="n">10</span>Benchmark B · multi-error</a>
+  <a href="#s11"><span class="n">11</span>Model leaderboard</a>
+  <div class="grp">Rigor</div>
+  <a href="#s12"><span class="n">12</span>Validity &amp; reproducibility</a>
+  <a href="#s13"><span class="n">13</span>Appendix map</a>
+  <a href="#notation"><span class="n">§</span>Notation</a>
+</nav>
+
+<main>
+<header class="mast">
+  <p class="eyebrow">Paper-writing reference · full report</p>
+  <h1>ScreenSim</h1>
+  <p class="subtitle">A deterministic screen-world simulator and a user-in-the-loop benchmark for real-time assistance — the complete setting, two benchmarks, and all results.</p>
+  <div class="abstract">
+    <b>ScreenSim</b> is a white-box simulator of an iPhone whose entire world is a
+    deterministic state machine, paired with an interaction benchmark in which a
+    <em>simulated human</em> performs a phone task while an <em>AI assistant</em>
+    watches the rendered screen and may speak but never touch the device. The
+    engine injects realistic mistakes at task subgoals and holds the human on the
+    flawed course; the assistant is scored on whether it <em>detects</em> the
+    mistakes, <em>stays silent</em> when nothing is wrong, and helps the human
+    <em>recover before the outcome is irreversible</em>. This document gives the
+    setting, the two benchmarks built on it — a single-error benchmark and a
+    <em>multi-error</em> benchmark whose every episode carries ≥2 injected errors —
+    and the full results, including a ten-way model leaderboard. It is written for
+    a methods section and appendix; implementation is intentionally omitted.
+  </div>
+  <div class="meta-row">
+    <span><b>world:</b> 5 apps · 51+ screens · 20 widget kinds</span>
+    <span><b>tasks:</b> 5 long-horizon</span>
+    <span><b>episodes:</b> 15 multi-error, dual-audited</span>
+    <span><b>models:</b> 8 tested · 3 personas · 450 runs</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="sn">1</span>Overview and contributions</h2>
+  <p class="lead">Real-time assistance is the task of a bystander who can see and
+  speak but not act: it is judged not only by catching errors but by the restraint
+  to stay quiet, and by timing against an irreversible outcome.</p>
+  <p>Most agent benchmarks put the model in control of the world and score the
+  final state. ScreenSim inverts this: the model is an <em>advisor</em> to a human
+  who holds the controls. The contributions:</p>
+  <ul class="tight">
+    <li><span class="term">A white-box screen world</span> (§2–3): a deterministic
+    state machine whose ground truth — what is on screen, what a control does,
+    whether the goal is met — is exact and machine-checkable, never inferred from
+    pixels or an LLM judge.</li>
+    <li><span class="term">Anchored, certified error injection</span> (§6): each
+    mistake is a single realistic slip attached to a task subgoal, with a certified
+    point of observability and of consequence, admitted only after dry-replay.</li>
+    <li><span class="term">A soft-hard takeover</span> (§5) that makes the injected
+    error actually happen and releases control only on a correct, accepted
+    intervention — so detection is always measurable and credit is attributable.</li>
+    <li><span class="term">A multi-error benchmark</span> (§10) whose every episode
+    carries two or more errors of different types, each verified non-conflicting and
+    <span class="hl">independently audited by a vision model and a separate agent</span>.</li>
+    <li><span class="term">A ten-way leaderboard</span> (§11) across hosted and
+    open-source vision-language models and three personas, with asymmetric,
+    timed metrics that reward restraint and punish irreversible harm.</li>
+  </ul>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="sn">2</span>The environment</h2>
+  <p class="lead">A single seed fixes the entire phone, so any two runs of the same
+  task face an identical world.</p>
+  <div class="def">
+    <div class="dh">Definition 2.1 — World</div>
+    <div class="dt">A world is a tuple <span class="mono">W = (S, φ, s₀, τ)</span>.</div>
+    <div class="formula">S    a tree of application state (the scene graph)
+φ    the projection S → screen (visible screen + widgets)
+s₀   the seeded initial state (deterministic in the seed)
+τ    the transition function  τ : S × gesture → S  (total, deterministic)</div>
+    <p>The scene graph <span class="mono">S</span> is ground truth; the visible
+    screen <span class="mono">φ(S)</span> is a projection. Agents observe only a
+    rendering of <span class="mono">φ(S)</span>; the grader reads <span class="mono">S</span>.</p>
+  </div>
+  <p>A <span class="term">screen</span> is a named node (<code>settings.sdp</code>,
+  <code>bank.amount</code>) holding ordered <span class="term">widgets</span>; a
+  widget has a kind, a human-readable label, an optional value, and an
+  <span class="term">affordance</span> (the transition it triggers). Widget kinds
+  fall in three groups — the distinction matters for the error taxonomy, because
+  only widgets that <em>write committed state</em> can carry a forceable error.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>group</th><th>kinds</th><th>role</th></tr></thead>
+    <tbody>
+      <tr><td>value controls</td><td class="mono">toggle, radio, cc_round, cc_vslider, cc_tile</td><td>write a durable setting when actuated</td></tr>
+      <tr><td>navigating / committing rows</td><td class="mono">row, account, tile, listitem</td><td>a tap navigates and may also commit (a payee pick)</td></tr>
+      <tr><td>input &amp; inert</td><td class="mono">field, button, section, text, banner, image, icon_button, toolbtn, usagebar, homesearch, cc_media</td><td>text entry, actions, non-interactive structure</td></tr>
+    </tbody></table><caption>Table 2.1 — The 20 widget kinds. Row-type widgets both navigate and commit, which is why a wrong-payee tap is a genuine forceable error (§6).</caption></div>
+  <p>Every affordance names a <span class="term">verb</span> — ~40 in all, split
+  into <span class="chip acc">navigation</span> (change screen, no write),
+  <span class="chip good">reversible commit</span> (a toggle, a radio, a payment
+  source), and <span class="chip bad">irreversible commit</span>
+  (<code>pay</code>, <code>place_order</code>, <code>send_mail</code>,
+  <code>verify_otp</code>). Irreversible verbs write protected paths
+  <span class="mono">IRR = {bank.history, bank.balance, shop.order, mail.sent}</span>;
+  these define the deadline the assistant races. Because <span class="mono">τ</span>
+  and the renderer are deterministic in the seed, an episode is fully reproducible
+  from (seed, task, error, persona, assistant) — the property every controlled
+  comparison here relies on.</p>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="sn">3</span>Observation and action</h2>
+  <p class="lead">The assistant sees what a person over a shoulder sees; the human
+  acts one gesture at a time, named by the words on the screen.</p>
+  <h3>3.1 Observation tiers</h3>
+  <p>Each turn the assistant receives the last <span class="mono">k=2</span> rendered
+  frames of <span class="mono">φ(S)</span>, oldest to newest — never the scene graph,
+  affordances, screen keys, or any grading signal.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>tier</th><th>observation</th><th>purpose</th></tr></thead>
+    <tbody><tr><td class="mono">sv1</td><td>rendered frames only</td><td>the honest default — perception under test</td></tr>
+    <tr><td class="mono">sv2</td><td>frames + a relational text map</td><td>a perception ablation</td></tr></tbody>
+  </table></div>
+  <h3>3.2 Action space</h3>
+  <div class="def"><div class="dh">Definition 3.1 — Gesture grammar</div>
+    <div class="formula">tap &lt;label&gt;          actuate the widget labelled ⟨label⟩
+swipe up | swipe down  scroll
+type "&lt;text&gt;"         enter text into the focused field
+press back | press home  pop the stack | return to the launcher</div>
+    <p>Grounding is semantic (by visible label), not spatial. The engine is an
+    <span class="term">affordance gate</span>: a gesture runs iff its target is
+    present, visible and interactive; otherwise it is refused with a reason and the
+    state is unchanged. Navigation is therefore a real part of every task — and a
+    real place for error.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="s4" class="wide">
+  <h2><span class="sn">4</span>Tasks and their subgoal decomposition</h2>
+  <p class="lead">A task is a goal a competent person completes in one sitting; the
+  suite favors long-horizon tasks that cross several screens, because each
+  transition is a place a mistake can happen.</p>
+  <div class="def"><div class="dh">Definition 4.1 — Task</div>
+    <div class="dt">A task is <span class="mono">T = (ι, g, π, seed)</span>: an
+    instruction, a machine-checkable goal predicate <span class="mono">g:S→{0,1}</span>,
+    a reference plan, and a seed.</div>
+    <p>The instruction <span class="mono">ι</span> is the <em>only</em> goal
+    knowledge either agent receives; the plan <span class="mono">π</span> is
+    engine-internal. The reference plan is lifted into ordered <span class="term">subgoal
+    nodes</span> of two kinds — <span class="chip good">commit</span> (writes durable
+    state) and <span class="chip acc">reach</span> (a required forward navigation) —
+    and the <span class="term">progress key</span> (the committed-state diff sequence,
+    restricted to plan-touched paths) is <em>path-invariant</em>: two routes to the
+    same outcome yield the same key.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>task</th><th>family</th><th class="num">gest.</th><th class="num">reach</th><th class="num">commit</th><th>irrev.</th><th>what it asks</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">lost_phone_lockdown</td><td>security</td><td class="num">15</td><td class="num">5</td><td class="num">2</td><td>—</td><td>Turn on Advanced Data Protection and Stolen Device Protection.</td></tr>
+      <tr><td class="mono">app_privacy_quarantine</td><td>privacy</td><td class="num">18</td><td class="num">6</td><td class="num">3</td><td>—</td><td>Cut one app off from location, tracking, background refresh — leave others alone.</td></tr>
+      <tr><td class="mono">parent_phone_readability</td><td>accessibility</td><td class="num">9</td><td class="num">3</td><td class="num">5</td><td>—</td><td>Bigger/bolder text, clearer buttons, less motion.</td></tr>
+      <tr><td class="mono">lock_screen_lockdown</td><td>privacy</td><td class="num">8</td><td class="num">2</td><td class="num">4</td><td>—</td><td>Block Control Center, Today View, Wallet, returning calls from the lock screen.</td></tr>
+      <tr><td class="mono">rent_share_standard</td><td>transaction</td><td class="num">15</td><td class="num">2</td><td class="num">7</td><td><span class="chip bad">yes</span></td><td>Pay the right one of two Alexes, exact amount, free speed, from balance, with a note.</td></tr>
+    </tbody></table><caption>Table 4.1 — The benchmark suite. The transaction task is the only one crossing an irreversible boundary, and its instruction plants a decoy ("two Alexes"). A curated library of 20 tasks (7 families) and a large auto-generated, manual-grounded set support coverage ablations.</caption></div>
+</section>
+
+<!-- 5 -->
+<section id="s5" class="wide">
+  <h2><span class="sn">5</span>The interaction protocol</h2>
+  <p class="lead">Two language models sit behind a strict one-way channel; between
+  them the engine runs a soft-hard <em>takeover</em>.</p>
+  <h3>5.1 Two agents, channel-isolated</h3>
+  <p>The <span class="term">human agent</span> role-plays the person whose hands move
+  the phone; the <span class="term">assistant agent</span> watches and may only talk.
+  The human sees the goal, the live screen, its own history, the assistant's spoken
+  lines, its persona, and a private <em>slip</em>; it emits
+  <code>{utterance, gesture, think}</code> — only <b>utterance</b> crosses. The
+  assistant sees the goal, the last 2 screenshots, the persona questionnaire, and its
+  own memory; it emits <code>{text, flag}</code> — only <b>text</b> crosses. A prompt
+  audit fails the run if the assistant prompt contains the plan, the slip, a
+  detection window, a grading term, or a coordinate: the assistant must infer both
+  the correct steps and any mistake from the goal and the pixels alone. The human
+  acts <span class="hl">mostly in silence</span> — a real person does not narrate
+  each tap — speaking only to ask, react, flag, or announce a change.</p>
+  <h3>5.2 The soft-hard takeover</h3>
+  <p>A benchmark that merely <em>asks</em> the human to err is unsound: a compliant
+  model may follow the assistant's clean guidance and never make the mistake. The
+  error is instead the engine's doing.</p>
+  <ol class="phases">
+    <li><b>Advance.</b> The human proceeds normally until it reaches the deviation anchor.</li>
+    <li><b>Hard takeover (inject).</b> At the anchor the engine overrides the human's gesture with the designed slip; the mistake now exists in the world.</li>
+    <li><b>Hold.</b> While the slip stands, the engine blocks the human's own attempts to undo it — so the assistant, not luck, must cause any recovery.</li>
+    <li><b>Soft release.</b> A <em>correct</em> detection the human accepts releases the hold; the human repairs and continues.</li>
+    <li><b>Maximum hold.</b> If no correct detection arrives, the error stands — a reversible one persists to the final state, an irreversible one commits.</li>
+  </ol>
+  <div class="note key"><b>Why this shape.</b> The error is guaranteed to occur (detection is always measurable), self-recovery is suppressed (credit is attributable), and release is conditioned on a genuinely correct intervention (no credit for a vague or lucky remark). The takeover applies to the scripted human <em>and</em> the free LLM human.</div>
+</section>
+
+<!-- 6 -->
+<section id="s6" class="wide">
+  <h2><span class="sn">6</span>Human-error taxonomy</h2>
+  <p class="lead">Every deviation is either a mistake the assistant must catch or a
+  legitimate change it must not flag.</p>
+  <h3>6.1 Forceable errors</h3>
+  <p>An error family is <span class="term">forceable</span> if the engine can realize
+  it by substituting a single gesture at the anchor — a positive wrong action, not an
+  absence. Only forceable families are admitted, because only they can be guaranteed
+  under the takeover.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>family</th><th>definition</th><th>example</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip bad">wrong_value</span></td><td>a sibling option of the same control — right control, wrong value</td><td>Pay <em>Alex Kim</em> instead of Alex Chen.</td></tr>
+      <tr><td><span class="chip bad">wrong_target</span></td><td>a different control on the same screen — the intended one is left unset</td><td>Toggle Notification Center instead of Control Center.</td></tr>
+      <tr><td><span class="chip bad">wrong_page</span></td><td>at a required navigation, a plausible wrong turn to the wrong screen</td><td>Open Control Center settings while seeking an app's privacy page.</td></tr>
+      <tr><td><span class="chip warn">extra_write</span></td><td>an <em>additive</em> foreign write — an extra actuation the task never asked for, on a goal-relevant path the plan carries only from a default</td><td>Also tap "Visa · 3% fee", paying from the wrong source.</td></tr>
+    </tbody></table></div>
+  <h3>6.2 Benign deviations (the assistant must <em>not</em> flag)</h3>
+  <p>Restraint is half the benchmark. An <span class="chip acc">intent</span> episode
+  has the human <em>announce</em> a deliberate change of plan and adopt it as the
+  goal; a <span class="chip good">clean</span> episode has no deviation at all. The
+  announced intent is the hardest restraint case — it looks exactly like a
+  <code>wrong_value</code> error but is legitimate.</p>
+  <div class="note excl"><b>Omissions are out of scope, by design.</b> Two omission
+  families — <code>skip_step</code> and <code>early_commit</code> — were considered
+  and removed. An omission is the <em>absence</em> of an action, which the takeover
+  cannot force: a free human who wanders off simply never produces the mistake,
+  yielding an unscoreable run. Restricting to forceable families is what makes
+  injection guaranteed and grading honest.</div>
+  <h3>6.3 Certification</h3>
+  <p>A candidate error is admitted only if dry-replay shows: the transformed plan
+  runs without refusals; it does <em>not</em> still satisfy the goal; the deviation
+  is the <em>sole</em> difference from the reference outcome; a validated recovery
+  exists; and the anchor does not collapse to <span class="mono">t₀</span> unless it
+  is genuinely the first committed choice. Certification yields an
+  <span class="term">observability point</span> and an <span class="term">outcome
+  point</span> — the two ends of the detection window.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7" class="wide">
+  <h2><span class="sn">7</span>Personas</h2>
+  <p class="lead">The person is drawn from a persona that controls behavior through
+  mechanical dials, exposing only a short questionnaire to the assistant.</p>
+  <p>Private dials — fluency, a rebuttal budget (pushes back on a correct flag before
+  accepting), and a mandatory check-in before irreversible actions — are enforced by
+  the harness and never shown. A shared questionnaire of three stated preferences is
+  shown verbatim; skill and trust must be inferred from behavior.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>persona</th><th>fluency</th><th>rebuttals</th><th>confirm irrev.</th><th>questionnaire</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">guided_novice</td><td>novice</td><td class="num">0</td><td>yes</td><td>"tell me exactly what to tap" · "warn me before anything permanent" · "check in often"</td></tr>
+      <tr><td class="mono">brisk_expert</td><td>expert</td><td class="num">1</td><td>no</td><td>"one short sentence when it matters" · "only speak up if something's wrong" · "don't narrate what I can see"</td></tr>
+      <tr><td class="mono">distracted_average</td><td>average</td><td class="num">0</td><td>no</td><td>"keep it brief, I'm multitasking" · "warn me before payments" · "don't repeat yourself"</td></tr>
+    </tbody></table><caption>Table 7.1 — The persona roster. The dials are mechanical; the questionnaire is the only user model the assistant receives.</caption></div>
+</section>
+
+<hr class="rule">
+
+<!-- 8 -->
+<section id="s8" class="wide">
+  <h2><span class="sn">8</span>Evaluation metrics</h2>
+  <p class="lead">The assistant is scored on three axes — detection, restraint, and
+  timing — and any episode where the designed mistake did not actually happen is
+  voided, so no metric is credited to an event that never occurred.</p>
+  <h3>8.1 Detection verdicts (single-error)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>verdict</th><th>meaning</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip good">correct</span></td><td>named the injected error (or its in-window equivalent)</td></tr>
+      <tr><td><span class="chip good">early_correct</span></td><td>correct, before the error was strictly observable</td></tr>
+      <tr><td><span class="chip acc">neutral</span></td><td>a true statement about the world, not the injected error</td></tr>
+      <tr><td><span class="chip bad">false_alarm</span></td><td>neither the error nor true of the world — a restraint failure</td></tr>
+      <tr><td><span class="chip warn">miss</span></td><td>present, never flagged</td></tr>
+    </tbody></table><caption>Table 8.1 — A detection counts as correct iff its verdict is <span class="mono">correct</span> or <span class="mono">early_correct</span> — one definition, shared by the takeover-release rule and every scorer.</caption></div>
+  <h3>8.2 The multi-error metric set</h3>
+  <p>The multi-error benchmark grades per error and aggregates per episode
+  (definitions aligned to the assistance references):</p>
+  <div class="tbl"><table>
+    <thead><tr><th>metric</th><th>definition</th></tr></thead>
+    <tbody>
+      <tr><td><b>R</b> recall</td><td>injected errors named by a correct flag before they commit (flag after commit = miss; repeats count once)</td></tr>
+      <tr><td><b>P</b> precision</td><td><code>TP/(TP+FP)</code>; an alarm about a non-error true of the world is a false alarm</td></tr>
+      <tr><td><b>F₁</b></td><td><code>2PR/(P+R)</code></td></tr>
+      <tr><td><b>DT</b> detection timing</td><td>mean of {1 prevented · 0.5 correct flag before commit · 0 else}</td></tr>
+      <tr><td><b>S</b> in-time success</td><td>the human ends at the correct goal within the time cap</td></tr>
+      <tr><td><b>CC</b> conversation economy</td><td>1 (quiet) … 0 (talks every turn)</td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- 9 -->
+<section id="s9" class="wide">
+  <h2><span class="sn">9</span>Benchmark A — single-error</h2>
+  <p class="lead">One injected slip per episode, run as a full LLM↔LLM simulation and
+  bracketed by scripted floor and ceiling.</p>
+  <p>Contestants: a <span class="term">silent floor</span> (never speaks), an
+  <span class="term">oracle ceiling</span> (flags the injected error whenever
+  observable), an <span class="term">assistant-only</span> bracket (model under test
+  on a scripted, reproducible human), and the <span class="term">full simulation</span>
+  (both agents are models, filmed). Clean no-error episodes are excluded; the benign
+  set is the announced-intent deviations, which exercise restraint.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>contestant</th><th class="num">detection</th><th class="num">prevention</th><th class="num">committed</th><th class="num">false-alarm</th><th class="num">score</th></tr></thead>
+    <tbody>
+      <tr><td>oracle ceiling</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">1.00</td></tr>
+      <tr><td>gemini-3.7-flash ↔ gemini-3.7-flash (full sim)</td><td class="num">0.92</td><td class="num">0.54</td><td class="num">0.08</td><td class="num">—</td><td class="num">0.85</td></tr>
+      <tr><td>gemini-3.7-flash · scripted human</td><td class="num">1.00</td><td class="num">0.94</td><td class="num">0.00</td><td class="num">1.00</td><td class="num">0.00</td></tr>
+      <tr><td>silent floor</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.11</td><td class="num">0.00</td><td class="num">−0.11</td></tr>
+    </tbody></table><caption>Table 9.1 — Single-error benchmark. Score = detection − false-alarm − committed. The assistant-only bracket scores 0 because it <em>false-alarms the announced intent deviation</em> — the hardest restraint case — even while detecting every real error.</caption></div>
+</section>
+
+<!-- 10 -->
+<section id="s10" class="wide">
+  <h2><span class="sn">10</span>Benchmark B — multi-error, dual-audited</h2>
+  <p class="lead">Every episode carries two or more errors of different types at
+  distinct subgoals, verified never to conflict, and independently audited twice.</p>
+  <h3>10.1 Composition and certification</h3>
+  <p>Each of the 5 tasks gets 3 <span class="term">composite episodes</span> (15 in
+  all). A composite admits ≥2 errors of ≥2 different kinds only if: the anchors are
+  distinct; the perturbed paths are disjoint; the combined plan dry-replays without
+  refusals and leaves the goal unmet; and <span class="hl">each committing error
+  breaks the goal on its own</span> (so no error masks another). Episodes take three
+  shapes — <em>nav→slip</em>, <em>two committed slips</em>, and <em>slip + unwanted
+  extra</em>.</p>
+  <h3>10.2 The dual audit</h3>
+  <p>Every episode is verified by two independent auditors:</p>
+  <ul class="tight">
+    <li><span class="term">VLM audit</span> — a vision model inspects the rendered
+    screen after each injected error and judges whether the mistake is
+    <em>visible</em> and <em>meaningful</em>. Result: <b>30 / 30 errors</b>.</li>
+    <li><span class="term">Subagent audit</span> — a separate agent reads each
+    episode's plan and frames and judges whether it is <em>executable</em>,
+    <em>semantically meaningful</em>, and <em>non-conflicting</em>. Result:
+    <b>15 / 15 episodes</b>.</li>
+  </ul>
+  <div class="note key"><b>The audit found real defects.</b> The two auditors caught
+  bugs a purely mechanical pass admitted: additive errors that flipped a task target
+  (a twin); a settings screen whose four rows collapsed to two state variables (a
+  twin); a wrong-toggle error with no validated repair; and a wrong choice that
+  re-used a plan target and silently self-cancelled. All four were fixed and
+  re-verified — the three-track method (mechanical + vision + fresh reader) is what
+  made the episodes trustworthy.</div>
+</section>
+
+<!-- 11 -->
+<section id="s11" class="wide">
+  <h2><span class="sn">11</span>The model leaderboard</h2>
+  <p class="lead">Eight vision-language models — hosted and open-source — across three
+  personas on the 15 multi-error episodes: 450 scored runs, bracketed by floor and
+  ceiling.</p>
+  <p>Hosted models run over their APIs; open-source models are served locally with
+  vllm on an A100 and reached over an OpenAI-compatible endpoint. Two roster entries
+  are audio/realtime endpoints (not vision-chat) and two open models were
+  unavailable (one gated, one unsupported by the server); the eight below are every
+  model that could actually drive a frames-based harness. Scores are means over the
+  three personas.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>model</th><th>kind</th><th class="num">R</th><th class="num">F₁</th><th class="num">P</th><th class="num">DT</th><th class="num">S</th><th class="num">CC</th><th class="num">FA/ep</th></tr></thead>
+    <tbody>
+      <tr><td>oracle ceiling</td><td>bracket</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">0.97</td><td class="num">0.67</td><td class="num">0.71</td><td class="num">0.00</td></tr>
+      <tr><td><b>gpt-5.4-mini</b></td><td>hosted</td><td class="num">0.40</td><td class="num"><b>0.38</b></td><td class="num">0.88</td><td class="num">0.38</td><td class="num">0.18</td><td class="num">0.26</td><td class="num">0.20</td></tr>
+      <tr><td>gemini-3.7-flash</td><td>hosted</td><td class="num">0.31</td><td class="num">0.28</td><td class="num">0.67</td><td class="num">0.25</td><td class="num">0.04</td><td class="num">0.27</td><td class="num">0.49</td></tr>
+      <tr><td>gemini-3.1-pro-preview</td><td>hosted</td><td class="num">0.20</td><td class="num">0.18</td><td class="num">0.28</td><td class="num">0.18</td><td class="num">0.00</td><td class="num">0.38</td><td class="num">0.91</td></tr>
+      <tr><td>qwen2.5-vl-32b</td><td>open</td><td class="num">0.17</td><td class="num">0.17</td><td class="num">0.40</td><td class="num">0.16</td><td class="num">0.13</td><td class="num">0.03</td><td class="num">0.33</td></tr>
+      <tr><td>gpt-5.5</td><td>hosted</td><td class="num">0.14</td><td class="num">0.11</td><td class="num">0.12</td><td class="num">0.14</td><td class="num">0.00</td><td class="num">0.09</td><td class="num">0.93</td></tr>
+      <tr><td>qwen2.5-vl-7b</td><td>open</td><td class="num">0.10</td><td class="num">0.13</td><td class="num">0.89</td><td class="num">0.08</td><td class="num">0.02</td><td class="num">0.90</td><td class="num">0.02</td></tr>
+      <tr><td>phi-3.5-vision</td><td>open</td><td class="num">0.09</td><td class="num">0.11</td><td class="num">0.68</td><td class="num">0.07</td><td class="num">0.00</td><td class="num">0.78</td><td class="num">0.11</td></tr>
+      <tr><td>qwen2.5-vl-3b</td><td>open</td><td class="num">0.03</td><td class="num">0.04</td><td class="num">1.00</td><td class="num">0.03</td><td class="num">0.02</td><td class="num">0.99</td><td class="num">0.00</td></tr>
+      <tr><td>silent floor</td><td>bracket</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">—</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">1.00</td><td class="num">0.00</td></tr>
+    </tbody></table><caption>Table 11.1 — Multi-error leaderboard, mean over the three personas (R recall, P precision, DT detection-timing, S success, CC conversation economy, FA false alarms/episode). Full per-persona breakdown in the companion results page.</caption></div>
+  <h3>11.1 Findings</h3>
+  <ul class="tight">
+    <li><span class="term">Two errors is much harder than one.</span> The best model
+    reaches F₁ 0.38 against the oracle's 1.0 — models fixate on the first mistake and
+    miss the second (cf. the single-error detection of 0.92 in §9).</li>
+    <li><span class="term">Bigger is not better.</span> <code>gpt-5.4-mini</code> beats
+    <code>gpt-5.5</code>, and <code>gemini-3.7-flash</code> beats
+    <code>gemini-3.1-pro-preview</code> — restraint, not scale, wins.</li>
+    <li><span class="term">A clean open-source scale curve.</span> Across
+    <code>qwen2.5-vl</code> 3B→7B→32B, recall rises (0.03→0.10→0.17) but precision
+    <em>collapses</em> (1.00→0.89→0.40) and the model gets far louder (quiet
+    0.99→0.03): scaling trades restraint for reach.</li>
+    <li><span class="term">Two opposite failure modes.</span> The largest model
+    (<code>gpt-5.5</code>) <em>over-flags</em> — precision 0.12, an alarm almost every
+    turn. The small open models <em>under-flag</em> — near-silent, near-perfect
+    precision, but they miss almost everything. <code>gpt-5.4-mini</code> threads the
+    needle.</li>
+    <li><span class="term">The skeptical persona is hardest for everyone.</span>
+    <code>brisk_expert</code> (pushes back once) drops even the <em>oracle's</em>
+    success to 0.40 — a genuine user-model effect.</li>
+  </ul>
+</section>
+
+<hr class="rule">
+
+<!-- 12 -->
+<section id="s12">
+  <h2><span class="sn">12</span>Validity and reproducibility</h2>
+  <p class="lead">A run that measured nothing is voided, not scored — this is what
+  keeps every reported number honest.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>gate</th><th>voids when…</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">slip_not_conducted</td><td>the human never made the designed slip</td></tr>
+      <tr><td class="mono">injection_never_fired</td><td>the deviation never became observable</td></tr>
+      <tr><td class="mono">error_had_no_effect</td><td>the error neither committed, was repaired, nor changed the outcome</td></tr>
+      <tr><td class="mono">run_stalled</td><td>the run ended on a loop / no-progress guard</td></tr>
+      <tr><td class="mono">no_verdict_reached</td><td>no detection verdict could be assigned</td></tr>
+    </tbody></table></div>
+  <p>Determinism (§2) makes every episode reproducible from its factors, so an
+  ablation that varies one factor holds the rest of the world identical. The silent
+  floor and oracle ceiling are engineered brackets present in every run, so a score
+  has meaning on an absolute scale.</p>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+  <h2><span class="sn">13</span>What the appendix should enumerate</h2>
+  <p>All of the following are exact and machine-generated; the engine recomputes them:</p>
+  <ul class="tight">
+    <li><span class="term">Per-task scene walk</span> — the reference plan, every screen it passes through, and the subgoal nodes with their committed paths.</li>
+    <li><span class="term">Full error &amp; composite ledger</span> — every candidate error and composite, admitted or rejected with the admissibility check it failed.</li>
+    <li><span class="term">Composed prompts</span> — the verbatim human and assistant prompts, with the channel-isolation contract and the prompt-audit term list.</li>
+    <li><span class="term">Per-episode records</span> — injection / observability / outcome ticks, verdict, latency, recovery, and any validity gate.</li>
+    <li><span class="term">Per-persona &amp; per-model breakdown</span> — the 450-run leaderboard split by persona, plus the two audit ledgers (VLM per-error, subagent per-episode).</li>
+  </ul>
+</section>
+
+<hr class="rule">
+
+<section id="notation">
+  <h2><span class="sn">§</span>Notation</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>symbol</th><th>meaning</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">W=(S,φ,s₀,τ)</td><td>world: scene graph, screen projection, seeded state, transition function</td></tr>
+      <tr><td class="mono">g : S→{0,1}</td><td>the machine-checkable goal predicate</td></tr>
+      <tr><td class="mono">reach / commit</td><td>subgoal-node kinds: required navigation vs. durable write</td></tr>
+      <tr><td class="mono">IRR</td><td>irreversible paths (bank.history, bank.balance, shop.order, mail.sent)</td></tr>
+      <tr><td class="mono">R,P,F₁,DT,S,CC</td><td>recall, precision, F₁, detection-timing, in-time success, conversation economy</td></tr>
+      <tr><td class="mono">sv1 / sv2</td><td>observation tiers: frames only / frames + relational text</td></tr>
+    </tbody></table></div>
+</section>
+
+<p class="foot">ScreenSim full report — a paper-writing reference covering the
+setting, both benchmarks, and all results. Numbers are recomputed from the engine;
+implementation is intentionally omitted. Companion pages: the single-error benchmark,
+the audited multi-error episodes, the model leaderboard, and the annotated agent
+prompts.</p>
+
+</main>
+</div>
+
+</body></html>
