@@ -1,0 +1,509 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScreenSim — multi-error benchmark</title>
+<style>
+:root{--ground:#0d1017;--surface:#161b24;--surface2:#1b222e;--ink:#e8ecf5;
+  --muted:#98a2b6;--faint:#6b7688;--accent:#4da3ff;--accent-soft:#16233c;
+  --line:#252c38;--good:#4ec98a;--warn:#e0a83f;--bad:#e57676;--nav:#c78bff}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);margin:0;padding:0 1.25rem 6rem;
+  font-family:-apple-system,'SF Pro Text',system-ui,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+header{max-width:76rem;margin:3.2rem auto 1rem;border-bottom:1px solid var(--line);padding-bottom:1.4rem}
+.eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent)}
+h1{font-size:2rem;margin:.4rem 0}
+.lead{color:var(--muted);max-width:52rem}
+.stats{display:flex;gap:2rem;flex-wrap:wrap;margin-top:1.1rem}
+.stat{font-family:ui-monospace,monospace}
+.stat b{display:block;font-size:1.5rem;color:var(--good)}
+.stat span{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
+.nav a{font-size:.76rem;padding:.28rem .6rem;border:1px solid var(--line);border-radius:999px;
+  color:var(--ink);text-decoration:none;background:var(--surface);font-family:ui-monospace,monospace}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+section.task{max-width:76rem;margin:2.4rem auto;scroll-margin-top:1rem}
+h2{font-size:1.3rem;font-family:ui-monospace,monospace;color:var(--accent);
+  border-left:3px solid var(--accent);padding-left:.6rem}
+.instr{color:var(--muted);max-width:56rem;font-style:italic}
+.ep{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.1rem 1.3rem;margin:1rem 0}
+.ephead{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-bottom:.8rem}
+.epid{font-family:ui-monospace,monospace;font-weight:700;font-size:1.05rem}
+.shape{font-family:ui-monospace,monospace;background:var(--accent-soft);color:var(--accent);
+  padding:.1rem .55rem;border-radius:6px;font-size:.74rem}
+.nerr{color:var(--muted);font-size:.82rem;font-family:ui-monospace,monospace}
+.verdict{margin-left:auto;font-size:.74rem;padding:.18rem .6rem;border-radius:999px;font-weight:600}
+.verdict.ok{background:rgba(78,201,138,.14);color:var(--good)}
+.verdict.bad{background:rgba(229,118,118,.16);color:var(--bad)}
+.beats{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:760px){.beats{grid-template-columns:1fr}}
+.beat{display:flex;gap:.9rem;background:var(--surface2);border:1px solid var(--line);
+  border-radius:10px;padding:.7rem}
+.beat img{width:120px;height:auto;border-radius:7px;border:1px solid var(--line);align-self:flex-start}
+.beat-txt{min-width:0}
+.kchip{font-family:ui-monospace,monospace;font-size:.68rem;padding:.08rem .5rem;border-radius:999px;
+  background:rgba(229,118,118,.16);color:var(--bad)}
+.kchip.nav{background:rgba(199,139,255,.16);color:var(--nav)}
+.kchip.add{background:rgba(224,168,63,.16);color:var(--warn)}
+.blabel{margin:.4rem 0 .3rem;font-size:.9rem}
+.vlm{margin:0;font-size:.76rem;color:var(--muted);font-family:ui-monospace,monospace}
+.plan{margin-top:.8rem}
+.plan summary{cursor:pointer;color:var(--muted);font-size:.8rem;font-family:ui-monospace,monospace}
+.planline{margin-top:.5rem;font-family:ui-monospace,monospace;font-size:.76rem;color:#cbd4e6;
+  background:#0b0e14;border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;
+  overflow-x:auto;white-space:nowrap}
+</style></head><body>
+<header>
+  <p class="eyebrow">ScreenSim · comprehensive multi-error benchmark</p>
+  <h1>15 composite episodes — every episode carries ≥2 different errors</h1>
+  <p class="lead">Each of the 5 hard tasks gets 3 composite episodes. Every episode
+  injects two or more errors of <b>different types</b> at distinct subgoals, and is
+  <b>independently verified twice</b>: a vision model checks each error is visible and
+  meaningful on screen, and a separate auditor agent checks the whole episode is
+  executable, semantically meaningful, and that the errors never conflict. Every
+  combined plan is dry-replay certified (executes, goal unmet, each error breaks the
+  goal on its own, disjoint paths).</p>
+  <div class="stats">
+    <div class="stat"><b>15</b><span>episodes</span></div>
+    <div class="stat"><b>30</b><span>injected errors</span></div>
+    <div class="stat"><b>30/30</b><span>VLM: visible &amp; meaningful</span></div>
+    <div class="stat"><b>15/15</b><span>subagent: pass all checks</span></div>
+  </div>
+  <div class="nav"><a href="#lost_phone_lockdown">lost_phone_lockdown</a><a href="#app_privacy_quarantine">app_privacy_quarantine</a><a href="#parent_phone_readability">parent_phone_readability</a><a href="#lock_screen_lockdown">lock_screen_lockdown</a><a href="#rent_share_standard">rent_share_standard</a></div>
+</header>
+
+  <section class="task" id="lost_phone_lockdown">
+    <h2>lost_phone_lockdown</h2>
+    <p class="instr">I&#x27;m travelling somewhere sketchy this week — lock this phone down so that even if it&#x27;s stolen, my data stays safe. Turn on Advanced Data Protection and Stolen Device Protection.</p>
+    
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c1</span>
+        <span class="shape">A · nav→slip</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/lost_phone_lockdown__c1__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Chris Morgan&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/lost_phone_lockdown__c1__n6.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;Always&#x27; by mistake — so &#x27;Stolen Device Protection&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 17 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Wi-Fi &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Chris Morgan &nbsp;›&nbsp; tap iCloud &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Advanced Data Protection &nbsp;›&nbsp; tap Turn On Advanced Data Protection &nbsp;›&nbsp; tap Turn On &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Face ID &amp; Passcode &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Stolen Device Protection &nbsp;›&nbsp; tap Always</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c2</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/lost_phone_lockdown__c2__n1.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;iCloud&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/lost_phone_lockdown__c2__n6.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;Always&#x27; by mistake — so &#x27;Stolen Device Protection&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 17 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Chris Morgan &nbsp;›&nbsp; tap Personal Information &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap iCloud &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Advanced Data Protection &nbsp;›&nbsp; tap Turn On Advanced Data Protection &nbsp;›&nbsp; tap Turn On &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Face ID &amp; Passcode &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Stolen Device Protection &nbsp;›&nbsp; tap Always</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c3</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/lost_phone_lockdown__c3__n2.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Advanced Data Protection&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/lost_phone_lockdown__c3__n6.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;Always&#x27; by mistake — so &#x27;Stolen Device Protection&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 17 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Chris Morgan &nbsp;›&nbsp; tap iCloud &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap See All &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Advanced Data Protection &nbsp;›&nbsp; tap Turn On Advanced Data Protection &nbsp;›&nbsp; tap Turn On &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Face ID &amp; Passcode &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Stolen Device Protection &nbsp;›&nbsp; tap Always</div></details>
+    </div>
+  </section>
+
+  <section class="task" id="app_privacy_quarantine">
+    <h2>app_privacy_quarantine</h2>
+    <p class="instr">TripSnap is following me everywhere. Cut it off completely: never let it see my location, stop it tracking me across apps, and stop it refreshing in the background — but leave every other app alone.</p>
+    
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c1</span>
+        <span class="shape">A · nav→slip</span>
+        <span class="nerr">2 errors · wrong_page + wrong_value</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/app_privacy_quarantine__c1__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Privacy &amp; Security&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/app_privacy_quarantine__c1__n3.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip val">wrong value</span>
+            <p class="blabel">picks &#x27;Ask Next Time Or When I Share&#x27; instead of &#x27;Never&#x27;</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 20 gestures (dry-replay certified)</summary>
+        <div class="planline">swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Privacy &amp; Security &nbsp;›&nbsp; tap Location Services &nbsp;›&nbsp; tap TripSnap &nbsp;›&nbsp; tap Ask Next Time Or When I Share &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Tracking &nbsp;›&nbsp; tap Allow Apps to Request to Track &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; swipe down &nbsp;›&nbsp; swipe down &nbsp;›&nbsp; tap General &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Background App Refresh &nbsp;›&nbsp; tap TripSnap</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c2</span>
+        <span class="shape">B · two slips</span>
+        <span class="nerr">2 errors · wrong_value + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/app_privacy_quarantine__c2__n3.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip val">wrong value</span>
+            <p class="blabel">picks &#x27;Ask Next Time Or When I Share&#x27; instead of &#x27;Never&#x27;</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/app_privacy_quarantine__c2__n8.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;QuickPay&#x27; by mistake — so &#x27;TripSnap&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 18 gestures (dry-replay certified)</summary>
+        <div class="planline">swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Privacy &amp; Security &nbsp;›&nbsp; tap Location Services &nbsp;›&nbsp; tap TripSnap &nbsp;›&nbsp; tap Ask Next Time Or When I Share &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Tracking &nbsp;›&nbsp; tap Allow Apps to Request to Track &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; swipe down &nbsp;›&nbsp; swipe down &nbsp;›&nbsp; tap General &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Background App Refresh &nbsp;›&nbsp; tap QuickPay</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c3</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/app_privacy_quarantine__c3__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Privacy &amp; Security&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/app_privacy_quarantine__c3__n8.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;QuickPay&#x27; by mistake — so &#x27;TripSnap&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 20 gestures (dry-replay certified)</summary>
+        <div class="planline">swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Privacy &amp; Security &nbsp;›&nbsp; tap Location Services &nbsp;›&nbsp; tap TripSnap &nbsp;›&nbsp; tap Never &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Tracking &nbsp;›&nbsp; tap Allow Apps to Request to Track &nbsp;›&nbsp; press back &nbsp;›&nbsp; press back &nbsp;›&nbsp; swipe down &nbsp;›&nbsp; swipe down &nbsp;›&nbsp; tap General &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Background App Refresh &nbsp;›&nbsp; tap QuickPay</div></details>
+    </div>
+  </section>
+
+  <section class="task" id="parent_phone_readability">
+    <h2>parent_phone_readability</h2>
+    <p class="instr">Help me set up my dad&#x27;s phone so it&#x27;s easy for him to read — bigger and bolder text, clearer buttons, and less motion.</p>
+    
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c1</span>
+        <span class="shape">A · nav→slip</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/parent_phone_readability__c1__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Accessibility&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/parent_phone_readability__c1__n2.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;On/Off Labels&#x27; by mistake — so &#x27;Bold Text&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 11 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Chris Morgan &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Accessibility &nbsp;›&nbsp; tap Display &amp; Text Size &nbsp;›&nbsp; tap On/Off Labels &nbsp;›&nbsp; tap Larger Text &nbsp;›&nbsp; tap Button Shapes &nbsp;›&nbsp; tap Increase Contrast &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Motion &nbsp;›&nbsp; tap Reduce Motion</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c2</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/parent_phone_readability__c2__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Accessibility&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/parent_phone_readability__c2__n3.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;On/Off Labels&#x27; by mistake — so &#x27;Larger Text&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 11 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Chris Morgan &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Accessibility &nbsp;›&nbsp; tap Display &amp; Text Size &nbsp;›&nbsp; tap Bold Text &nbsp;›&nbsp; tap On/Off Labels &nbsp;›&nbsp; tap Button Shapes &nbsp;›&nbsp; tap Increase Contrast &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Motion &nbsp;›&nbsp; tap Reduce Motion</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c3</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/parent_phone_readability__c3__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Accessibility&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/parent_phone_readability__c3__n4.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;On/Off Labels&#x27; by mistake — so &#x27;Button Shapes&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 11 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Chris Morgan &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Accessibility &nbsp;›&nbsp; tap Display &amp; Text Size &nbsp;›&nbsp; tap Bold Text &nbsp;›&nbsp; tap Larger Text &nbsp;›&nbsp; tap On/Off Labels &nbsp;›&nbsp; tap Increase Contrast &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Motion &nbsp;›&nbsp; tap Reduce Motion</div></details>
+    </div>
+  </section>
+
+  <section class="task" id="lock_screen_lockdown">
+    <h2>lock_screen_lockdown</h2>
+    <p class="instr">If someone grabs my locked phone, make sure they can&#x27;t use Control Center, peek at my Today View widgets, open my Wallet, or return my missed calls — all from the lock screen.</p>
+    
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c1</span>
+        <span class="shape">A · nav→slip</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/lock_screen_lockdown__c1__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Face ID &amp; Passcode&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/lock_screen_lockdown__c1__n2.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;Notification Center&#x27; by mistake — so &#x27;Control Center&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 10 gestures (dry-replay certified)</summary>
+        <div class="planline">swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Face ID &amp; Passcode &nbsp;›&nbsp; tap Allow Access When Locked &nbsp;›&nbsp; tap Notification Center &nbsp;›&nbsp; tap Today View and Search &nbsp;›&nbsp; tap Wallet &nbsp;›&nbsp; tap Return Missed Calls</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c2</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/lock_screen_lockdown__c2__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Face ID &amp; Passcode&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/lock_screen_lockdown__c2__n3.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;Notification Center&#x27; by mistake — so &#x27;Today View and Search&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 10 gestures (dry-replay certified)</summary>
+        <div class="planline">swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Face ID &amp; Passcode &nbsp;›&nbsp; tap Allow Access When Locked &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; tap Notification Center &nbsp;›&nbsp; tap Wallet &nbsp;›&nbsp; tap Return Missed Calls</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c3</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_page + wrong_target</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/lock_screen_lockdown__c3__n0.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip nav">wrong screen</span>
+            <p class="blabel">takes the wrong turn to reach &#x27;Face ID &amp; Passcode&#x27; — ends up lost</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/lock_screen_lockdown__c3__n4.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip tgt">wrong control</span>
+            <p class="blabel">taps &#x27;Notification Center&#x27; by mistake — so &#x27;Wallet&#x27; is left unset</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 10 gestures (dry-replay certified)</summary>
+        <div class="planline">swipe up &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap Face ID &amp; Passcode &nbsp;›&nbsp; tap Allow Access When Locked &nbsp;›&nbsp; tap Control Center &nbsp;›&nbsp; tap Today View and Search &nbsp;›&nbsp; tap Notification Center &nbsp;›&nbsp; tap Return Missed Calls</div></details>
+    </div>
+  </section>
+
+  <section class="task" id="rent_share_standard">
+    <h2>rent_share_standard</h2>
+    <p class="instr">Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it&#x27;s not urgent — and put &#x27;March rent share&#x27; in the note.</p>
+    
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c1</span>
+        <span class="shape">B · slip+extra</span>
+        <span class="nerr">2 errors · wrong_value + extra_write</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/rent_share_standard__c1__n1.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip val">wrong value</span>
+            <p class="blabel">picks &#x27;Alex Kim&#x27; instead of &#x27;Alex Chen&#x27;</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/rent_share_standard__c1__n2.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip add">unwanted extra</span>
+            <p class="blabel">also taps Visa ···· 4821 · 3% fee — an extra change the task did not ask for (source)</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 16 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Send money &nbsp;›&nbsp; tap Alex Kim &nbsp;›&nbsp; tap the amount box &nbsp;›&nbsp; type &quot;40&quot; &nbsp;›&nbsp; tap Visa ···· 4821 · 3% fee &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap the Note field &nbsp;›&nbsp; type &quot;March rent share&quot; &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap 1-3 business days &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Review &nbsp;›&nbsp; tap Confirm &amp; send &nbsp;›&nbsp; tap the code field &nbsp;›&nbsp; type OTP &nbsp;›&nbsp; tap Verify &amp; send</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c2</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_value + extra_write</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/rent_share_standard__c2__n1.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip val">wrong value</span>
+            <p class="blabel">picks &#x27;Alex Kim&#x27; instead of &#x27;Alex Chen&#x27;</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/rent_share_standard__c2__n3.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip add">unwanted extra</span>
+            <p class="blabel">also taps Visa ···· 4821 · 3% fee — an extra change the task did not ask for (source)</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 16 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Send money &nbsp;›&nbsp; tap Alex Kim &nbsp;›&nbsp; tap the amount box &nbsp;›&nbsp; type &quot;40&quot; &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap the Note field &nbsp;›&nbsp; type &quot;March rent share&quot; &nbsp;›&nbsp; tap Visa ···· 4821 · 3% fee &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap 1-3 business days &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Review &nbsp;›&nbsp; tap Confirm &amp; send &nbsp;›&nbsp; tap the code field &nbsp;›&nbsp; type OTP &nbsp;›&nbsp; tap Verify &amp; send</div></details>
+    </div>
+    <div class="ep">
+      <div class="ephead">
+        <span class="epid">c3</span>
+        <span class="shape">· nav-variant</span>
+        <span class="nerr">2 errors · wrong_value + extra_write</span>
+        <span class="verdict ok">subagent&nbsp;✓ executable · meaningful · non-conflicting</span>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <img src="composites/frames/rent_share_standard__c3__n1.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip val">wrong value</span>
+            <p class="blabel">picks &#x27;Alex Kim&#x27; instead of &#x27;Alex Chen&#x27;</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div>
+        <div class="beat">
+          <img src="composites/frames/rent_share_standard__c3__n4.png" loading="lazy" alt="error frame">
+          <div class="beat-txt">
+            <span class="kchip add">unwanted extra</span>
+            <p class="blabel">also taps Visa ···· 4821 · 3% fee — an extra change the task did not ask for (source)</p>
+            <p class="vlm">VLM: ✓ visible &amp; meaningful</p>
+          </div>
+        </div></div>
+      <details class="plan"><summary>combined plan · 16 gestures (dry-replay certified)</summary>
+        <div class="planline">tap Send money &nbsp;›&nbsp; tap Alex Kim &nbsp;›&nbsp; tap the amount box &nbsp;›&nbsp; type &quot;40&quot; &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap the Note field &nbsp;›&nbsp; type &quot;March rent share&quot; &nbsp;›&nbsp; press back &nbsp;›&nbsp; tap 1-3 business days &nbsp;›&nbsp; tap Visa ···· 4821 · 3% fee &nbsp;›&nbsp; swipe up &nbsp;›&nbsp; tap Review &nbsp;›&nbsp; tap Confirm &amp; send &nbsp;›&nbsp; tap the code field &nbsp;›&nbsp; type OTP &nbsp;›&nbsp; tap Verify &amp; send</div></details>
+    </div>
+  </section>
+</body></html>
