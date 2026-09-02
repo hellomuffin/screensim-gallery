@@ -481,44 +481,51 @@ press back | press home  pop the stack | return to the launcher</div>
   <div class="tbl"><table>
     <thead><tr><th>model</th><th>kind</th><th class="num">R</th><th class="num">F₁</th><th class="num">P</th><th class="num">DT</th><th class="num">S</th><th class="num">CC</th><th class="num">FA/ep</th></tr></thead>
     <tbody>
-      <tr><td>oracle ceiling</td><td>bracket</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">0.97</td><td class="num">0.67</td><td class="num">0.71</td><td class="num">0.00</td></tr>
-      <tr><td><b>gpt-5.4-mini</b></td><td>hosted</td><td class="num">0.40</td><td class="num"><b>0.38</b></td><td class="num">0.88</td><td class="num">0.38</td><td class="num">0.18</td><td class="num">0.26</td><td class="num">0.20</td></tr>
-      <tr><td>qwen-27b</td><td>open</td><td class="num">0.42</td><td class="num">0.36</td><td class="num">0.45</td><td class="num">0.40</td><td class="num">0.18</td><td class="num">0.09</td><td class="num">0.98</td></tr>
-      <tr><td>minicpmo</td><td>open</td><td class="num">0.30</td><td class="num">0.32</td><td class="num">0.95</td><td class="num">0.26</td><td class="num">0.15</td><td class="num">0.92</td><td class="num">0.02</td></tr>
-      <tr><td>gemini-3.7-flash</td><td>hosted</td><td class="num">0.31</td><td class="num">0.28</td><td class="num">0.67</td><td class="num">0.25</td><td class="num">0.04</td><td class="num">0.27</td><td class="num">0.49</td></tr>
-      <tr><td>gemini-3.1-pro-preview</td><td>hosted</td><td class="num">0.20</td><td class="num">0.18</td><td class="num">0.28</td><td class="num">0.18</td><td class="num">0.00</td><td class="num">0.38</td><td class="num">0.91</td></tr>
-      <tr><td>qwen2.5-vl-32b</td><td>open</td><td class="num">0.17</td><td class="num">0.17</td><td class="num">0.40</td><td class="num">0.16</td><td class="num">0.13</td><td class="num">0.03</td><td class="num">0.33</td></tr>
-      <tr><td>gpt-5.5</td><td>hosted</td><td class="num">0.14</td><td class="num">0.11</td><td class="num">0.12</td><td class="num">0.14</td><td class="num">0.00</td><td class="num">0.09</td><td class="num">0.93</td></tr>
-      <tr><td>qwen2.5-vl-7b</td><td>open</td><td class="num">0.10</td><td class="num">0.13</td><td class="num">0.89</td><td class="num">0.08</td><td class="num">0.02</td><td class="num">0.90</td><td class="num">0.02</td></tr>
-      <tr><td>phi-3.5-vision</td><td>open</td><td class="num">0.09</td><td class="num">0.11</td><td class="num">0.68</td><td class="num">0.07</td><td class="num">0.00</td><td class="num">0.78</td><td class="num">0.11</td></tr>
-      <tr><td>qwen2.5-vl-3b</td><td>open</td><td class="num">0.03</td><td class="num">0.04</td><td class="num">1.00</td><td class="num">0.03</td><td class="num">0.02</td><td class="num">0.99</td><td class="num">0.00</td></tr>
+      <tr><td>oracle ceiling</td><td>bracket</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">0.97</td><td class="num">0.87</td><td class="num">0.71</td><td class="num">0.00</td></tr>
+      <tr><td><b>qwen2.5-vl-32b</b></td><td>open</td><td class="num">0.44</td><td class="num"><b>0.44</b></td><td class="num">0.64</td><td class="num">0.41</td><td class="num">0.29</td><td class="num">0.03</td><td class="num">0.40</td></tr>
+      <tr><td>qwen-27b</td><td>open</td><td class="num">0.40</td><td class="num">0.39</td><td class="num">0.58</td><td class="num">0.34</td><td class="num">0.18</td><td class="num">0.47</td><td class="num">0.56</td></tr>
+      <tr><td>gpt-5.4-mini</td><td>hosted</td><td class="num">0.38</td><td class="num">0.38</td><td class="num">0.91</td><td class="num">0.33</td><td class="num">0.24</td><td class="num">0.27</td><td class="num">0.09</td></tr>
+      <tr><td>gemini-3.7-flash</td><td>hosted</td><td class="num">0.39</td><td class="num">0.37</td><td class="num">0.74</td><td class="num">0.33</td><td class="num">0.24</td><td class="num">0.27</td><td class="num">0.29</td></tr>
+      <tr><td>minicpmo</td><td>open</td><td class="num">0.31</td><td class="num">0.36</td><td class="num">0.95</td><td class="num">0.26</td><td class="num">0.11</td><td class="num">0.95</td><td class="num">0.02</td></tr>
+      <tr><td>gemini-3.1-pro-preview</td><td>hosted</td><td class="num">0.24</td><td class="num">0.23</td><td class="num">0.30</td><td class="num">0.23</td><td class="num">0.07</td><td class="num">0.38</td><td class="num">1.04</td></tr>
+      <tr><td>phi-3.5-vision</td><td>open</td><td class="num">0.13</td><td class="num">0.16</td><td class="num">0.83</td><td class="num">0.10</td><td class="num">0.02</td><td class="num">0.79</td><td class="num">0.07</td></tr>
+      <tr><td>gpt-5.5</td><td>hosted</td><td class="num">0.16</td><td class="num">0.14</td><td class="num">0.17</td><td class="num">0.16</td><td class="num">0.07</td><td class="num">0.11</td><td class="num">0.89</td></tr>
+      <tr><td>qwen2.5-vl-7b</td><td>open</td><td class="num">0.11</td><td class="num">0.14</td><td class="num">1.00</td><td class="num">0.08</td><td class="num">0.02</td><td class="num">0.89</td><td class="num">0.00</td></tr>
+      <tr><td>qwen2.5-vl-3b</td><td>open</td><td class="num">0.01</td><td class="num">0.01</td><td class="num">1.00</td><td class="num">0.01</td><td class="num">0.00</td><td class="num">0.99</td><td class="num">0.00</td></tr>
       <tr><td>silent floor</td><td>bracket</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">—</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">1.00</td><td class="num">0.00</td></tr>
     </tbody></table><caption>Table 11.1 — Multi-error leaderboard, mean over the three personas (R recall, P precision, DT detection-timing, S success, CC conversation economy, FA false alarms/episode). Full per-persona breakdown in the companion results page.</caption></div>
   <h3>11.1 Findings</h3>
   <ul class="tight">
-    <li><span class="term">Two errors is much harder than one.</span> The best model
-    reaches F₁ 0.38 against the oracle's 1.0 — models fixate on the first mistake and
-    miss the second (cf. the single-error detection of 0.92 in §9).</li>
-    <li><span class="term">Bigger is not better.</span> <code>gpt-5.4-mini</code> beats
-    <code>gpt-5.5</code>, and <code>gemini-3.7-flash</code> beats
-    <code>gemini-3.1-pro-preview</code> — restraint, not scale, wins.</li>
-    <li><span class="term">A clean open-source scale curve.</span> Across
-    <code>qwen2.5-vl</code> 3B→7B→32B, recall rises (0.03→0.10→0.17) but precision
-    <em>collapses</em> (1.00→0.89→0.40) and the model gets far louder (quiet
-    0.99→0.03): scaling trades restraint for reach.</li>
-    <li><span class="term">Two opposite failure modes.</span> The largest model
-    (<code>gpt-5.5</code>) <em>over-flags</em> — precision 0.12, an alarm almost every
-    turn. The small open models <em>under-flag</em> — near-silent, near-perfect
-    precision, but they miss almost everything. <code>gpt-5.4-mini</code> threads the
-    needle.</li>
+    <li><span class="term">Two errors is much harder than one.</span> No model reaches
+    F₁ 0.45 against the oracle's 1.0, and no model completes even a third of the
+    episodes (best S 0.29) — models fixate on the first mistake and miss the second
+    (cf. the single-error detection of 0.92 in §9).</li>
+    <li><span class="term">Within a family, bigger is not better.</span>
+    <code>gpt-5.4-mini</code> beats <code>gpt-5.5</code> (F₁ 0.38 vs 0.14), and
+    <code>gemini-3.7-flash</code> beats <code>gemini-3.1-pro-preview</code> (0.37 vs
+    0.23) — the larger hosted models over-flag.</li>
+    <li><span class="term">The open-source scale curve.</span> Across
+    <code>qwen2.5-vl</code> 3B→7B→32B, recall rises (0.01→0.11→0.44) while precision
+    falls (1.00→1.00→0.64) and the model goes from near-silent to talking every turn
+    (CC 0.99→0.89→0.03). The 32B tops the table on F₁ (0.44) and success (0.29) —
+    but it is the loudest contestant of all: scaling buys reach at the cost of
+    restraint.</li>
+    <li><span class="term">Two opposite failure modes.</span> <code>gpt-5.5</code> and
+    <code>gemini-3.1-pro-preview</code> <em>over-flag</em> — precision 0.17 / 0.30, an
+    alarm most turns. The small open models <em>under-flag</em> — near-silent,
+    near-perfect precision, and they miss almost everything. <code>gpt-5.4-mini</code>
+    (P 0.91, R 0.38, one false alarm per eleven episodes) threads the needle best.</li>
     <li><span class="term">The strong open-source models are competitive.</span>
-    <code>qwen-27b</code> (a reasoning model) has the highest recall of any contestant
-    (0.42) but, like <code>gpt-5.5</code>, over-flags (precision 0.45); <code>minicpmo</code>
-    has the highest precision of any real model (0.95) with balanced recall — an
-    open model that most closely matches <code>gpt-5.4-mini</code>'s restraint.</li>
+    <code>qwen-27b</code> (a reasoning model) matches the hosted leaders on recall
+    (0.40) with middling precision (0.58); <code>minicpmo</code> has the highest
+    precision of any real model (0.95) while staying almost silent (CC 0.95) — the
+    open model that most resembles <code>gpt-5.4-mini</code>'s restraint.</li>
     <li><span class="term">The skeptical persona is hardest for everyone.</span>
     <code>brisk_expert</code> (pushes back once) drops even the <em>oracle's</em>
-    success to 0.40 — a genuine user-model effect.</li>
+    success to 0.60 and every real model's to ≤0.13 — a genuine user-model effect.
+    (An error that fires on the plan's last step gets a single poll before the
+    person finishes; a one-rebuttal persona therefore makes some last-step errors
+    unpreventable even for the oracle, which is why the ceiling is not 1.0 there.)</li>
   </ul>
 </section>
 

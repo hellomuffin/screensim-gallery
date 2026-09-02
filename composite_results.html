@@ -48,7 +48,7 @@ a{color:var(--accent)}
   <p class="eyebrow">ScreenSim · multi-error assistant leaderboard</p>
   <h1>Assistants tested on the multi-error benchmark, across 3 personas</h1>
   <p class="lead">Every one of the 15 composite episodes (each carrying ≥2 injected
-  errors) is run against three personas and a roster of 9 assistants —
+  errors) is run against three personas and a roster of 10 assistants —
   hosted Gemini and GPT models plus an open-source VLM served locally on GPU —
   bracketed by a silent floor and an oracle ceiling. The harness and metrics follow
   the CookSim references; scores are means over the 15 episodes per persona.</p>
@@ -207,6 +207,21 @@ a{color:var(--accent)}
       <td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td><td class="num" style="background:hsla(70,55%,45%,0.21)">0.50</td><td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td><td class="num" style="background:hsla(5,55%,45%,0.11)">0.03</td>
       <td class="num" style="background:hsla(0,55%,45%,0.10)">0.00</td><td class="num" style="background:hsla(106,55%,45%,0.27)">0.76</td>
       <td class="num">0.07</td></tr>
+<tr class="grp-first"><td rowspan="3" class="cname model">qwen-27b</td>
+      <td class="pers">guided_novice</td>
+      <td class="num" style="background:hsla(47,55%,45%,0.17)">0.33</td><td class="num" style="background:hsla(84,55%,45%,0.23)">0.60</td><td class="num" style="background:hsla(49,55%,45%,0.18)">0.35</td><td class="num" style="background:hsla(40,55%,45%,0.16)">0.28</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(74,55%,45%,0.22)">0.53</td>
+      <td class="num">0.40</td></tr>
+<tr>
+      <td class="pers">brisk_expert</td>
+      <td class="num" style="background:hsla(42,55%,45%,0.17)">0.30</td><td class="num" style="background:hsla(74,55%,45%,0.22)">0.53</td><td class="num" style="background:hsla(46,55%,45%,0.17)">0.33</td><td class="num" style="background:hsla(28,55%,45%,0.14)">0.20</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(78,55%,45%,0.22)">0.56</td>
+      <td class="num">0.67</td></tr>
+<tr>
+      <td class="pers">distracted_average</td>
+      <td class="num" style="background:hsla(79,55%,45%,0.22)">0.57</td><td class="num" style="background:hsla(86,55%,45%,0.23)">0.61</td><td class="num" style="background:hsla(71,55%,45%,0.21)">0.51</td><td class="num" style="background:hsla(75,55%,45%,0.22)">0.53</td>
+      <td class="num" style="background:hsla(56,55%,45%,0.19)">0.40</td><td class="num" style="background:hsla(45,55%,45%,0.17)">0.32</td>
+      <td class="num">0.60</td></tr>
 <tr class="grp-first"><td rowspan="3" class="cname model">qwen2.5-vl-32b</td>
       <td class="pers">guided_novice</td>
       <td class="num" style="background:hsla(70,55%,45%,0.21)">0.50</td><td class="num" style="background:hsla(65,55%,45%,0.20)">0.46</td><td class="num" style="background:hsla(64,55%,45%,0.20)">0.46</td><td class="num" style="background:hsla(70,55%,45%,0.21)">0.50</td>
