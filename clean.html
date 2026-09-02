@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScreenSim — engine correctness</title><style>
+:root{--bg:#0d1017;--surface:#161b24;--ink:#e8ecf5;--muted:#98a2b6;--accent:#4da3ff;--line:#252c38;--good:#4ec98a}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--ink);margin:0;padding:0 1.25rem 6rem;font-family:-apple-system,system-ui,sans-serif;line-height:1.6}
+header{max-width:78rem;margin:3rem auto 1rem;border-bottom:1px solid var(--line);padding-bottom:1.2rem}
+.eyebrow{font-family:ui-monospace,monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:2rem;margin:.4rem 0}.lead{color:var(--muted);max-width:54rem}
+section.task{max-width:78rem;margin:2.4rem auto}h2{font-family:ui-monospace,monospace;color:var(--accent);border-left:3px solid var(--accent);padding-left:.6rem;font-size:1.3rem}
+.instr{color:var(--muted);font-style:italic}.won{color:var(--muted);font-size:.85rem}.won b{color:var(--good)}
+.row{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:1.2rem;align-items:start}@media(max-width:820px){.row{grid-template-columns:1fr}}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem}figcaption{font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
+video{width:100%;border-radius:7px;display:block;background:#000}details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem .9rem}
+summary{cursor:pointer;color:var(--muted);font-size:.85rem}ol.steps{margin:.5rem 0 0;padding-left:1.4rem;columns:2;font-size:.82rem}ol.steps li{margin:.15rem 0}code{font-family:ui-monospace,monospace;color:var(--ink)}
+figure.sheet{margin-top:1rem}figure.sheet img{width:100%;border-radius:6px;display:block}
+</style></head><body><header><p class="eyebrow">ScreenSim · engine correctness</p>
+<h1>Clean completions — no error injected</h1>
+<p class="lead">Each of the 5 benchmark tasks executed by the engine along its reference plan, with <b>no</b> error injected: the completion video, every action in order, and a contact sheet of every step's resulting screen so each transition can be checked. All five reach the goal. (An audit of these renders found and fixed a class of shared-state "twin" bugs — 23 settings rows that silently toggled another row; all are now independent.)</p></header>
+
+<section class="task" id="lost_phone_lockdown"><h2>lost_phone_lockdown</h2><p class="instr">I&#x27;m travelling somewhere sketchy this week — lock this phone down so that even if it&#x27;s stolen, my data stays safe. Turn on Advanced Data Protection and Stolen Device Protection.</p>
+ <p class="won">engine outcome: <b>won</b> · 15 actions · 64 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/lost_phone_lockdown.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (15)</summary><ol class="steps"><li><code>tap Chris Morgan</code></li><li><code>tap iCloud</code></li><li><code>swipe up</code></li><li><code>tap Advanced Data Protection</code></li><li><code>tap Turn On Advanced Data Protection</code></li><li><code>tap Turn On</code></li><li><code>press back</code></li><li><code>press back</code></li><li><code>press back</code></li><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Face ID &amp; Passcode</code></li><li><code>swipe up</code></li><li><code>tap Stolen Device Protection</code></li><li><code>tap Stolen Device Protection</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/lost_phone_lockdown.png" loading="lazy" alt="lost_phone_lockdown steps"></figure>
+</section>
+<section class="task" id="app_privacy_quarantine"><h2>app_privacy_quarantine</h2><p class="instr">TripSnap is following me everywhere. Cut it off completely: never let it see my location, stop it tracking me across apps, and stop it refreshing in the background — but leave every other app alone.</p>
+ <p class="won">engine outcome: <b>won</b> · 18 actions · 76 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/app_privacy_quarantine.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (18)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Privacy &amp; Security</code></li><li><code>tap Location Services</code></li><li><code>tap TripSnap</code></li><li><code>tap Never</code></li><li><code>press back</code></li><li><code>press back</code></li><li><code>tap Tracking</code></li><li><code>tap Allow Apps to Request to Track</code></li><li><code>press back</code></li><li><code>press back</code></li><li><code>swipe down</code></li><li><code>swipe down</code></li><li><code>tap General</code></li><li><code>swipe up</code></li><li><code>tap Background App Refresh</code></li><li><code>tap TripSnap</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/app_privacy_quarantine.png" loading="lazy" alt="app_privacy_quarantine steps"></figure>
+</section>
+<section class="task" id="parent_phone_readability"><h2>parent_phone_readability</h2><p class="instr">Help me set up my dad&#x27;s phone so it&#x27;s easy for him to read — bigger and bolder text, clearer buttons, and less motion.</p>
+ <p class="won">engine outcome: <b>won</b> · 9 actions · 40 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/parent_phone_readability.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (9)</summary><ol class="steps"><li><code>tap Accessibility</code></li><li><code>tap Display &amp; Text Size</code></li><li><code>tap Bold Text</code></li><li><code>tap Larger Text</code></li><li><code>tap Button Shapes</code></li><li><code>tap Increase Contrast</code></li><li><code>press back</code></li><li><code>tap Motion</code></li><li><code>tap Reduce Motion</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/parent_phone_readability.png" loading="lazy" alt="parent_phone_readability steps"></figure>
+</section>
+<section class="task" id="lock_screen_lockdown"><h2>lock_screen_lockdown</h2><p class="instr">If someone grabs my locked phone, make sure they can&#x27;t use Control Center, peek at my Today View widgets, open my Wallet, or return my missed calls — all from the lock screen.</p>
+ <p class="won">engine outcome: <b>won</b> · 8 actions · 36 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/lock_screen_lockdown.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (8)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Face ID &amp; Passcode</code></li><li><code>tap Allow Access When Locked</code></li><li><code>tap Control Center</code></li><li><code>tap Today View and Search</code></li><li><code>tap Wallet</code></li><li><code>tap Return Missed Calls</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/lock_screen_lockdown.png" loading="lazy" alt="lock_screen_lockdown steps"></figure>
+</section>
+<section class="task" id="rent_share_standard"><h2>rent_share_standard</h2><p class="instr">Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it&#x27;s not urgent — and put &#x27;March rent share&#x27; in the note.</p>
+ <p class="won">engine outcome: <b>won</b> · 15 actions · 68 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/rent_share_standard.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (15)</summary><ol class="steps"><li><code>tap Send money</code></li><li><code>tap Alex Chen</code></li><li><code>tap the amount box</code></li><li><code>type &quot;40&quot;</code></li><li><code>press back</code></li><li><code>tap the Note field</code></li><li><code>type &quot;March rent share&quot;</code></li><li><code>press back</code></li><li><code>tap 1-3 business days</code></li><li><code>swipe up</code></li><li><code>tap Review</code></li><li><code>tap Confirm &amp; send</code></li><li><code>tap the code field</code></li><li><code>type &quot;488223&quot;</code></li><li><code>tap Verify &amp; send</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/rent_share_standard.png" loading="lazy" alt="rent_share_standard steps"></figure>
+</section></body></html>
