@@ -334,8 +334,11 @@ press back | press home  pop the stack | return to the launcher</div>
   <p>A candidate error is admitted only if dry-replay shows: the transformed plan
   runs without refusals; it does <em>not</em> still satisfy the goal; the deviation
   is the <em>sole</em> difference from the reference outcome; a validated recovery
-  exists; and the anchor does not collapse to <span class="mono">t₀</span> unless it
-  is genuinely the first committed choice. Certification yields an
+  exists <em>that restores the reference world</em> (not merely one that satisfies the
+  goal — a wrong toggle must be switched back, a moved radio re-selected, an extra
+  choice undone, before the correct control is taken); and the anchor does not
+  collapse to <span class="mono">t₀</span> unless it is genuinely the first
+  committed choice. Certification yields an
   <span class="term">observability point</span> and an <span class="term">outcome
   point</span> — the two ends of the detection window.</p>
 </section>
@@ -382,6 +385,8 @@ press back | press home  pop the stack | return to the launcher</div>
   <div class="tbl"><table>
     <thead><tr><th>metric</th><th>definition</th></tr></thead>
     <tbody>
+      <tr><td><b>committed</b> (per error)</td><td>the run's final world differs from its <em>counterfactual</em> — the same gesture sequence with this error's slip replaced by the correct gesture (or dropped, for an additive error) and its repair taps removed. The error left a trace, whatever the goal says. (Comparing only the error's own state path is not enough: a form field such as the payment source is reset by the send, so it would read "restored" while the money left the wrong account.)</td></tr>
+      <tr><td><b>prevented</b> (per error)</td><td>detected ∧ ¬committed — a correct, accepted flag whose repair restored the reference world before the end</td></tr>
       <tr><td><b>R</b> recall</td><td>injected errors named by a correct flag before they commit (flag after commit = miss; repeats count once)</td></tr>
       <tr><td><b>P</b> precision</td><td><code>TP/(TP+FP)</code>; an alarm about a non-error true of the world is a false alarm</td></tr>
       <tr><td><b>F₁</b></td><td><code>2PR/(P+R)</code></td></tr>
@@ -443,6 +448,20 @@ press back | press home  pop the stack | return to the launcher</div>
   re-used a plan target and silently self-cancelled. All four were fixed and
   re-verified — the three-track method (mechanical + vision + fresh reader) is what
   made the episodes trustworthy.</div>
+  <div class="note key"><b>A second wave, found by watching the videos.</b> Reviewing
+  the filmed episodes exposed four more defects the audits' single frames could not:
+  (i) <em>twenty-three</em> settings rows shared a state path with another row
+  (tapping one silently flipped the other), fixed engine-wide by giving every row its
+  own path and re-deriving the auto-generated task set; (ii) the additive error had
+  no undo, so an accepted detection "repaired" nothing; (iii) repairs were validated
+  on the goal alone, so a wrong toggle stayed switched on after the "fix"; (iv)
+  prevention was read off the error's own state path, which a commit can reset. The
+  cures are the counterfactual grading of §8.2, the world-restoring repair rule of
+  §6.3, and two standing checks: an error-free completion of every task
+  (<a href="clean.html">the engine-correctness baseline</a>) and a validation harness
+  in which the oracle must prevent every error and win every episode while the silent
+  floor must commit every error that fires — the error designs themselves were
+  unchanged, so the audits stand.</div>
 </section>
 
 <!-- 11 -->
@@ -522,7 +541,10 @@ press back | press home  pop the stack | return to the launcher</div>
   <p>Determinism (§2) makes every episode reproducible from its factors, so an
   ablation that varies one factor holds the rest of the world identical. The silent
   floor and oracle ceiling are engineered brackets present in every run, so a score
-  has meaning on an absolute scale.</p>
+  has meaning on an absolute scale — and they double as the engine's acceptance test:
+  a benchmark build is admitted only when the oracle prevents every error and wins
+  every episode, the silent floor commits every error that fires, and every task
+  completes error-free on film (<a href="clean.html">engine-correctness baseline</a>).</p>
 </section>
 
 <!-- 13 -->
