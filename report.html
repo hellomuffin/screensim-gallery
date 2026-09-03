@@ -460,8 +460,9 @@ press back | press home  pop the stack | return to the launcher</div>
   <ul class="tight">
     <li><span class="term">VLM audit</span> — a vision model inspects the rendered
     screen after each injected error and judges whether the mistake is
-    <em>visible</em> and <em>meaningful</em>. Result: <b>60 / 60 errors</b> (one
-    judgment — "the toggle did not change" on a switch that started on — was
+    <em>visible</em> and <em>meaningful</em>. Result: <b>60 / 60 errors</b> (the
+    pass is run twice; a single unstable judgment on the first pass — "the toggle
+    did not change" on a switch that started on — did not recur and was also
     overturned by inspection of the frame).</li>
     <li><span class="term">Subagent audit</span> — a separate agent reads each
     episode's plan and frames and judges whether it is <em>executable</em>,
