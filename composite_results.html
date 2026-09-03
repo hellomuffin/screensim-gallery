@@ -48,7 +48,7 @@ a{color:var(--accent)}
   <p class="eyebrow">ScreenSim · multi-error assistant leaderboard</p>
   <h1>Assistants tested on the multi-error benchmark, across 3 personas</h1>
   <p class="lead">Every one of the 30 composite episodes across 11 hard tasks (each carrying ≥2 injected
-  errors) is run against three personas and a roster of 9 assistants —
+  errors) is run against three personas and a roster of 10 assistants —
   hosted Gemini and GPT models plus an open-source VLM served locally on GPU —
   bracketed by a silent floor and an oracle ceiling. The harness and metrics follow
   the CookSim references; scores are means over the 30 episodes per persona.</p>
@@ -181,18 +181,18 @@ a{color:var(--accent)}
       <td class="num">0.93</td></tr>
 <tr class="grp-first"><td rowspan="3" class="cname model">minicpmo</td>
       <td class="pers">guided_novice</td>
-      <td class="num" style="background:hsla(33,55%,45%,0.15)">0.23</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(37,55%,45%,0.16)">0.27</td><td class="num" style="background:hsla(33,55%,45%,0.15)">0.23</td>
-      <td class="num" style="background:hsla(19,55%,45%,0.13)">0.13</td><td class="num" style="background:hsla(129,55%,45%,0.30)">0.92</td>
-      <td class="num">0.00</td></tr>
+      <td class="num" style="background:hsla(40,55%,45%,0.16)">0.28</td><td class="num" style="background:hsla(127,55%,45%,0.30)">0.91</td><td class="num" style="background:hsla(42,55%,45%,0.17)">0.30</td><td class="num" style="background:hsla(40,55%,45%,0.16)">0.28</td>
+      <td class="num" style="background:hsla(33,55%,45%,0.15)">0.23</td><td class="num" style="background:hsla(127,55%,45%,0.30)">0.90</td>
+      <td class="num">0.07</td></tr>
 <tr>
       <td class="pers">brisk_expert</td>
-      <td class="num" style="background:hsla(56,55%,45%,0.19)">0.40</td><td class="num" style="background:hsla(136,55%,45%,0.31)">0.97</td><td class="num" style="background:hsla(65,55%,45%,0.20)">0.46</td><td class="num" style="background:hsla(42,55%,45%,0.17)">0.30</td>
-      <td class="num" style="background:hsla(23,55%,45%,0.14)">0.17</td><td class="num" style="background:hsla(138,55%,45%,0.32)">0.99</td>
-      <td class="num">0.03</td></tr>
+      <td class="num" style="background:hsla(49,55%,45%,0.18)">0.35</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(56,55%,45%,0.19)">0.40</td><td class="num" style="background:hsla(40,55%,45%,0.16)">0.28</td>
+      <td class="num" style="background:hsla(28,55%,45%,0.14)">0.20</td><td class="num" style="background:hsla(139,55%,45%,0.32)">0.99</td>
+      <td class="num">0.00</td></tr>
 <tr>
       <td class="pers">distracted_average</td>
-      <td class="num" style="background:hsla(80,55%,45%,0.23)">0.57</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(82,55%,45%,0.23)">0.59</td><td class="num" style="background:hsla(80,55%,45%,0.23)">0.57</td>
-      <td class="num" style="background:hsla(72,55%,45%,0.21)">0.52</td><td class="num" style="background:hsla(134,55%,45%,0.31)">0.96</td>
+      <td class="num" style="background:hsla(61,55%,45%,0.20)">0.43</td><td class="num" style="background:hsla(140,55%,45%,0.32)">1.00</td><td class="num" style="background:hsla(64,55%,45%,0.20)">0.46</td><td class="num" style="background:hsla(61,55%,45%,0.20)">0.43</td>
+      <td class="num" style="background:hsla(51,55%,45%,0.18)">0.37</td><td class="num" style="background:hsla(137,55%,45%,0.32)">0.98</td>
       <td class="num">0.00</td></tr>
 <tr class="grp-first"><td rowspan="3" class="cname model">phi-3.5-vision</td>
       <td class="pers">guided_novice</td>
@@ -209,6 +209,21 @@ a{color:var(--accent)}
       <td class="num" style="background:hsla(23,55%,45%,0.14)">0.17</td><td class="num" style="background:hsla(111,55%,45%,0.27)">0.79</td><td class="num" style="background:hsla(25,55%,45%,0.14)">0.18</td><td class="num" style="background:hsla(22,55%,45%,0.13)">0.16</td>
       <td class="num" style="background:hsla(14,55%,45%,0.12)">0.10</td><td class="num" style="background:hsla(102,55%,45%,0.26)">0.73</td>
       <td class="num">0.13</td></tr>
+<tr class="grp-first"><td rowspan="3" class="cname model">qwen-27b</td>
+      <td class="pers">guided_novice</td>
+      <td class="num" style="background:hsla(54,55%,45%,0.18)">0.38</td><td class="num" style="background:hsla(113,55%,45%,0.28)">0.81</td><td class="num" style="background:hsla(55,55%,45%,0.19)">0.39</td><td class="num" style="background:hsla(54,55%,45%,0.18)">0.38</td>
+      <td class="num" style="background:hsla(33,55%,45%,0.15)">0.23</td><td class="num" style="background:hsla(97,55%,45%,0.25)">0.69</td>
+      <td class="num">0.27</td></tr>
+<tr>
+      <td class="pers">brisk_expert</td>
+      <td class="num" style="background:hsla(37,55%,45%,0.16)">0.27</td><td class="num" style="background:hsla(76,55%,45%,0.22)">0.54</td><td class="num" style="background:hsla(42,55%,45%,0.17)">0.30</td><td class="num" style="background:hsla(26,55%,45%,0.14)">0.18</td>
+      <td class="num" style="background:hsla(9,55%,45%,0.11)">0.07</td><td class="num" style="background:hsla(96,55%,45%,0.25)">0.68</td>
+      <td class="num">0.50</td></tr>
+<tr>
+      <td class="pers">distracted_average</td>
+      <td class="num" style="background:hsla(82,55%,45%,0.23)">0.58</td><td class="num" style="background:hsla(97,55%,45%,0.25)">0.69</td><td class="num" style="background:hsla(76,55%,45%,0.22)">0.55</td><td class="num" style="background:hsla(82,55%,45%,0.23)">0.58</td>
+      <td class="num" style="background:hsla(75,55%,45%,0.22)">0.53</td><td class="num" style="background:hsla(54,55%,45%,0.19)">0.39</td>
+      <td class="num">0.57</td></tr>
 <tr class="grp-first"><td rowspan="3" class="cname model">qwen2.5-vl-32b</td>
       <td class="pers">guided_novice</td>
       <td class="num" style="background:hsla(98,55%,45%,0.25)">0.70</td><td class="num" style="background:hsla(104,55%,45%,0.26)">0.74</td><td class="num" style="background:hsla(97,55%,45%,0.25)">0.69</td><td class="num" style="background:hsla(98,55%,45%,0.25)">0.70</td>
