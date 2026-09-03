@@ -15,9 +15,121 @@ summary{cursor:pointer;color:var(--muted);font-size:.85rem}ol.steps{margin:.5rem
 figure.sheet{margin-top:1rem}figure.sheet img{width:100%;border-radius:6px;display:block}
 </style></head><body><header><p class="eyebrow">ScreenSim · engine correctness</p>
 <h1>Clean completions — no error injected</h1>
-<p class="lead">Each of the 11 hard benchmark tasks executed by the engine along its reference plan, with <b>no</b> error injected: the completion video, every action in order, and a contact sheet of every step's resulting screen so each transition can be checked. 11 of 11 reach the goal. (Auditing these renders is what found and fixed the shared-state "twin" bug class — 23 settings rows that silently toggled another row.) The multi-error episodes built on these tasks are on the <a href="composites.html" style="color:var(--accent)">audited-episodes page</a>; the results are on the <a href="composite_results.html" style="color:var(--accent)">leaderboard</a>.</p>
-<p class="nav"><a href="#lost_phone_lockdown">lost_phone_lockdown</a> · <a href="#app_privacy_quarantine">app_privacy_quarantine</a> · <a href="#parent_phone_readability">parent_phone_readability</a> · <a href="#lock_screen_lockdown">lock_screen_lockdown</a> · <a href="#rent_share_standard">rent_share_standard</a> · <a href="#hearing_setup">hearing_setup</a> · <a href="#stop_profiling">stop_profiling</a> · <a href="#siri_lock_screen_privacy">siri_lock_screen_privacy</a> · <a href="#keyboard_stop_correcting">keyboard_stop_correcting</a> · <a href="#standby_bedside">standby_bedside</a> · <a href="#rent_landlord_instant">rent_landlord_instant</a></p></header>
+<p class="lead">Each of the 26 hard benchmark tasks executed by the engine along its reference plan, with <b>no</b> error injected: the completion video, every action in order, and a contact sheet of every step's resulting screen so each transition can be checked. 26 of 26 reach the goal. (Auditing these renders is what found and fixed the shared-state "twin" bug class — 23 settings rows that silently toggled another row.) The multi-error episodes built on these tasks are on the <a href="composites.html" style="color:var(--accent)">audited-episodes page</a>; the results are on the <a href="composite_results.html" style="color:var(--accent)">leaderboard</a>.</p>
+<p class="nav"><a href="#hotspot_2ghz">hotspot_2ghz</a> · <a href="#loc_never_tripsnap">loc_never_tripsnap</a> · <a href="#precise_off_weatherly">precise_off_weatherly</a> · <a href="#mic_quickpay_off">mic_quickpay_off</a> · <a href="#bg_refresh_tripsnap">bg_refresh_tripsnap</a> · <a href="#autolock_5min">autolock_5min</a> · <a href="#safari_notif_quiet">safari_notif_quiet</a> · <a href="#wifi_join_secured">wifi_join_secured</a> · <a href="#roaming_off">roaming_off</a> · <a href="#dark_via_cc">dark_via_cc</a> · <a href="#rent_share_standard">rent_share_standard</a> · <a href="#checkout_promo_gift">checkout_promo_gift</a> · <a href="#report_cc_finance">report_cc_finance</a> · <a href="#offload_unused">offload_unused</a> · <a href="#adp_encrypt_icloud">adp_encrypt_icloud</a> · <a href="#limit_adult_web">limit_adult_web</a> · <a href="#lost_phone_lockdown">lost_phone_lockdown</a> · <a href="#app_privacy_quarantine">app_privacy_quarantine</a> · <a href="#parent_phone_readability">parent_phone_readability</a> · <a href="#lock_screen_lockdown">lock_screen_lockdown</a> · <a href="#hearing_setup">hearing_setup</a> · <a href="#stop_profiling">stop_profiling</a> · <a href="#siri_lock_screen_privacy">siri_lock_screen_privacy</a> · <a href="#keyboard_stop_correcting">keyboard_stop_correcting</a> · <a href="#standby_bedside">standby_bedside</a> · <a href="#rent_landlord_instant">rent_landlord_instant</a></p></header>
 
+<section class="task" id="hotspot_2ghz"><h2>hotspot_2ghz</h2><p class="instr">My old ThinkPad only sees 2.4 GHz networks. Set up my Personal Hotspot with password &#x27;trailmix88&#x27; so it can connect — I need it for a presentation in five minutes.</p>
+ <p class="won">engine outcome: <b>won</b> · 7 actions · 34 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/hotspot_2ghz.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (7)</summary><ol class="steps"><li><code>tap Personal Hotspot</code></li><li><code>tap Wi-Fi Password</code></li><li><code>tap the Password field</code></li><li><code>type &quot;trailmix88&quot;</code></li><li><code>tap Done</code></li><li><code>tap Maximize Compatibility</code></li><li><code>tap Allow Others to Join</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/hotspot_2ghz.png" loading="lazy" alt="hotspot_2ghz steps"></figure>
+</section>
+<section class="task" id="loc_never_tripsnap"><h2>loc_never_tripsnap</h2><p class="instr">TripSnap keeps tracking me. Make sure it can NEVER access my location.</p>
+ <p class="won">engine outcome: <b>won</b> · 6 actions · 28 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/loc_never_tripsnap.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (6)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Privacy &amp; Security</code></li><li><code>tap Location Services</code></li><li><code>tap TripSnap</code></li><li><code>tap Never</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/loc_never_tripsnap.png" loading="lazy" alt="loc_never_tripsnap steps"></figure>
+</section>
+<section class="task" id="precise_off_weatherly"><h2>precise_off_weatherly</h2><p class="instr">Weatherly only needs my rough area for the forecast — stop it from seeing my precise location, but let it keep working while I use it.</p>
+ <p class="won">engine outcome: <b>won</b> · 6 actions · 28 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/precise_off_weatherly.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (6)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Privacy &amp; Security</code></li><li><code>tap Location Services</code></li><li><code>tap Weatherly</code></li><li><code>tap Precise Location</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/precise_off_weatherly.png" loading="lazy" alt="precise_off_weatherly steps"></figure>
+</section>
+<section class="task" id="mic_quickpay_off"><h2>mic_quickpay_off</h2><p class="instr">Why would a payments app need my microphone? Revoke QuickPay&#x27;s mic access.</p>
+ <p class="won">engine outcome: <b>won</b> · 5 actions · 24 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/mic_quickpay_off.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (5)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Privacy &amp; Security</code></li><li><code>tap Microphone</code></li><li><code>tap QuickPay</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/mic_quickpay_off.png" loading="lazy" alt="mic_quickpay_off steps"></figure>
+</section>
+<section class="task" id="bg_refresh_tripsnap"><h2>bg_refresh_tripsnap</h2><p class="instr">TripSnap is eating my battery in the background. Stop just TripSnap from refreshing in the background — leave every other app alone.</p>
+ <p class="won">engine outcome: <b>won</b> · 3 actions · 16 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/bg_refresh_tripsnap.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (3)</summary><ol class="steps"><li><code>tap General</code></li><li><code>tap Background App Refresh</code></li><li><code>tap TripSnap</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/bg_refresh_tripsnap.png" loading="lazy" alt="bg_refresh_tripsnap steps"></figure>
+</section>
+<section class="task" id="autolock_5min"><h2>autolock_5min</h2><p class="instr">My screen keeps locking while I&#x27;m reading recipes — set Auto-Lock to 5 minutes.</p>
+ <p class="won">engine outcome: <b>won</b> · 5 actions · 24 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/autolock_5min.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (5)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>tap Display &amp; Brightness</code></li><li><code>swipe up</code></li><li><code>tap Auto-Lock</code></li><li><code>tap 5 Minutes</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/autolock_5min.png" loading="lazy" alt="autolock_5min steps"></figure>
+</section>
+<section class="task" id="safari_notif_quiet"><h2>safari_notif_quiet</h2><p class="instr">Safari&#x27;s notification pings are driving me crazy in meetings, but I still want to see the banners. Turn off just the sounds for Safari notifications.</p>
+ <p class="won">engine outcome: <b>won</b> · 5 actions · 24 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/safari_notif_quiet.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (5)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Notifications</code></li><li><code>tap Safari</code></li><li><code>tap Sounds</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/safari_notif_quiet.png" loading="lazy" alt="safari_notif_quiet steps"></figure>
+</section>
+<section class="task" id="wifi_join_secured"><h2>wifi_join_secured</h2><p class="instr">Get me on the SkyNet_2.4 Wi-Fi — the password is &#x27;PineTree9&#x27;.</p>
+ <p class="won">engine outcome: <b>won</b> · 8 actions · 32 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/wifi_join_secured.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (8)</summary><ol class="steps"><li><code>tap Wi-Fi</code></li><li><code>tap SkyNet_2.4</code></li><li><code>tap the Password field</code></li><li><code>type &quot;PineTree9&quot;</code></li><li><code>tap Join</code></li><li><code>wait</code></li><li><code>wait</code></li><li><code>wait</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/wifi_join_secured.png" loading="lazy" alt="wifi_join_secured steps"></figure>
+</section>
+<section class="task" id="roaming_off"><h2>roaming_off</h2><p class="instr">I fly to Lisbon tonight — make sure data roaming is off so I don&#x27;t get a surprise bill, but don&#x27;t kill my cellular data here.</p>
+ <p class="won">engine outcome: <b>won</b> · 3 actions · 16 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/roaming_off.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (3)</summary><ol class="steps"><li><code>tap Cellular</code></li><li><code>tap Cellular Data Options</code></li><li><code>tap Data Roaming</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/roaming_off.png" loading="lazy" alt="roaming_off steps"></figure>
+</section>
+<section class="task" id="dark_via_cc"><h2>dark_via_cc</h2><p class="instr">Switch the phone to Dark Mode — fastest way you know.</p>
+ <p class="won">engine outcome: <b>won</b> · 3 actions · 16 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/dark_via_cc.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (3)</summary><ol class="steps"><li><code>swipe down from the top right</code></li><li><code>tap Dark Mode</code></li><li><code>swipe up</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/dark_via_cc.png" loading="lazy" alt="dark_via_cc steps"></figure>
+</section>
+<section class="task" id="rent_share_standard"><h2>rent_share_standard</h2><p class="instr">Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it&#x27;s not urgent — and put &#x27;March rent share&#x27; in the note.</p>
+ <p class="won">engine outcome: <b>won</b> · 15 actions · 68 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/rent_share_standard.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (15)</summary><ol class="steps"><li><code>tap Send money</code></li><li><code>tap Alex Chen</code></li><li><code>tap the amount box</code></li><li><code>type &quot;40&quot;</code></li><li><code>press back</code></li><li><code>tap the Note field</code></li><li><code>type &quot;March rent share&quot;</code></li><li><code>press back</code></li><li><code>tap 1-3 business days</code></li><li><code>swipe up</code></li><li><code>tap Review</code></li><li><code>tap Confirm &amp; send</code></li><li><code>tap the code field</code></li><li><code>type OTP</code></li><li><code>tap Verify &amp; send</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/rent_share_standard.png" loading="lazy" alt="rent_share_standard steps"></figure>
+</section>
+<section class="task" id="checkout_promo_gift"><h2>checkout_promo_gift</h2><p class="instr">Buy the Trailhead 2P Tent as a gift before it sells out — only 2 left. Ship it EXPRESS to 12 Pine St, apply the promo code CAMP10, and mark it as a gift so the price doesn&#x27;t show.</p>
+ <p class="won">engine outcome: <b>won</b> · 15 actions · 68 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/checkout_promo_gift.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (15)</summary><ol class="steps"><li><code>tap Trailhead 2P Tent</code></li><li><code>tap Add to cart</code></li><li><code>tap Checkout</code></li><li><code>tap the Address field</code></li><li><code>type &quot;12 Pine St&quot;</code></li><li><code>press back</code></li><li><code>tap Express</code></li><li><code>tap Visa</code></li><li><code>swipe up</code></li><li><code>tap the Promo code field</code></li><li><code>type &quot;CAMP10&quot;</code></li><li><code>press back</code></li><li><code>tap Apply</code></li><li><code>tap Gift receipt</code></li><li><code>tap Place order</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/checkout_promo_gift.png" loading="lazy" alt="checkout_promo_gift steps"></figure>
+</section>
+<section class="task" id="report_cc_finance"><h2>report_cc_finance</h2><p class="instr">Reply to Dana with the Q3 report attached, and Cc finance@corvex.com — they need it for the audit trail. She needs it before 5pm.</p>
+ <p class="won">engine outcome: <b>won</b> · 12 actions · 56 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/report_cc_finance.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (12)</summary><ol class="steps"><li><code>tap Q3 report</code></li><li><code>tap Reply</code></li><li><code>tap the Cc field</code></li><li><code>type &quot;finance@corvex.com&quot;</code></li><li><code>press back</code></li><li><code>tap the Body field</code></li><li><code>type &quot;Hi Dana, report attached. Copying finance.&quot;</code></li><li><code>press back</code></li><li><code>tap Attach file</code></li><li><code>tap Q3_Report.pdf</code></li><li><code>swipe up</code></li><li><code>tap Send</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/report_cc_finance.png" loading="lazy" alt="report_cc_finance steps"></figure>
+</section>
+<section class="task" id="offload_unused"><h2>offload_unused</h2><p class="instr">My storage is full and the camera won&#x27;t shoot. Turn on the Offload Unused Apps recommendation — it frees space but keeps all my documents and data.</p>
+ <p class="won">engine outcome: <b>won</b> · 4 actions · 20 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/offload_unused.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (4)</summary><ol class="steps"><li><code>tap General</code></li><li><code>tap iPhone Storage</code></li><li><code>tap Offload Unused Apps</code></li><li><code>tap Enable</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/offload_unused.png" loading="lazy" alt="offload_unused steps"></figure>
+</section>
+<section class="task" id="adp_encrypt_icloud"><h2>adp_encrypt_icloud</h2><p class="instr">I just read about a cloud data breach — turn on Advanced Data Protection so Apple can&#x27;t read my iCloud data. Don&#x27;t turn off web access to iCloud though, I still use icloud.com at work.</p>
+ <p class="won">engine outcome: <b>won</b> · 6 actions · 28 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/adp_encrypt_icloud.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (6)</summary><ol class="steps"><li><code>tap Chris Morgan</code></li><li><code>tap iCloud</code></li><li><code>swipe up</code></li><li><code>tap Advanced Data Protection</code></li><li><code>tap Turn On Advanced Data Protection</code></li><li><code>tap Turn On</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/adp_encrypt_icloud.png" loading="lazy" alt="adp_encrypt_icloud steps"></figure>
+</section>
+<section class="task" id="limit_adult_web"><h2>limit_adult_web</h2><p class="instr">My 9-year-old nephew is borrowing my phone this weekend — set the web filter to limit adult websites in Safari. Leave everything else alone.</p>
+ <p class="won">engine outcome: <b>won</b> · 8 actions · 36 frames</p>
+ <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
+  <video src="videos/clean/limit_adult_web.mp4" controls loop muted playsinline preload="none"></video></figure>
+ <details open><summary>Every action, in order (8)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Screen Time</code></li><li><code>tap Content &amp; Privacy Restrictions</code></li><li><code>tap Content &amp; Privacy Restrictions</code></li><li><code>tap App Store, Media, Web, &amp; Games</code></li><li><code>tap Web Content</code></li><li><code>tap Limit Adult Websites</code></li></ol></details></div>
+ <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/limit_adult_web.png" loading="lazy" alt="limit_adult_web steps"></figure>
+</section>
 <section class="task" id="lost_phone_lockdown"><h2>lost_phone_lockdown</h2><p class="instr">I&#x27;m travelling somewhere sketchy this week — lock this phone down so that even if it&#x27;s stolen, my data stays safe. Turn on Advanced Data Protection and Stolen Device Protection.</p>
  <p class="won">engine outcome: <b>won</b> · 15 actions · 64 frames</p>
  <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
@@ -45,13 +157,6 @@ figure.sheet{margin-top:1rem}figure.sheet img{width:100%;border-radius:6px;displ
   <video src="videos/clean/lock_screen_lockdown.mp4" controls loop muted playsinline preload="none"></video></figure>
  <details open><summary>Every action, in order (8)</summary><ol class="steps"><li><code>swipe up</code></li><li><code>swipe up</code></li><li><code>tap Face ID &amp; Passcode</code></li><li><code>tap Allow Access When Locked</code></li><li><code>tap Control Center</code></li><li><code>tap Today View and Search</code></li><li><code>tap Wallet</code></li><li><code>tap Return Missed Calls</code></li></ol></details></div>
  <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/lock_screen_lockdown.png" loading="lazy" alt="lock_screen_lockdown steps"></figure>
-</section>
-<section class="task" id="rent_share_standard"><h2>rent_share_standard</h2><p class="instr">Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it&#x27;s not urgent — and put &#x27;March rent share&#x27; in the note.</p>
- <p class="won">engine outcome: <b>won</b> · 15 actions · 68 frames</p>
- <div class="row"><figure><figcaption>Clean completion — the reference plan, no error injected</figcaption>
-  <video src="videos/clean/rent_share_standard.mp4" controls loop muted playsinline preload="none"></video></figure>
- <details open><summary>Every action, in order (15)</summary><ol class="steps"><li><code>tap Send money</code></li><li><code>tap Alex Chen</code></li><li><code>tap the amount box</code></li><li><code>type &quot;40&quot;</code></li><li><code>press back</code></li><li><code>tap the Note field</code></li><li><code>type &quot;March rent share&quot;</code></li><li><code>press back</code></li><li><code>tap 1-3 business days</code></li><li><code>swipe up</code></li><li><code>tap Review</code></li><li><code>tap Confirm &amp; send</code></li><li><code>tap the code field</code></li><li><code>type OTP</code></li><li><code>tap Verify &amp; send</code></li></ol></details></div>
- <figure class="sheet"><figcaption>Every step's resulting screen (contact sheet)</figcaption><img src="clean/rent_share_standard.png" loading="lazy" alt="rent_share_standard steps"></figure>
 </section>
 <section class="task" id="hearing_setup"><h2>hearing_setup</h2><p class="instr">My grandmother is hard of hearing. Set up her phone so alerts flash the LED, audio plays in mono, and closed captions are always on — but don&#x27;t turn on VoiceOver, it confuses her.</p>
  <p class="won">engine outcome: <b>won</b> · 10 actions · 44 frames</p>
