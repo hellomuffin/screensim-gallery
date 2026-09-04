@@ -293,7 +293,7 @@ press back | press home  pop the stack | return to the launcher</div>
   <p>The <span class="term">human agent</span> role-plays the person whose hands move
   the phone; the <span class="term">assistant agent</span> watches and may only talk.
   The human sees the goal, the live screen, its own history, the assistant's spoken
-  lines, its own plan, and its private persona (skill, trust); it emits
+  lines, its own history, and its private persona (skill, trust); it emits
   <code>{utterance, move, close_conversation, plan_update}</code> — only
   <b>utterance</b> crosses. The <span class="term">move</span> is one of the seven
   CookSim conversational moves (<code>ask_why, question_correctness,
@@ -321,9 +321,9 @@ press back | press home  pop the stack | return to the launcher</div>
   model may follow the assistant's clean guidance and never make the mistake. The
   error is instead the engine's doing.</p>
   <ol class="phases">
-    <li><b>Advance.</b> The human proceeds normally until it reaches the deviation anchor.</li>
-    <li><b>Hard takeover (inject).</b> At the anchor the engine overrides the human's gesture with the designed slip; the mistake now exists in the world.</li>
-    <li><b>Hold.</b> While the slip stands, the engine blocks the human's own attempts to undo it — so the assistant, not luck, must cause any recovery.</li>
+    <li><b>Advance.</b> The person plans its own taps, a few at a time, from the goal and what it sees — nobody hands it the steps; if it does not know where a setting lives it asks the assistant. The engine watches each tap the person is about to take.</li>
+    <li><b>Hard takeover (inject).</b> When the tap the person is about to take is the designed error's anchor step (same effect on the world, on the screen the step belongs to), the engine executes the designed slip instead of that tap; the mistake now exists in the world and the person believes it made it.</li>
+    <li><b>Hold.</b> While the slip stands, the engine blocks the person's own attempts to undo it (a value cannot be set back, a wrong page cannot be left) — so the assistant, not luck, must cause any recovery. A commit is never held back: an unrepaired error commits.</li>
     <li><b>Soft release.</b> A flag with the <em>correct type</em> arms the error; only the person's <code>accept</code> move releases it. The person then states its fix as a <code>plan_update</code>; the fix is dry-run on a copy of the phone and carried out only if it actually undoes the slip (a <em>human fix</em>), otherwise the released body undoes it the canonical way (a <em>fallback repair</em>, counted separately). A late acceptance routes back to the screen the slip happened on, undoes it, and returns.</li>
     <li><b>Maximum hold.</b> If no correct detection arrives, the error stands — a reversible one persists to the final state, an irreversible one commits.</li>
   </ol>
