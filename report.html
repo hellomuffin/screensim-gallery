@@ -293,15 +293,24 @@ press back | press home  pop the stack | return to the launcher</div>
   <p>The <span class="term">human agent</span> role-plays the person whose hands move
   the phone; the <span class="term">assistant agent</span> watches and may only talk.
   The human sees the goal, the live screen, its own history, the assistant's spoken
-  lines, its persona, and a private <em>slip</em>; it emits
-  <code>{utterance, gesture, think}</code> — only <b>utterance</b> crosses. The
+  lines, and its private persona card; it emits
+  <code>{utterance, move, close_conversation, plan_update}</code> — only
+  <b>utterance</b> crosses. The <span class="term">move</span> is one of the seven
+  CookSim conversational moves (<code>ask_why, question_correctness,
+  ask_for_more_guidance, ask_for_less_interruption, accept, reject, answer</code>),
+  and the <span class="term">plan_update</span> (<code>drop | append | replace</code>
+  + gestures) is how a convinced person re-plans. The
   assistant sees the goal, the <span class="term">User Guide procedure</span> for the
   task (the Apple iPhone User Guide article sections that name the task's controls,
   from the same local mirror the tasks were authored from; the simulator's own apps
-  supply their help text), the last 2 screenshots, the persona questionnaire, and its
-  own memory; it emits <code>{text, flag}</code> — only <b>text</b> crosses. The
-  manual is what lets an advisor know which row is right; without it every task
-  would be a guessing game. A prompt audit (which exempts the quoted manual) fails
+  supply their help text), the last 2 screenshots, the person's stated preferences, and its
+  own previous reply; it emits <code>{task_progress, goal_change, text, flag}</code>
+  — only <b>text</b> crosses. <span class="term">task_progress</span> is the
+  assistant's own subgoal ledger (completed / current / future); the
+  <span class="term">flag</span> is <code>null</code> or <code>{error: t}</code> with
+  <code>t</code> one of the four taxonomy names in §6, graded by <em>exact match</em>
+  (the spoken text is only secondary credit). The manual is what lets an advisor
+  know which row is right; without it every task would be a guessing game. A prompt audit (which exempts the quoted manual) fails
   the run if the assistant prompt contains the plan, the slip, a detection window,
   a grading term, or a coordinate: the assistant must infer both
   the correct steps and any mistake from the goal and the pixels alone. The human
@@ -315,10 +324,10 @@ press back | press home  pop the stack | return to the launcher</div>
     <li><b>Advance.</b> The human proceeds normally until it reaches the deviation anchor.</li>
     <li><b>Hard takeover (inject).</b> At the anchor the engine overrides the human's gesture with the designed slip; the mistake now exists in the world.</li>
     <li><b>Hold.</b> While the slip stands, the engine blocks the human's own attempts to undo it — so the assistant, not luck, must cause any recovery.</li>
-    <li><b>Soft release.</b> A <em>correct</em> detection the human accepts releases the hold; the human repairs and continues.</li>
+    <li><b>Soft release.</b> A flag with the <em>correct type</em> arms the error; only the person's <code>accept</code> move releases it. The person then states its fix as a <code>plan_update</code>; the fix is dry-run on a copy of the phone and carried out only if it actually undoes the slip (a <em>human fix</em>), otherwise the released body undoes it the canonical way (a <em>fallback repair</em>, counted separately). A late acceptance routes back to the screen the slip happened on, undoes it, and returns.</li>
     <li><b>Maximum hold.</b> If no correct detection arrives, the error stands — a reversible one persists to the final state, an irreversible one commits.</li>
   </ol>
-  <div class="note key"><b>Why this shape.</b> The error is guaranteed to occur (detection is always measurable), self-recovery is suppressed (credit is attributable), and release is conditioned on a genuinely correct intervention (no credit for a vague or lucky remark). The takeover applies to the scripted human <em>and</em> the free LLM human.</div>
+  <div class="note key"><b>Why this shape.</b> The error is guaranteed to occur (detection is always measurable), self-recovery is suppressed (credit is attributable), and release is conditioned on a genuinely correct intervention (no credit for a vague or lucky remark). The takeover applies to every human: in the multi-error benchmark the person is always an LLM (gemini-3.7-flash), never a script.</div>
 </section>
 
 <!-- 6 -->
@@ -367,19 +376,30 @@ press back | press home  pop the stack | return to the launcher</div>
 <!-- 7 -->
 <section id="s7" class="wide">
   <h2><span class="sn">7</span>Personas</h2>
-  <p class="lead">The person is drawn from a persona that controls behavior through
-  mechanical dials, exposing only a short questionnaire to the assistant.</p>
-  <p>Private dials — fluency, a rebuttal budget (pushes back on a correct flag before
-  accepting), and a mandatory check-in before irreversible actions — are enforced by
-  the harness and never shown. A shared questionnaire of three stated preferences is
-  shown verbatim; skill and trust must be inferred from behavior.</p>
+  <p class="lead">The person is drawn from the CookSim persona-v2 roster: a five-axis
+  card, two axes private and three public.</p>
+  <p><span class="term">Skill</span> (novice / average / expert: how well they know the
+  phone) and <span class="term">trust</span> (low / medium / high: how readily they
+  believe a correction) are <em>private</em> — the person plays them, the assistant
+  never sees them. Three stated preferences are <em>public</em> and shown verbatim to
+  both sides: <b>q1 pace</b> (careful / steady / fast), <b>q2 alerting</b> (tell me
+  everything / only real problems / only irreversible), <b>q3 interruption</b>
+  (keep going / pause / let me finish). There are no mechanical dials: a low-trust
+  expert rejects because it is playing a low-trust expert, and a high-trust novice
+  accepts a wrong correction for the same reason.</p>
   <div class="tbl"><table>
-    <thead><tr><th>persona</th><th>fluency</th><th>rebuttals</th><th>confirm irrev.</th><th>questionnaire</th></tr></thead>
+    <thead><tr><th>persona</th><th>skill (private)</th><th>trust (private)</th><th>q1 pace</th><th>q2 alerting</th><th>q3 interruption</th></tr></thead>
     <tbody>
-      <tr><td class="mono">guided_novice</td><td>novice</td><td class="num">0</td><td>yes</td><td>"tell me exactly what to tap" · "warn me before anything permanent" · "check in often"</td></tr>
-      <tr><td class="mono">brisk_expert</td><td>expert</td><td class="num">1</td><td>no</td><td>"one short sentence when it matters" · "only speak up if something's wrong" · "don't narrate what I can see"</td></tr>
-      <tr><td class="mono">distracted_average</td><td>average</td><td class="num">0</td><td>no</td><td>"keep it brief, I'm multitasking" · "warn me before payments" · "don't repeat yourself"</td></tr>
-    </tbody></table><caption>Table 7.1 — The persona roster. The dials are mechanical; the questionnaire is the only user model the assistant receives.</caption></div>
+      <tr><td class="mono">baseline</td><td>average</td><td>medium</td><td>steady</td><td>only real problems</td><td>pause</td></tr>
+      <tr><td class="mono">classic_novice</td><td>novice</td><td>high</td><td>careful</td><td>tell me everything</td><td>pause</td></tr>
+      <tr><td class="mono">classic_expert</td><td>expert</td><td>low</td><td>fast</td><td>only irreversible</td><td>let me finish</td></tr>
+      <tr><td class="mono">defiant_novice</td><td>novice</td><td>low</td><td>steady</td><td>only real problems</td><td>let me finish</td></tr>
+      <tr><td class="mono">credulous_expert</td><td>expert</td><td>high</td><td>fast</td><td>tell me everything</td><td>keep going</td></tr>
+      <tr><td class="mono">speed_demon</td><td>average</td><td>medium</td><td>fast</td><td>only irreversible</td><td>keep going</td></tr>
+      <tr><td class="mono">safety_stepper</td><td>average</td><td>high</td><td>careful</td><td>tell me everything</td><td>pause</td></tr>
+      <tr><td class="mono">quiet_perfectionist</td><td>expert</td><td>medium</td><td>careful</td><td>only real problems</td><td>let me finish</td></tr>
+      <tr><td class="mono">eager_parallel_novice</td><td>novice</td><td>medium</td><td>fast</td><td>tell me everything</td><td>keep going</td></tr>
+    </tbody></table><caption>Table 7.1 — The persona-v2 roster. The benchmark cells use <code>classic_novice</code>, <code>classic_expert</code> and <code>baseline</code>; the assistant receives only the three public columns.</caption></div>
 </section>
 
 <hr class="rule">
@@ -407,8 +427,8 @@ press back | press home  pop the stack | return to the launcher</div>
     <thead><tr><th>metric</th><th>definition</th></tr></thead>
     <tbody>
       <tr><td><b>committed</b> (per error)</td><td>the run's final world differs from its <em>counterfactual</em> — the same gesture sequence with this error's slip replaced by the correct gesture (or dropped, for an additive error) and its repair taps removed. The error left a trace, whatever the goal says. (Comparing only the error's own state path is not enough: a form field such as the payment source is reset by the send, so it would read "restored" while the money left the wrong account.)</td></tr>
-      <tr><td><b>prevented</b> (per error)</td><td>detected ∧ ¬committed — a correct, accepted flag whose repair restored the reference world before the end</td></tr>
-      <tr><td><b>R</b> recall</td><td>injected errors named by a correct flag before they commit (flag after commit = miss; repeats count once)</td></tr>
+      <tr><td><b>prevented</b> (per error)</td><td>detected ∧ ¬committed — a correct flag the person <em>accepted</em>, whose repair restored the reference world before the end. Each accepted error also records whether the person's own stated fix did the undo (<b>human fix</b>) or the released body had to (<b>fallback repair</b>)</td></tr>
+      <tr><td><b>R</b> recall</td><td>injected errors named by a correct flag before they commit (flag after commit = miss; repeats count once). A flag is correct when its <em>typed</em> error name matches an open error's taxonomy type (exact match); a flag of the wrong type whose text names the right control earns secondary credit and is counted in <code>typed_right / typed_flags</code></td></tr>
       <tr><td><b>P</b> precision</td><td><code>TP/(TP+FP)</code>; an alarm about a non-error true of the world is a false alarm</td></tr>
       <tr><td><b>F₁</b></td><td><code>2PR/(P+R)</code></td></tr>
       <tr><td><b>DT</b> detection timing</td><td>mean of {1 prevented · 0.5 correct flag before commit · 0 else}</td></tr>
