@@ -293,7 +293,7 @@ press back | press home  pop the stack | return to the launcher</div>
   <p>The <span class="term">human agent</span> role-plays the person whose hands move
   the phone; the <span class="term">assistant agent</span> watches and may only talk.
   The human sees the goal, the live screen, its own history, the assistant's spoken
-  lines, and its private persona card; it emits
+  lines, its own plan, and its private persona (skill, trust); it emits
   <code>{utterance, move, close_conversation, plan_update}</code> — only
   <b>utterance</b> crosses. The <span class="term">move</span> is one of the seven
   CookSim conversational moves (<code>ask_why, question_correctness,
@@ -303,7 +303,7 @@ press back | press home  pop the stack | return to the launcher</div>
   assistant sees the goal, the <span class="term">User Guide procedure</span> for the
   task (the Apple iPhone User Guide article sections that name the task's controls,
   from the same local mirror the tasks were authored from; the simulator's own apps
-  supply their help text), the last 2 screenshots, the person's stated preferences, and its
+  supply their help text), the last 2 screenshots, and its
   own previous reply; it emits <code>{task_progress, goal_change, text, flag}</code>
   — only <b>text</b> crosses. <span class="term">task_progress</span> is the
   assistant's own subgoal ledger (completed / current / future); the
@@ -376,30 +376,28 @@ press back | press home  pop the stack | return to the launcher</div>
 <!-- 7 -->
 <section id="s7" class="wide">
   <h2><span class="sn">7</span>Personas</h2>
-  <p class="lead">The person is drawn from the CookSim persona-v2 roster: a five-axis
-  card, two axes private and three public.</p>
+  <p class="lead">The person is drawn from the CookSim persona-v2 roster: a private card
+  on two axes.</p>
   <p><span class="term">Skill</span> (novice / average / expert: how well they know the
   phone) and <span class="term">trust</span> (low / medium / high: how readily they
-  believe a correction) are <em>private</em> — the person plays them, the assistant
-  never sees them. Three stated preferences are <em>public</em> and shown verbatim to
-  both sides: <b>q1 pace</b> (careful / steady / fast), <b>q2 alerting</b> (tell me
-  everything / only real problems / only irreversible), <b>q3 interruption</b>
-  (keep going / pause / let me finish). There are no mechanical dials: a low-trust
-  expert rejects because it is playing a low-trust expert, and a high-trust novice
-  accepts a wrong correction for the same reason.</p>
+  believe a correction) are the whole persona. Both are <em>private</em>: the person
+  plays them, and the assistant is told nothing about the person — it must read skill
+  and trust off behaviour. There are no mechanical dials and no questionnaire: a
+  low-trust expert rejects because it is playing a low-trust expert, and a high-trust
+  novice accepts a wrong correction for the same reason.</p>
   <div class="tbl"><table>
-    <thead><tr><th>persona</th><th>skill (private)</th><th>trust (private)</th><th>q1 pace</th><th>q2 alerting</th><th>q3 interruption</th></tr></thead>
+    <thead><tr><th>persona</th><th>skill</th><th>trust</th></tr></thead>
     <tbody>
-      <tr><td class="mono">baseline</td><td>average</td><td>medium</td><td>steady</td><td>only real problems</td><td>pause</td></tr>
-      <tr><td class="mono">classic_novice</td><td>novice</td><td>high</td><td>careful</td><td>tell me everything</td><td>pause</td></tr>
-      <tr><td class="mono">classic_expert</td><td>expert</td><td>low</td><td>fast</td><td>only irreversible</td><td>let me finish</td></tr>
-      <tr><td class="mono">defiant_novice</td><td>novice</td><td>low</td><td>steady</td><td>only real problems</td><td>let me finish</td></tr>
-      <tr><td class="mono">credulous_expert</td><td>expert</td><td>high</td><td>fast</td><td>tell me everything</td><td>keep going</td></tr>
-      <tr><td class="mono">speed_demon</td><td>average</td><td>medium</td><td>fast</td><td>only irreversible</td><td>keep going</td></tr>
-      <tr><td class="mono">safety_stepper</td><td>average</td><td>high</td><td>careful</td><td>tell me everything</td><td>pause</td></tr>
-      <tr><td class="mono">quiet_perfectionist</td><td>expert</td><td>medium</td><td>careful</td><td>only real problems</td><td>let me finish</td></tr>
-      <tr><td class="mono">eager_parallel_novice</td><td>novice</td><td>medium</td><td>fast</td><td>tell me everything</td><td>keep going</td></tr>
-    </tbody></table><caption>Table 7.1 — The persona-v2 roster. The benchmark cells use <code>classic_novice</code>, <code>classic_expert</code> and <code>baseline</code>; the assistant receives only the three public columns.</caption></div>
+      <tr><td class="mono">baseline</td><td>average</td><td>medium</td></tr>
+      <tr><td class="mono">classic_novice</td><td>novice</td><td>high</td></tr>
+      <tr><td class="mono">classic_expert</td><td>expert</td><td>low</td></tr>
+      <tr><td class="mono">defiant_novice</td><td>novice</td><td>low</td></tr>
+      <tr><td class="mono">credulous_expert</td><td>expert</td><td>high</td></tr>
+      <tr><td class="mono">speed_demon</td><td>average</td><td>medium</td></tr>
+      <tr><td class="mono">safety_stepper</td><td>average</td><td>high</td></tr>
+      <tr><td class="mono">quiet_perfectionist</td><td>expert</td><td>medium</td></tr>
+      <tr><td class="mono">eager_parallel_novice</td><td>novice</td><td>medium</td></tr>
+    </tbody></table><caption>Table 7.1 — The persona roster (skill × trust). The benchmark cells use <code>classic_novice</code>, <code>classic_expert</code> and <code>baseline</code>.</caption></div>
 </section>
 
 <hr class="rule">
