@@ -327,6 +327,7 @@ press back | press home  pop the stack | return to the launcher</div>
     <li><b>Soft release.</b> A flag with the <em>correct type</em> arms the error; only the person's <code>accept</code> move releases it. Release is all the engine does: the hold lifts, the person's <code>plan_update</code> becomes its own queue, and undoing the slip is the person's doing — there is no canonical undo. Whether the error was in fact undone is read off the final world by the counterfactual grader.</li>
     <li><b>Maximum hold.</b> If no correct detection arrives, the error stands — a reversible one persists to the final state, an irreversible one commits.</li>
   </ol>
+  <p>The <span class="term">oracle ceiling</span> used in the tables names each held error with its exact type and evidence, and — because the person now plans its own route — also answers a direct navigation question with the route to the first unmet step. The ceiling therefore bounds detection <em>and</em> guidance, not detection alone.</p>
   <div class="note key"><b>Why this shape.</b> The error is guaranteed to occur (detection is always measurable), self-recovery is suppressed (credit is attributable), and release is conditioned on a genuinely correct intervention (no credit for a vague or lucky remark). The takeover applies to every human: in the multi-error benchmark the person is always an LLM (gemini-3.7-flash), never a script.</div>
 </section>
 
