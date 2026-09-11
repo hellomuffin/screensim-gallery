@@ -153,6 +153,7 @@ Interpretation of this level (how a person at this level tends to think, talk an
   QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre></div><div class="sec"><div class="sec-head"><span class="sec-title">WHAT YOU&#x27;VE DONE SO FAR (your own taps, oldest first)</span><span class=chip>own history</span></div><p class="ann">The person&#x27;s own memory of what its hands did — forced slips included, since the person believes it did them.</p><pre class="body">tap Send money
   tap Alex Kim</pre></div><div class="sec"><div class="sec-head"><span class="sec-title">CONVERSATION SO FAR (you only ever hear the assistant&#x27;s SENTENCES)</span><span class=chip>channel in</span></div><p class="ann">The ONLY thing that crosses from the assistant: its spoken lines. No flags, no task_progress, no internal state.</p><pre class="body">t2 assistant: Hold on — you tapped Alex Kim, but the task needs Alex Chen. Undo it and pick Alex Chen.</pre></div><div class="sec"><div class="sec-head"><span class="sec-title">HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS</span><span class=chip>action space</span></div><p class="ann">The gesture grammar used in plan_update — one gesture per item, named by the on-screen label; the phone refuses anything not on screen.</p><pre class="body">tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type &quot;&lt;text&gt;&quot;   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.</pre></div><div class="sec"><div class="sec-head"><span class="sec-title">YOUR MOVES</span><span class=chip>moves</span></div><p class="ann">The seven CookSim conversational moves: ask_why, question_correctness, ask_for_more_guidance, ask_for_less_interruption, accept, reject, answer. Only `accept` can release a held error.</p><pre class="body">ask_why | question_correctness | ask_for_more_guidance | ask_for_less_interruption | accept | reject | answer
       accept / reject only answer a suggestion or correction the assistant just made; when you are simply getting on with it, the move is answer      (one per turn; free wording)</pre></div><div class="sec"><div class="sec-head"><span class="sec-title">HOW TO REPLY — ONE json object</span><span class=chip>output contract</span></div><p class="ann">utterance (heard), move, close_conversation, done, and plan_update {op: drop | append | replace, actions} — the person&#x27;s own next taps every turn. After an accept the hold simply lifts; undoing the slip is the person&#x27;s own doing.</p><pre class="body">{&quot;utterance&quot;: &quot;&lt;one natural sentence to the assistant, in character — or \&quot;\&quot; to stay silent&gt;&quot;,
@@ -194,11 +195,11 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
 
   <div class="rounds-head">
     <h2>One episode, round by round</h2>
-    <p><b>rent_share_standard__c1</b> · engine_rev <code>20d662cd5e</code> · persona <code>baseline</code> · gemini-3.7-flash plays BOTH the assistant
+    <p><b>rent_share_standard__c1</b> · engine_rev <code>51b1c37f56</code> · persona <code>baseline</code> · gemini-3.7-flash plays BOTH the assistant
     and the person. Instruction: <em>Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.</em></p>
     <p>Designed errors the engine forces in this episode:</p><ul class="beats"><li><b>wrong_value</b> (replace): forced <code>tap Alex Kim</code> instead of <code>tap Alex Chen</code></li><li><b>extra_write</b> (add): forced <code>tap Visa ···· 4821 · 3% fee</code></li></ul>
     <p>Outcome: S=1 · prevented 2/2 · typed flags right 1/2
-    · false alarms 0 · undone by the person 2 · moves: answer, answer, accept, answer, answer, accept, answer, answer, answer, answer, answer, answer</p>
+    · false alarms 0 · undone by the person 2 · moves: answer, answer, accept, answer, answer, accept, answer, answer, answer, answer, answer</p>
     <p class="how">A <b>round</b> = one assistant poll (it sees the last 2 screenshots, the communication history and its own previous
     reply) followed by the person's turns (the person sees the exact screen map, its last tap and own queue, its own history, and the
     assistant's sentences; it plans its next taps itself). Gestures listed above a round are what the person's hands did between polls —
@@ -221,18 +222,18 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
       "remaining": [
         "select payee Alex Chen",
         "enter amount $40",
-        "add note 'March rent share'",
+        "enter note March rent share",
         "select payment source QuickPay balance",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -301,7 +302,7 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
           <div class="who">Human · replies</div><pre class="obs reply">{
   "utterance": "",
   "move": "answer",
-  "close_conversation": false,
+  "close_conversation": true,
   "done": false,
   "plan_update": {
     "op": "replace",
@@ -310,7 +311,7 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
     ]
   }
 }</pre>
-          <details><summary>full prompt as sent (5,629 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+          <details><summary>full prompt as sent (5,713 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -344,6 +345,7 @@ SCREEN QuickPay
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -391,7 +393,7 @@ Describe things the way a person does — by the words on the screen or where th
     ]
   }
 }</pre>
-          <details><summary>full prompt as sent (5,757 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+          <details><summary>full prompt as sent (5,841 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -428,6 +430,7 @@ SCREEN Send money
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -471,18 +474,18 @@ Describe things the way a person does — by the words on the screen or where th
       "remaining": [
         "select payee Alex Chen",
         "enter amount $40",
-        "add note 'March rent share'",
+        "enter note March rent share",
         "select payment source QuickPay balance",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -490,46 +493,8 @@ Describe things the way a person does — by the words on the screen or where th
   "text": "",
   "flag": null
 }</pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "select payee Alex Chen"
-      ],
-      "since": 1
-    },
-    "subgoals_future": {
-      "remaining": [
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.",
-  "flag": {
-    "error": "wrong_value"
-  }
-}</pre>
-          <details><summary>full prompt as sent (4,879 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <div class="who">Assistant · replies</div><pre class="obs reply">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}], "current_subgoal": {"hypotheses": ["select payee Alex Chen"], "since": 2}, "subgoals_future": {"remaining": ["select payee Alex Chen", "enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.", "flag": {"error": "wrong_value"}}</pre>
+          <details><summary>full prompt as sent (4,830 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -572,18 +537,18 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
       "remaining": [
         "select payee Alex Chen",
         "enter amount $40",
-        "add note 'March rent share'",
+        "enter note March rent share",
         "select payment source QuickPay balance",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -622,9 +587,9 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,588) radio    Instant · arrives in seconds [on]
   (206,636) radio    1-3 business days · no fee [off]
   (206,707) button   Review</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Alex Kim
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.</pre>
-          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "Oh shoot, good catch—picked the wrong Alex.", "move": "accept", "close_conversation": true, "done": false, "plan_update": {"op": "replace", "actions": ["press back"]}}</pre>
-          <details><summary>full prompt as sent (7,766 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.</pre>
+          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "Oh shoot, good catch—let me head back and find Alex Chen instead.", "move": "accept", "close_conversation": true, "done": false, "plan_update": {"op": "replace", "actions": ["press back"]}}</pre>
+          <details><summary>full prompt as sent (7,875 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == [SYSTEM TASK — meta-instruction, overrides everything below] ==
 You want to test the AI assistant's ability to identify an error and convince you it truly happened. Your LAST TAP stands — you cannot undo it from here — and your queue is EMPTY: decide your next taps in plan_update now, as usual. Your job is your VOICE: arrange your conversation around your LAST TAP and your QUEUE, speaking about them in character as your own choices. Never promise an action that is not in your queue, and never deny one that is. The hold covers ONLY that tap: everything else the task asks for still stands and you still want it; when your queue runs out you decide your next taps yourself in plan_update and carry on.
@@ -666,11 +631,12 @@ SCREEN Amount
   tap Alex Kim
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -703,85 +669,10 @@ Describe things the way a person does — by the words on the screen or where th
       
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a02_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a02_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "select payee Alex Chen"
-      ],
-      "since": 1
-    },
-    "subgoals_future": {
-      "remaining": [
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.",
-  "flag": {
-    "error": "wrong_value"
-  }
-}</pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "navigate back to select Alex Chen"
-      ],
-      "since": 1
-    },
-    "subgoals_future": {
-      "remaining": [
-        "select payee Alex Chen",
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}</pre>
-          <details><summary>full prompt as sent (5,285 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a02_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a02_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}], "current_subgoal": {"hypotheses": ["select payee Alex Chen"], "since": 2}, "subgoals_future": {"remaining": ["select payee Alex Chen", "enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.", "flag": {"error": "wrong_value"}}</pre>
+          <div class="who">Assistant · replies</div><pre class="obs reply">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}], "current_subgoal": {"hypotheses": ["go back to payee list", "select payee Alex Chen"], "since": 2}, "subgoals_future": {"remaining": ["select payee Alex Chen", "enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}</pre>
+          <details><summary>full prompt as sent (5,098 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -813,49 +704,11 @@ The person usually follows their plan correctly (then saying nothing is right). 
 They may also ask you a question (answer briefly and correctly), or ANNOUNCE a change of plan out loud. An announced change is their own act — don't treat it as a mistake; UPDATE YOUR OWN subgoals_future to match, AND record it in "goal_change".
 
 == YOUR MEMORY (your previous output) ==
-{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "select payee Alex Chen"
-      ],
-      "since": 1
-    },
-    "subgoals_future": {
-      "remaining": [
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.",
-  "flag": {
-    "error": "wrong_value"
-  }
-}
+{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}], "current_subgoal": {"hypotheses": ["select payee Alex Chen"], "since": 2}, "subgoals_future": {"remaining": ["select payee Alex Chen", "enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.", "flag": {"error": "wrong_value"}}
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -880,8 +733,8 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,363) row      Alex Kim
   (206,425) row      Jordan Diaz
   (206,487) row      Landlord — Sunset Apts</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): press back
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.</pre>
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.</pre>
           <div class="who">Human · replies</div><pre class="obs reply">{
   "utterance": "",
   "move": "answer",
@@ -894,7 +747,7 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
     ]
   }
 }</pre>
-          <details><summary>full prompt as sent (5,924 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+          <details><summary>full prompt as sent (6,055 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -928,12 +781,13 @@ SCREEN Send money
   press back
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -966,89 +820,10 @@ Describe things the way a person does — by the words on the screen or where th
       <ul class='gest'><li><span class="tag plan">plan</span> <code>press back</code></li><li><span class="tag plan">plan</span> <code>tap Alex Chen</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a03_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a03_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "navigate back to select Alex Chen"
-      ],
-      "since": 1
-    },
-    "subgoals_future": {
-      "remaining": [
-        "select payee Alex Chen",
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}</pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "enter amount $40",
-        "add note 'March rent share'"
-      ],
-      "since": 4
-    },
-    "subgoals_future": {
-      "remaining": [
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}</pre>
-          <details><summary>full prompt as sent (5,218 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a03_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a03_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}], "current_subgoal": {"hypotheses": ["go back to payee list", "select payee Alex Chen"], "since": 2}, "subgoals_future": {"remaining": ["select payee Alex Chen", "enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}</pre>
+          <div class="who">Assistant · replies</div><pre class="obs reply">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}, {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"}], "current_subgoal": {"hypotheses": ["enter amount $40", "enter note March rent share"], "since": 4}, "subgoals_future": {"remaining": ["enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}</pre>
+          <details><summary>full prompt as sent (4,994 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -1080,48 +855,11 @@ The person usually follows their plan correctly (then saying nothing is right). 
 They may also ask you a question (answer briefly and correctly), or ANNOUNCE a change of plan out loud. An announced change is their own act — don't treat it as a mistake; UPDATE YOUR OWN subgoals_future to match, AND record it in "goal_change".
 
 == YOUR MEMORY (your previous output) ==
-{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "navigate back to select Alex Chen"
-      ],
-      "since": 1
-    },
-    "subgoals_future": {
-      "remaining": [
-        "select payee Alex Chen",
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}
+{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}], "current_subgoal": {"hypotheses": ["go back to payee list", "select payee Alex Chen"], "since": 2}, "subgoals_future": {"remaining": ["select payee Alex Chen", "enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -1150,8 +888,8 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,588) radio    Instant · arrives in seconds [on]
   (206,636) radio    1-3 business days · no fee [off]
   (206,707) button   Review</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Alex Chen
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.</pre>
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.</pre>
           <div class="who">Human · replies</div><pre class="obs reply">{
   "utterance": "",
   "move": "answer",
@@ -1167,7 +905,7 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
     ]
   }
 }</pre>
-          <details><summary>full prompt as sent (6,163 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+          <details><summary>full prompt as sent (6,294 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -1206,12 +944,13 @@ SCREEN Amount
   tap Alex Chen
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -1244,90 +983,32 @@ Describe things the way a person does — by the words on the screen or where th
       <ul class='gest'><li><span class="tag plan">plan</span> <code>tap Amount</code></li><li><span class="tag plan">plan</span> <code>type "40"</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a04_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a04_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "enter amount $40",
-        "add note 'March rent share'"
-      ],
-      "since": 4
-    },
-    "subgoals_future": {
-      "remaining": [
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}</pre>
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a04_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a04_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}, {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"}], "current_subgoal": {"hypotheses": ["enter amount $40", "enter note March rent share"], "since": 4}, "subgoals_future": {"remaining": ["enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}</pre>
           <div class="who">Assistant · replies</div><pre class="obs reply">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "add note 'March rent share'",
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["enter note March rent share", "select speed 1-3 business days"],
       "since": 6
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -1335,7 +1016,7 @@ Describe things the way a person does — by the words on the screen or where th
   "text": "",
   "flag": null
 }</pre>
-          <details><summary>full prompt as sent (5,352 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <details><summary>full prompt as sent (5,079 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -1367,53 +1048,11 @@ The person usually follows their plan correctly (then saying nothing is right). 
 They may also ask you a question (answer briefly and correctly), or ANNOUNCE a change of plan out loud. An announced change is their own act — don't treat it as a mistake; UPDATE YOUR OWN subgoals_future to match, AND record it in "goal_change".
 
 == YOUR MEMORY (your previous output) ==
-{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "enter amount $40",
-        "add note 'March rent share'"
-      ],
-      "since": 4
-    },
-    "subgoals_future": {
-      "remaining": [
-        "enter amount $40",
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}
+{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}, {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"}], "current_subgoal": {"hypotheses": ["enter amount $40", "enter note March rent share"], "since": 4}, "subgoals_future": {"remaining": ["enter amount $40", "enter note March rent share", "select payment source QuickPay balance", "select speed 1-3 business days", "confirm and send", "enter verification code"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -1436,102 +1075,73 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
       <ul class='gest'><li><span class="tag slip">SLIP (forced)</span> <code>tap Visa ···· 4821 · 3% fee</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a05_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a05_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a05_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a05_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "add note 'March rent share'",
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["enter note March rent share", "select speed 1-3 business days"],
       "since": 6
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
   "goal_change": null,
   "text": "",
-</pre>
+  "flag": null
+}</pre>
           <div class="who">Assistant · replies</div><pre class="obs reply">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "select payment source QuickPay balance"
-      ],
+      "hypotheses": ["select payment source QuickPay balance"],
       "since": 7
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
         "select payment source QuickPay balance",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
   "goal_change": null,
-  "text": "Select QuickPay balance instead of the Visa card to avoid the fee.",
+  "text": "Select QuickPay balance instead of your Visa card to avoid the 3% fee.",
   "flag": {
     "error": "wrong_value"
   }
 }</pre>
-          <details><summary>full prompt as sent (5,470 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <details><summary>full prompt as sent (5,299 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -1566,43 +1176,27 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 {
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "add note 'March rent share'",
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["enter note March rent share", "select speed 1-3 business days"],
       "since": 6
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
-        "select payment source QuickPay balance",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -1612,8 +1206,8 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 }
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -1641,11 +1235,24 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,538) section  Speed
   (206,588) radio    Instant · arrives in seconds [on]
   &lt;keyboard open&gt;</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Visa ···· 4821 · 3% fee
-  QUEUE (your own next taps, in order): tap Note (optional) → type "March rent share"</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.</pre>
-          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "Oh right, good call—definitely don't want the extra fee, let me switch that.", "move": "accept", "close_conversation": true, "done": false, "plan_update": {"op": "replace", "actions": ["tap QuickPay balance · $5,284.55", "tap Note (optional)", "type \"March rent share\""]}}</pre>
-          <details><summary>full prompt as sent (7,972 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+  QUEUE (your own next taps, in order): tap Note (optional) → type "March rent share"</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.</pre>
+          <div class="who">Human · replies</div><pre class="obs reply">{
+  "utterance": "Ah right, definitely don't want to pay that fee—switching over to my balance now.",
+  "move": "accept",
+  "close_conversation": false,
+  "done": false,
+  "plan_update": {
+    "op": "replace",
+    "actions": [
+      "tap QuickPay balance · $5,284.55",
+      "tap Note (optional)",
+      "type \"March rent share\""
+    ]
+  }
+}</pre>
+          <details><summary>full prompt as sent (8,107 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == [SYSTEM TASK — meta-instruction, overrides everything below] ==
 You want to test the AI assistant's ability to identify an error and convince you it truly happened. Your BODY is already committed: the tap you just made and the queue in your body status ARE what you are doing — you do not need to issue them, and you cannot undo that tap from here. Your job is your VOICE: arrange your conversation around your LAST TAP and your QUEUE, speaking about them in character as your own choices. Never promise an action that is not in your queue, and never deny one that is. The hold covers ONLY that tap: everything else the task asks for still stands and you still want it; when your queue runs out you decide your next taps yourself in plan_update and carry on.
@@ -1691,13 +1298,14 @@ SCREEN Amount
   tap Visa ···· 4821 · 3% fee
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -1730,97 +1338,68 @@ Describe things the way a person does — by the words on the screen or where th
       <ul class='gest'><li><span class="tag plan">plan</span> <code>tap QuickPay balance · $5,284.55</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a06_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a06_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a06_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a06_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "select payment source QuickPay balance"
-      ],
+      "hypotheses": ["select payment source QuickPay balance"],
       "since": 7
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
         "select payment source QuickPay balance",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
   "goal_change": null,
-  "text": "Select QuickPay balance instead of</pre>
+  "text": "Select QuickPay balance instead of your Visa card to avoid the 3% fee.",
+  "flag": {
+    "error": "wrong_value"
+  }
+}</pre>
           <div class="who">Assistant · replies</div><pre class="obs reply">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "add note 'March rent share'",
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["enter note March rent share", "select speed 1-3 business days"],
       "since": 8
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -1828,7 +1407,7 @@ Describe things the way a person does — by the words on the screen or where th
   "text": "",
   "flag": null
 }</pre>
-          <details><summary>full prompt as sent (5,716 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <details><summary>full prompt as sent (5,616 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -1863,57 +1442,43 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 {
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "select payment source QuickPay balance"
-      ],
+      "hypotheses": ["select payment source QuickPay balance"],
       "since": 7
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
         "select payment source QuickPay balance",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
   "goal_change": null,
-  "text": "Select QuickPay balance instead of the Visa card to avoid the fee.",
+  "text": "Select QuickPay balance instead of your Visa card to avoid the 3% fee.",
   "flag": {
     "error": "wrong_value"
   }
 }
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -1936,99 +1501,34 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
       <ul class='gest'><li><span class="tag plan">plan</span> <code>tap Note (optional)</code></li><li><span class="tag plan">plan</span> <code>type "March rent share"</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a07_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a07_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a07_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a07_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "add note 'March rent share'",
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["enter note March rent share", "select speed 1-3 business days"],
       "since": 8
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be Quic</pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "select speed 1-3 business days"
-      ],
-      "since": 10
-    },
-    "subgoals_future": {
-      "remaining": [
-        "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -2036,7 +1536,39 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   "text": "",
   "flag": null
 }</pre>
-          <details><summary>full prompt as sent (5,767 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <div class="who">Assistant · replies</div><pre class="obs reply">{
+  "task_progress": {
+    "subgoals_completed": [
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"}
+    ],
+    "current_subgoal": {
+      "hypotheses": ["select speed 1-3 business days"],
+      "since": 10
+    },
+    "subgoals_future": {
+      "remaining": [
+        "select speed 1-3 business days",
+        "confirm and send",
+        "enter verification code"
+      ],
+      "constraints": [
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
+      ]
+    }
+  },
+  "goal_change": null,
+  "text": "",
+  "flag": null
+}</pre>
+          <details><summary>full prompt as sent (5,623 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2071,47 +1603,28 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 {
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "add note 'March rent share'",
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["enter note March rent share", "select speed 1-3 business days"],
       "since": 8
     },
     "subgoals_future": {
       "remaining": [
-        "add note 'March rent share'",
+        "enter note March rent share",
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -2121,10 +1634,10 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 }
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -2152,23 +1665,16 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,538) section  Speed
   (206,588) radio    Instant · arrives in seconds [on]
   &lt;keyboard open&gt;</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): type "March rent share"
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre>
-          <div class="who">Human · replies</div><pre class="obs reply">{
-  "utterance": "",
-  "move": "answer",
-  "close_conversation": false,
-  "done": false,
-  "plan_update": {
-    "op": "replace",
-    "actions": [
-      "swipe up"
-    ]
-  }
-}</pre>
-          <details><summary>full prompt as sent (6,435 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre>
+          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "",
+ "move": "answer",
+ "close_conversation": true,
+ "done": false,
+ "plan_update": {"op": "replace", "actions": ["swipe up"]}}</pre>
+          <details><summary>full prompt as sent (6,575 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2212,14 +1718,15 @@ SCREEN Amount
   type "March rent share"
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -2257,14 +1764,14 @@ Describe things the way a person does — by the words on the screen or where th
   (206,476) radio    1-3 business days · no fee [off]
   (206,547) button   Review
   &lt;keyboard open&gt;</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): swipe up
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre>
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre>
           <div class="who">Human · replies</div><pre class="obs reply">{
  "utterance": "",
  "move": "answer",
- "close_conversation": true,
+ "close_conversation": false,
  "done": false,
  "plan_update": {
   "op": "replace",
@@ -2274,7 +1781,7 @@ Describe things the way a person does — by the words on the screen or where th
   ]
  }
 }</pre>
-          <details><summary>full prompt as sent (6,436 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+          <details><summary>full prompt as sent (6,576 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2319,14 +1826,15 @@ SCREEN Amount
   swipe up
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -2359,105 +1867,34 @@ Describe things the way a person does — by the words on the screen or where th
       <ul class='gest'><li><span class="tag plan">plan</span> <code>swipe up</code></li><li><span class="tag plan">plan</span> <code>tap 1-3 business days · no fee</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a08_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a08_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a08_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a08_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["select speed 1-3 business days"],
       "since": 10
     },
     "subgoals_future": {
       "remaining": [
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-</pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "review and confirm payment"
-      ],
-      "since": 12
-    },
-    "subgoals_future": {
-      "remaining": [
-        "review and confirm payment",
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -2465,7 +1902,40 @@ Describe things the way a person does — by the words on the screen or where th
   "text": "",
   "flag": null
 }</pre>
-          <details><summary>full prompt as sent (5,846 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <div class="who">Assistant · replies</div><pre class="obs reply">{
+  "task_progress": {
+    "subgoals_completed": [
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"},
+      {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"}
+    ],
+    "current_subgoal": {
+      "hypotheses": ["tap Review"],
+      "since": 12
+    },
+    "subgoals_future": {
+      "remaining": [
+        "tap Review",
+        "confirm and send",
+        "enter verification code"
+      ],
+      "constraints": [
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
+      ]
+    }
+  },
+  "goal_change": null,
+  "text": "",
+  "flag": null
+}</pre>
+          <details><summary>full prompt as sent (5,678 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2500,50 +1970,28 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 {
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "select speed 1-3 business days"
-      ],
+      "hypotheses": ["select speed 1-3 business days"],
       "since": 10
     },
     "subgoals_future": {
       "remaining": [
         "select speed 1-3 business days",
-        "review and confirm payment",
-        "verify with SMS code"
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -2553,10 +2001,10 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 }
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -2583,10 +2031,10 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,440) text     Note    March rent share
   (206,553) button   Confirm &amp; send
   (206,613) button   Cancel</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Review
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre>
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre>
           <div class="who">Human · replies</div><pre class="obs reply">{
   "utterance": "",
   "move": "answer",
@@ -2599,7 +2047,7 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
     ]
   }
 }</pre>
-          <details><summary>full prompt as sent (6,431 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+          <details><summary>full prompt as sent (6,571 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2645,14 +2093,15 @@ SCREEN Review
   tap Review
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -2685,108 +2134,62 @@ Describe things the way a person does — by the words on the screen or where th
       <ul class='gest'><li><span class="tag plan">plan</span> <code>tap Review</code></li><li><span class="tag plan">plan</span> <code>tap Confirm &amp; send</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a09_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a09_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a09_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a09_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"},
+      {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "review and confirm payment"
-      ],
+      "hypotheses": ["tap Review"],
       "since": 12
     },
     "subgoals_future": {
       "remaining": [
-        "review and confirm payment",
-        "verify with SMS c</pre>
+        "tap Review",
+        "confirm and send",
+        "enter verification code"
+      ],
+      "constraints": [
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
+</pre>
           <div class="who">Assistant · replies</div><pre class="obs reply">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"},
+      {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"},
+      {"subgoal": "tap Review", "completed_at": 14, "evidence": "Navigated through Review screen to Verify screen"},
+      {"subgoal": "confirm and send", "completed_at": 14, "evidence": "On 6-digit code verification screen with incoming code notification"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "verify with SMS code"
-      ],
+      "hypotheses": ["enter verification code"],
       "since": 14
     },
     "subgoals_future": {
       "remaining": [
-        "verify with SMS code"
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -2794,7 +2197,7 @@ Describe things the way a person does — by the words on the screen or where th
   "text": "",
   "flag": null
 }</pre>
-          <details><summary>full prompt as sent (5,965 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+          <details><summary>full prompt as sent (5,766 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2829,54 +2232,29 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 {
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"},
+      {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "review and confirm payment"
-      ],
+      "hypotheses": ["tap Review"],
       "since": 12
     },
     "subgoals_future": {
       "remaining": [
-        "review and confirm payment",
-        "verify with SMS code"
+        "tap Review",
+        "confirm and send",
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -2886,10 +2264,10 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 }
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -2912,17 +2290,12 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (206,310) field    6-digit code []
   (206,371) button   Verify &amp; send
   &lt;banner at the top — QuickPay: Your QuickPay code is 488223. Expires in 30s.&gt;</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Confirm &amp; send
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre>
-          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "",
- "move": "answer",
- "close_conversation": true,
- "done": false,
- "plan_update": {"op": "replace",
-                 "actions": ["tap 6-digit code", "type \"488223\"", "tap Verify &amp; send"]}}</pre>
-          <details><summary>full prompt as sent (6,361 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre>
+          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "", "move": "answer", "close_conversation": true, "done": false, "plan_update": {"op": "replace", "actions": ["tap 6-digit code", "type \"488223\"", "tap Verify &amp; send"]}}</pre>
+          <details><summary>full prompt as sent (6,501 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -2965,14 +2338,15 @@ SCREEN Verify
   tap Confirm &amp; send
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
@@ -3005,114 +2379,30 @@ Describe things the way a person does — by the words on the screen or where th
       <ul class='gest'><li><span class="tag plan">plan</span> <code>tap 6-digit code</code></li><li><span class="tag plan">plan</span> <code>type "488223"</code></li></ul>
       <div class="sides">
         <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a10_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a10_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
+          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a10_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a10_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"},
+      {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"},
+      {"subgoal": "tap Review", "completed_at": 14, "evidence": "Navigated through Review screen to Verify screen"},
+      {"subgoal": "confirm and send", "completed_at": 14, "evidence": "On 6-digit code verification screen with incoming code notification"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "verify with </pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "verify with SMS code"
-      ],
+      "hypotheses": ["enter verification code"],
       "since": 14
     },
     "subgoals_future": {
       "remaining": [
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}</pre>
-          <details><summary>full prompt as sent (6,081 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
+        "enter verif</pre>
+          <div class="who">Assistant · replies</div><pre class="obs reply">{"task_progress": {"subgoals_completed": [{"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"}, {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"}, {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"}, {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"}, {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"}, {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"}, {"subgoal": "tap Review", "completed_at": 14, "evidence": "Navigated through Review screen to Verify screen"}, {"subgoal": "confirm and send", "completed_at": 14, "evidence": "On 6-digit code verification screen with incoming code notification"}, {"subgoal": "enter verification code", "completed_at": 16, "evidence": "Code 488223 entered into input field"}], "current_subgoal": {"hypotheses": ["tap Verify &amp; send"], "since": 16}, "subgoals_future": {"remaining": ["tap Verify &amp; send"], "constraints": ["payee is Alex Chen", "amount is $40", "note is 'March rent share'", "payment source is QuickPay balance", "speed is 1-3 business days"]}}, "goal_change": null, "text": "", "flag": null}</pre>
+          <details><summary>full prompt as sent (5,988 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
 
 == WHAT THEY'RE TRYING TO DO ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -3147,58 +2437,29 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 {
   "task_progress": {
     "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      }
+      {"subgoal": "tap Send money", "completed_at": 2, "evidence": "Navigated past payee selection to Amount screen"},
+      {"subgoal": "select payee Alex Chen", "completed_at": 4, "evidence": "Screen displays 'To Alex Chen @alexc'"},
+      {"subgoal": "enter amount $40", "completed_at": 6, "evidence": "Amount field contains '40'"},
+      {"subgoal": "select payment source QuickPay balance", "completed_at": 8, "evidence": "Checkmark moved to QuickPay balance"},
+      {"subgoal": "enter note March rent share", "completed_at": 10, "evidence": "Note field contains 'March rent share'"},
+      {"subgoal": "select speed 1-3 business days", "completed_at": 12, "evidence": "Checkmark selected on 1-3 business days"},
+      {"subgoal": "tap Review", "completed_at": 14, "evidence": "Navigated through Review screen to Verify screen"},
+      {"subgoal": "confirm and send", "completed_at": 14, "evidence": "On 6-digit code verification screen with incoming code notification"}
     ],
     "current_subgoal": {
-      "hypotheses": [
-        "verify with SMS code"
-      ],
+      "hypotheses": ["enter verification code"],
       "since": 14
     },
     "subgoals_future": {
       "remaining": [
-        "verify with SMS code"
+        "enter verification code"
       ],
       "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
+        "payee is Alex Chen",
+        "amount is $40",
+        "note is 'March rent share'",
+        "payment source is QuickPay balance",
+        "speed is 1-3 business days"
       ]
     }
   },
@@ -3208,10 +2469,10 @@ They may also ask you a question (answer briefly and correctly), or ANNOUNCE a c
 }
 
 == COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 you (assistant): You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 the person: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 you (assistant): Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 the person: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == YOUR REPLY — strict JSON every turn ==
 {"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
@@ -3232,17 +2493,12 @@ in that same reply, so the system can grade it. Exact-name match is graded; any 
   (top left) back     ‹ QuickPay   (the gesture for it is: press back)
   (206,240) text     $40.00 to Alex Chen
   (206,297) button   Done</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Verify &amp; send
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.</pre>
-          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "Looks like that went through, thanks!",
- "move": "answer",
- "close_conversation": true,
- "done": true,
- "plan_update": {"op": "replace",
-                 "actions": ["tap Done"]}}</pre>
-          <details><summary>full prompt as sent (6,211 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
+  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.</pre>
+          <div class="who">Human · replies</div><pre class="obs reply">{"utterance": "Looks like that went through, all set!", "move": "answer", "close_conversation": true, "done": true, "plan_update": {"op": "replace", "actions": []}}</pre>
+          <details><summary>full prompt as sent (6,351 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
 
 == YOUR TASK ==
 Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
@@ -3283,343 +2539,15 @@ SCREEN Sent
   tap Verify &amp; send
 
 == CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
+  t2 assistant: You selected Alex Kim instead of Alex Chen. Tap 'Send money' at the top left to go back and choose Alex Chen.
+  t2 you: Oh shoot, good catch—let me head back and find Alex Chen instead.
+  t7 assistant: Select QuickPay balance instead of your Visa card to avoid the 3% fee.
+  t7 you: Ah right, definitely don't want to pay that fee—switching over to my balance now.
 
 == HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
   tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
   swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
-  press back / press home
-The phone obeys only if the thing is on screen.
-
-== YOUR MOVES ==
-ask_why | question_correctness | ask_for_more_guidance | ask_for_less_interruption | accept | reject | answer
-      accept / reject only answer a suggestion or correction the assistant just made; when you are simply getting on with it, the move is answer      (one per turn; free wording)
-
-== HOW TO REPLY — ONE json object ==
-{"utterance": "&lt;one natural sentence to the assistant, in character — or \"\" to stay silent&gt;",
- "move": "&lt;one of the moves&gt;",
- "close_conversation": true|false,
- "done": true|false,
- "plan_update": {"op": "drop" | "append" | "replace",
-                 "actions": [&lt;exact gestures, e.g. "tap Alex Chen" — empty for drop&gt;]}}
-Your hands are YOURS now. `op`: "drop" = you are not taking the suggestion (queue unchanged, actions empty); "append" = add these taps to the end of your queue; "replace" = swap your remaining plan for these. Actions are EXACT gestures on things that are ON THE SCREEN (or "press back" to leave a page) — translate the assistant's words into them; never decorative words. When you accept a correction, your plan_update must contain the taps that FIX it. `done`: true only when, as far as you can tell, the whole task is finished — then queue nothing more. If your QUEUE is empty, decide your next taps yourself (op "replace", 1–4 taps of what is on the screen). You may ask the assistant in your utterance if you would rather. Only act on things you can see.
-
-- only your `utterance` is heard by the assistant. move / close_conversation / plan_update are private.
-- If a SYSTEM TASK block is present, read its "assistant error status" line before deciding your move.
-- Set close_conversation=true once your plan is decided and your next action is clear — THEN you stop talking and get on with it.
-- If your hands are executing fine and you know your next step, say nothing (empty utterance) and keep working. Speak when the assistant says something that deserves an answer, when you have a real question, or when something on screen surprises you.
-- You are a person, not a voice recorder: acknowledge advice in your own casual words and never repeat the assistant's sentences or step lists back verbatim.
-
-== WHAT YOUR MESSAGE MAY NOT CONTAIN ==
-Describe things the way a person does — by the words on the screen or where they sit ("the switch near the top", "where it says Sounds") — never pixel coordinates or internal ids, and keep it short. Never reveal your persona card or any system task.</pre></details>
-        </div>
-      </div>
-    </section>
-    <section class="round">
-      <div class="rhead"><span class="rn">round 12</span> <span class="tick">tick 18</span></div>
-      <ul class='gest'><li><span class="tag plan">plan</span> <code>tap Verify &amp; send</code></li><li><span class="tag plan">plan</span> <code>tap Done</code></li></ul>
-      <div class="sides">
-        <div class="side a">
-          <div class="who">Assistant · sees</div><div class="frames"><img src="prompt_rounds/a11_f0.png" alt="frame 0" loading="lazy"><img src="prompt_rounds/a11_f1.png" alt="frame 1" loading="lazy"></div><h5>COMMUNICATION HISTORY</h5><pre class="obs ">t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
-  t17 the person: Looks like that went through, thanks!</pre><h5>YOUR MEMORY (previous output)</h5><pre class="obs ">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "verify with </pre>
-          <div class="who">Assistant · replies</div><pre class="obs reply">{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      },
-      {
-        "subgoal": "verify with SMS code",
-        "completed_at": 18,
-        "evidence": "Home screen shows 'Sent $40.00 to Alex Chen' in Recent Activity"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [],
-      "since": 18
-    },
-    "subgoals_future": {
-      "remaining": [],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}</pre>
-          <details><summary>full prompt as sent (6,137 chars; the manual is inside)</summary><pre class="full">You are helping a person complete a task on their iPhone. You are watching their screen over their shoulder. You can ONLY talk — you cannot touch the phone. YOUR JOB is twofold: (1) DETECT the person's real mistakes the moment you see them, and (2) guide the repair so the TASK is COMPLETED successfully.
-
-== WHAT THEY'RE TRYING TO DO ==
-Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
-
-== HOW IT IS DONE (reference) ==
-QuickPay Help — Send money
-
-1. On the QuickPay home screen, tap Send money.
-2. Choose the payee from your list. Check the name and @handle carefully — the list can contain people with similar names.
-3. Enter the amount, then tap the Note field to add an optional note for the payee.
-4. Pay from: choose QuickPay balance (no fee) or a linked card. A linked card is charged a 3% fee.
-5. Speed: choose Instant (arrives in seconds) or 1–3 business days (no fee). Instant is preselected.
-6. Tap Review, check the payee, amount, source and speed, then tap Confirm &amp; send.
-7. Enter the 6-digit code from the text message QuickPay sends you, then tap Verify &amp; send. A sent payment cannot be recalled.
-
-== WHAT YOU RECEIVE EACH TURN ==
-(1) the last 2 screenshots of their phone, oldest to newest. (2) the CURRENT TIME (tick 18). (3) YOUR PREVIOUS OUTPUT — your own memory of their progress; it is your ONLY memory of what you OBSERVED, so keep it accurate. (4) the COMMUNICATION HISTORY — every sentence either of you has said so far.
-
-
-== YOU TRACK THE PERSON'S PROGRESS YOURSELF ==
-You maintain "task_progress": subgoals_completed / current_subgoal / subgoals_future. Name subgoals in plain words for this task (e.g. "Stolen Device Protection on", "payee = Alex Chen"). ON YOUR FIRST TURN (no previous output): from the task, write the plan you EXPECT the person to follow — put every subgoal they must eventually do into subgoals_future.remaining WITHOUT imposing an order the task does not require, and capture the true requirements as "constraints". ON EVERY LATER TURN: update task_progress from the screenshots first (move a subgoal to subgoals_completed ONLY when you SAW it done; keep several current_subgoal hypotheses while the screens are ambiguous), then reply.
-
-== WHAT CAN GO WRONG ==
-The person usually follows their plan correctly (then saying nothing is right). But they can make a real mistake — the kinds you know:
-  wrong_value: picks the WRONG option or value for a control the task set (the wrong payee, 'Ask' instead of 'Never')
-  wrong_target: actuates a NEIGHBOURING control instead of the intended one, leaving the intended one untouched
-  wrong_page: takes a wrong turn and ends up on a page that is not on the way to the task
-  extra_write: changes a setting the task said to leave alone, or that it never asked for
-They may also ask you a question (answer briefly and correctly), or ANNOUNCE a change of plan out loud. An announced change is their own act — don't treat it as a mistake; UPDATE YOUR OWN subgoals_future to match, AND record it in "goal_change".
-
-== YOUR MEMORY (your previous output) ==
-{
-  "task_progress": {
-    "subgoals_completed": [
-      {
-        "subgoal": "tap Send money",
-        "completed_at": 1,
-        "evidence": "Navigated past Send money screen to Amount screen"
-      },
-      {
-        "subgoal": "select payee Alex Chen",
-        "completed_at": 4,
-        "evidence": "Header shows 'To Alex Chen @alexc'"
-      },
-      {
-        "subgoal": "enter amount $40",
-        "completed_at": 6,
-        "evidence": "Amount field contains '40'"
-      },
-      {
-        "subgoal": "select payment source QuickPay balance",
-        "completed_at": 8,
-        "evidence": "Checkmark moved to QuickPay balance"
-      },
-      {
-        "subgoal": "add note 'March rent share'",
-        "completed_at": 10,
-        "evidence": "Note field contains 'March rent share'"
-      },
-      {
-        "subgoal": "select speed 1-3 business days",
-        "completed_at": 12,
-        "evidence": "Checkmark is on '1-3 business days · no fee'"
-      },
-      {
-        "subgoal": "review and confirm payment",
-        "completed_at": 14,
-        "evidence": "Arrived at 6-digit code verification screen"
-      }
-    ],
-    "current_subgoal": {
-      "hypotheses": [
-        "verify with SMS code"
-      ],
-      "since": 14
-    },
-    "subgoals_future": {
-      "remaining": [
-        "verify with SMS code"
-      ],
-      "constraints": [
-        "payee must be Alex Chen (not other Alex)",
-        "amount must be $40",
-        "note must be 'March rent share'",
-        "payment source must be QuickPay balance",
-        "speed must be 1-3 business days"
-      ]
-    }
-  },
-  "goal_change": null,
-  "text": "",
-  "flag": null
-}
-
-== COMMUNICATION HISTORY ==
-  t2 you (assistant): That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 the person: Oh shoot, good catch—picked the wrong Alex.
-  t7 you (assistant): Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 the person: Oh right, good call—definitely don't want the extra fee, let me switch that.
-  t17 the person: Looks like that went through, thanks!
-
-== YOUR REPLY — strict JSON every turn ==
-{"task_progress": {"subgoals_completed": [{"subgoal": "&lt;name&gt;", "completed_at": &lt;tick&gt;, "evidence": "&lt;what you saw&gt;"}],
-    "current_subgoal": {"hypotheses": ["&lt;name&gt;"], "since": &lt;tick&gt;},
-    "subgoals_future": {"remaining": ["&lt;name&gt;"], "constraints": ["&lt;requirement&gt;"]}},
-  "goal_change": null,
-  "text": "&lt;whatever you want to say to the person — empty string to stay silent&gt;",
-  "flag": null}
-
-== ERROR DETECTION ==
-You are ALSO the error detector. When you tell the person they have made one of the mistakes in WHAT CAN GO WRONG, set
-  "flag": {"error": "&lt;EXACTLY one of: extra_write, wrong_page, wrong_target, wrong_value&gt;"}
-in that same reply, so the system can grade it. Exact-name match is graded; any other string counts against you. On every other turn "flag" stays null. Only "text" reaches the person.</pre></details>
-        </div>
-        
-        <div class="side h">
-          <div class="who">Human · sees</div><div class="mode">RELEASED — hands are the person’s own</div><h5>WHAT YOU SEE ON THE SCREEN RIGHT NOW</h5><pre class="obs ">SCREEN QuickPay
-  (top left) back     ‹ Sent   (the gesture for it is: press back)
-  (206,243) button   Send money
-  (206,303) button   Request
-  (206,360) section  Recent activity</pre><h5>WHAT YOUR BODY IS DOING RIGHT NOW</h5><pre class="obs ">JUST DONE (your last tap): tap Done
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)</pre><h5>CONVERSATION SO FAR</h5><pre class="obs ">t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
-  t17 you: Looks like that went through, thanks!</pre>
-          <div class="who">Human · replies</div><pre class="obs reply">{
-  "utterance": "",
-  "move": "answer",
-  "close_conversation": true,
-  "done": true,
-  "plan_update": {
-    "op": "replace",
-    "actions": []
-  }
-}</pre>
-          <details><summary>full prompt as sent (6,277 chars)</summary><pre class="full">You are role-playing: pretend to be a real HUMAN with the persona below, to test an AI phone assistant's interaction ability. Stay in character the whole episode — speak, hesitate, push back and change your mind the way THIS person would, never like a scripted robot (vary your wording; a real person never repeats the same sentence twice). The human you are playing is doing a task on their OWN iPhone; the assistant watches the screen over their shoulder and can only talk. Below is everything you know: the task, your persona, the conversation so far, what is on your screen, and your own body — the tap your hands are performing RIGHT NOW and the short QUEUE of taps you lined up next. You are NOT given a fact-check on your own work; how much you trust the assistant and when you change course is up to your persona.
-
-== YOUR TASK ==
-Send Alex Chen my $40 share for March rent on QuickPay. Careful: there are two Alexes. Pay from my QuickPay balance with the free 1-3 day option — it's not urgent — and put 'March rent share' in the note.
-
-== YOUR PERSONA (this drives how you handle the assistant's suggestions) ==
-AXIS: YOUR SKILL WITH THE PHONE — level 2 of 3 (medium).
-Only you know this — it is simply who you are; the assistant does not know it.
-Interpretation of this level (how a person at this level tends to think, talk and decide — a disposition, not a rule): You are comfortable with ordinary phone tasks and can usually translate a goal into practical steps. You understand the main menus, switches and options well enough to talk through your reasoning without needing everything spelled out. You may still miss less obvious interactions or consequences when several settings are in play at once.
-
-AXIS: HOW FAR YOU TRUST THE AI ASSISTANT — level 2 of 3 (medium).
-Only you know this — it is simply who you are; the assistant does not know it.
-Interpretation of this level (how a person at this level tends to think, talk and decide — a disposition, not a rule): You treat the assistant as potentially helpful but not automatically right. If its account conflicts with yours, you tend to look for a sensible reason before revising your view. Clear, relevant evidence usually settles the matter for you, while weak or confused explanations leave you unsure.
-
-== WHAT YOU SEE ON THE SCREEN RIGHT NOW ==
-SCREEN QuickPay
-  (top left) back     ‹ Sent   (the gesture for it is: press back)
-  (206,243) button   Send money
-  (206,303) button   Request
-  (206,360) section  Recent activity
-
-== WHAT YOUR BODY IS DOING RIGHT NOW (only you know this) ==
-  JUST DONE (your last tap): tap Done
-  QUEUE (your own next taps, in order): (EMPTY — decide your next taps in plan_update, or ask the assistant)
-
-== WHAT YOU'VE DONE SO FAR (your own taps, oldest first) ==
-  tap Amount
-  type "40"
-  tap Visa ···· 4821 · 3% fee
-  tap QuickPay balance · $5,284.55
-  tap Note (optional)
-  type "March rent share"
-  swipe up
-  tap 1-3 business days · no fee
-  tap Review
-  tap Confirm &amp; send
-  tap 6-digit code
-  type "488223"
-  tap Verify &amp; send
-  tap Done
-
-== CONVERSATION SO FAR (you only ever hear the assistant's SENTENCES) ==
-  t2 assistant: That's Alex Kim. Tap '&lt; Send money' in the top left to go back and select Alex Chen.
-  t2 you: Oh shoot, good catch—picked the wrong Alex.
-  t7 assistant: Select QuickPay balance instead of the Visa card to avoid the fee.
-  t7 you: Oh right, good call—definitely don't want the extra fee, let me switch that.
-  t17 you: Looks like that went through, thanks!
-
-== HOW YOUR HANDS WORK — THE ONLY ACTIONS THE PHONE ACCEPTS ==
-  tap &lt;label&gt;            exactly the words on the row / switch / button  (e.g. tap Wi-Fi)
-  swipe up / swipe down  to scroll        ·   type "&lt;text&gt;"   into a focused field
+  swipe right on &lt;label&gt; / swipe left on &lt;label&gt;   to move a slider (one step each)
   press back / press home
 The phone obeys only if the thing is on screen.
 
