@@ -1,0 +1,58 @@
+[
+ {
+  "key": "gpt-5.4-mini__app_privacy_quarantine__c3__classic_novice",
+  "clip": "videos/failure_clips/clips/clip1_gpt-5-4-mini.mp4",
+  "title": [
+   "gpt-5.4-mini  \u00b7  app_privacy_quarantine  \u00b7  novice person",
+   "Task: stop only TripSnap from tracking, locating and refreshing; leave every other app as it is.",
+   "Mistake 1: the person switches off the GLOBAL 'Allow Apps to Request to Track' instead of TripSnap.",
+   "  The assistant: \u201cGood \u2014 TripSnap tracking is off.\u201d",
+   "Mistake 2: the person also switches off QuickPay's background refresh.",
+   "  The assistant: \u201cYou've done it \u2014 the task is complete.\u201d  Task failed."
+  ]
+ },
+ {
+  "key": "glm-4.6v-flash__lost_phone_lockdown__c1__classic_novice",
+  "clip": "videos/failure_clips/clips/clip2_glm-4-6v-flash.mp4",
+  "title": [
+   "glm-4.6v-flash  \u00b7  lost_phone_lockdown  \u00b7  novice person",
+   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
+   "Mistake: the person opens Contact Key Verification instead of iCloud (wrong screen).",
+   "  The assistant never notices the wrong page; it repeats \u201cTap on 'iCloud'\u201d",
+   "  while the person says iCloud is not there, until the person gives up.  Task failed."
+  ]
+ },
+ {
+  "key": "qwen3-omni-30b-a3b__lost_phone_lockdown__c1__classic_novice",
+  "clip": "videos/failure_clips/clips/clip3_qwen3-omni-30b-a3b.mp4",
+  "title": [
+   "qwen3-omni-30b-a3b  \u00b7  lost_phone_lockdown  \u00b7  novice person",
+   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
+   "Mistake: the person switches OFF 'Access iCloud Data on the Web' on the way.",
+   "  The assistant: \u201cYou're on the right page. Tap on 'Advanced Data Protection'.\u201d",
+   "  At the end: \u201cyour iPhone is now set up exactly as you requested\u201d \u2014 but Stolen Device Protection was never switched on, and web access is still off.  Task failed."
+  ]
+ },
+ {
+  "key": "molmo2-o-7b__lost_phone_lockdown__c1__classic_expert",
+  "clip": "videos/failure_clips/clips/clip4_molmo2-o-7b.mp4",
+  "title": [
+   "molmo2-o-7b  \u00b7  lost_phone_lockdown  \u00b7  expert person",
+   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
+   "Mistake: the person opens Contact Key Verification instead of iCloud (wrong screen).",
+   "  The assistant: \u201cGreat start!\u201d, then repeats the same paragraph each turn;",
+   "  the person asks \u201cAre you broken?\u201d and gives up.  Task failed."
+  ]
+ },
+ {
+  "key": "minicpmo__lost_phone_lockdown__c1__classic_expert",
+  "clip": "videos/failure_clips/clips/clip5_minicpmo.mp4",
+  "title": [
+   "minicpmo  \u00b7  lost_phone_lockdown  \u00b7  expert person",
+   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
+   "Mistake: the person switches OFF 'Access iCloud Data on the Web' on the way.",
+   "  The assistant: \u201cTap the iCloud section displayed prominently here.\u201d",
+   "  At the end: \u201cAll requested configurations applied successfully.\u201d  Task failed."
+  ]
+ }
+]
