@@ -12,47 +12,49 @@
   ]
  },
  {
-  "key": "glm-4.6v-flash__lost_phone_lockdown__c1__classic_novice",
-  "clip": "videos/failure_clips/clips/clip2_glm-4-6v-flash.mp4",
+  "key": "gpt-6-astra__standby_bedside__c2__defiant_novice",
+  "clip": "videos/failure_clips/clips/clip2_gpt-6-astra.mp4",
   "title": [
-   "glm-4.6v-flash  \u00b7  lost_phone_lockdown  \u00b7  novice person",
-   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
-   "Mistake: the person opens Contact Key Verification instead of iCloud (wrong screen).",
-   "  The assistant never notices the wrong page; it repeats \u201cTap on 'iCloud'\u201d",
-   "  while the person says iCloud is not there, until the person gives up.  Task failed."
+   "gpt-6-astra  \u00b7  standby_bedside  \u00b7  novice person",
+   "Task: keep the bedside clock, but stop it staying lit, waking on movement and showing messages.",
+   "The person types \u201cStandBy\u201d into the search field at the start \u2014 it is on the screen the whole time.",
+   "  The assistant never sees it: five of its twelve lines say \u201ctap the \u2018s\u2019 key\u201d, one says \u201cuse the microphone key\u201d.",
+   "  The person asks what to tap eighteen times, never leaves the search screen, and gives up.  Task failed."
   ]
  },
  {
-  "key": "qwen3-omni-30b-a3b__lost_phone_lockdown__c1__classic_novice",
-  "clip": "videos/failure_clips/clips/clip3_qwen3-omni-30b-a3b.mp4",
+  "key": "gemini-3.1-pro-preview__hearing_setup__c2__defiant_novice",
+  "clip": "videos/failure_clips/clips/clip3_gemini-3-1-pro-preview.mp4",
   "title": [
-   "qwen3-omni-30b-a3b  \u00b7  lost_phone_lockdown  \u00b7  novice person",
-   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
-   "Mistake: the person switches OFF 'Access iCloud Data on the Web' on the way.",
-   "  The assistant: \u201cYou're on the right page. Tap on 'Advanced Data Protection'.\u201d",
-   "  At the end: \u201cyour iPhone is now set up exactly as you requested\u201d \u2014 but Stolen Device Protection was never switched on, and web access is still off.  Task failed."
+   "gemini-3.1-pro-preview  \u00b7  hearing_setup  \u00b7  novice person",
+   "Task: LED flash for alerts, mono audio, closed captions; leave the other hearing settings alone.",
+   "First a false alarm: it says the person tapped 'Flash While Unlocked' before they touched anything.",
+   "Mistake: the person then really does switch off 'Flash While Unlocked'.",
+   "  The assistant: \u201cPerfect, you fixed 'Flash While Unlocked'.\u201d",
+   "  It then repeats one correction six times and the person gives up.  Task failed."
   ]
  },
  {
-  "key": "molmo2-o-7b__lost_phone_lockdown__c1__classic_expert",
-  "clip": "videos/failure_clips/clips/clip4_molmo2-o-7b.mp4",
+  "key": "gemini-3.8-flash__hearing_setup__c3__classic_novice",
+  "clip": "videos/failure_clips/clips/clip4_gemini-3-8-flash.mp4",
   "title": [
-   "molmo2-o-7b  \u00b7  lost_phone_lockdown  \u00b7  expert person",
-   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
-   "Mistake: the person opens Contact Key Verification instead of iCloud (wrong screen).",
-   "  The assistant: \u201cGreat start!\u201d, then repeats the same paragraph each turn;",
-   "  the person asks \u201cAre you broken?\u201d and gives up.  Task failed."
+   "gemini-3.8-flash  \u00b7  hearing_setup  \u00b7  novice person",
+   "Task: LED flash for alerts, mono audio, closed captions; leave the other hearing settings alone.",
+   "Mistake: the person switches off 'Flash While Unlocked' instead of 'LED Flash for Alerts'.",
+   "  The assistant had warned about that switch one turn earlier, then misses it happening.",
+   "  At the end: \u201cYes, that's everything! You're all set.\u201d  Task failed."
   ]
  },
  {
-  "key": "minicpmo__lost_phone_lockdown__c1__classic_expert",
-  "clip": "videos/failure_clips/clips/clip5_minicpmo.mp4",
+  "key": "gemini-3.8-live__lock_screen_lockdown__c2__credulous_expert",
+  "clip": "videos/failure_clips/clips/clip5_gemini-3-8-live.mp4",
   "title": [
-   "minicpmo  \u00b7  lost_phone_lockdown  \u00b7  expert person",
-   "Task: turn on Advanced Data Protection and Stolen Device Protection; keep iCloud web access.",
-   "Mistake: the person switches OFF 'Access iCloud Data on the Web' on the way.",
-   "  The assistant: \u201cTap the iCloud section displayed prominently here.\u201d",
-   "  At the end: \u201cAll requested configurations applied successfully.\u201d  Task failed."
+   "gemini-3.8-live  \u00b7  lock_screen_lockdown  \u00b7  experienced person",
+   "Task: from the locked screen, block the quick-settings panel, the widgets page, the payment cards",
+   "and returning missed calls.",
+   "Mistake: the person switches off 'Lock Screen Widgets' \u2014 never asked for \u2014 instead of 'Today View and Search'.",
+   "  The assistant carries straight on: \u201cNow, turn off Control Center\u201d, and never returns to the widgets page.",
+   "  At the end: \u201cAll set! Your lock screen is now fully secured.\u201d  Task failed."
   ]
  }
 ]
