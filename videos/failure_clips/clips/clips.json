@@ -12,14 +12,15 @@
   ]
  },
  {
-  "key": "gpt-6-astra__standby_bedside__c2__defiant_novice",
+  "key": "gpt-6-astra__siri_lock_screen_privacy__c1__classic_expert",
   "clip": "videos/failure_clips/clips/clip2_gpt-6-astra.mp4",
   "title": [
-   "gpt-6-astra  \u00b7  standby_bedside  \u00b7  novice person",
-   "Task: keep the bedside clock, but stop it staying lit, waking on movement and showing messages.",
-   "The person types \u201cStandBy\u201d into the search field at the start \u2014 it is on the screen the whole time.",
-   "  The assistant never sees it: five of its twelve lines say \u201ctap the \u2018s\u2019 key\u201d, one says \u201cuse the microphone key\u201d.",
-   "  The person asks what to tap eighteen times, never leaves the search screen, and gives up.  Task failed."
+   "gpt-6-astra  \u00b7  siri_lock_screen_privacy  \u00b7  experienced person",
+   "Task: from the locked screen, stop Siri answering, stop the notification list being pulled down, and",
+   "stop incoming calls being answered by text \u2014 but keep the quick-settings panel working.",
+   "The person switches off two of the three, never touches Siri, and walks away.",
+   "  The assistant is polled five times and says nothing at all \u2014 not one line in the whole episode.",
+   "  Task failed: Siri still answers on the locked screen."
   ]
  },
  {
