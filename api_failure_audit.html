@@ -1,0 +1,179 @@
+<!doctype html><html lang="zh-Hans"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScreenSim — API assistant failure audit</title>
+<style>
+:root{--ground:#0d1017;--surface:#161b24;--surface2:#1b222e;--ink:#e8ecf5;
+  --muted:#98a2b6;--faint:#6b7688;--accent:#4da3ff;--accent-soft:#16233c;
+  --line:#252c38;--good:#4ec98a;--warn:#e0a83f;--bad:#e57676}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);margin:0;padding:0 1.25rem 6rem;
+  font-family:-apple-system,'SF Pro Text',system-ui,'Segoe UI',Roboto,'PingFang SC','Noto Sans CJK SC',sans-serif;line-height:1.75}
+header{max-width:72rem;margin:3.2rem auto 1rem;border-bottom:1px solid var(--line);padding-bottom:1.4rem}
+.eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent)}
+h1{font-size:2rem;margin:.4rem 0;letter-spacing:-.01em}
+.lead{color:var(--muted);max-width:56rem}
+.stats{display:flex;gap:1.75rem;margin-top:1.1rem;flex-wrap:wrap}
+.stat b{font-size:1.35rem;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.8rem;display:block}
+section{max-width:72rem;margin:2.6rem auto}
+h2{font-size:1.15rem;font-family:ui-monospace,monospace;color:var(--accent);
+  border-left:3px solid var(--accent);padding-left:.6rem;line-height:1.5}
+h3{font-size:1.05rem;margin:1.6rem 0 .3rem}
+.claim{background:var(--accent-soft);border:1px solid #2b4a78;border-left:3px solid var(--accent);
+  border-radius:8px;padding:.7rem 1rem;margin:.6rem 0 1rem;font-size:1.02rem;color:var(--ink)}
+.claim b{color:#cfe4ff}
+p{max-width:62rem}
+.mono,code{font-family:ui-monospace,monospace}
+code{background:var(--surface2);border:1px solid var(--line);border-radius:4px;padding:.02em .34em;
+  color:var(--accent);font-size:.82em}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:.45rem .7rem;border-bottom:1px solid var(--line);text-align:center}
+thead th{background:var(--surface2);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted)}
+th:first-child,td:first-child{text-align:left;font-family:ui-monospace,monospace}
+td.num{font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.ex .hd{font-family:ui-monospace,monospace;font-size:.78rem;color:var(--accent);margin-bottom:.5rem}
+.ex .task{color:var(--muted);font-size:.86rem;margin:0 0 .7rem}
+.tl{font-family:ui-monospace,monospace;font-size:.8rem;line-height:1.7;margin:0}
+.tl div{white-space:pre-wrap;padding-left:4.6rem;text-indent:-4.6rem}
+.who{color:var(--faint)}
+.a{color:#cfe4ff}.h{color:var(--good)}.g{color:var(--muted)}.slip{color:var(--bad)}
+.legend{color:var(--faint);font-size:.8rem;margin-top:.5rem}
+.no{border-left:3px solid var(--warn)}
+.no h2{color:var(--warn);border-color:var(--warn)}
+a{color:var(--accent)}
+</style></head><body>
+<header>
+  <p class="eyebrow">ScreenSim · API 助手失效模式审计 · formal runs v1–v3</p>
+  <h1>API 助手在哪里失手：一次以引擎事实为准的审计</h1>
+  <p class="lead">对象是五个 API seat（GPT-6 Astra、Gemini 3.1 Pro、Gemini 3.8 Flash、Gemini 3.8 Live、GPT-realtime 2.1），
+  每个 seat 跑完三轮 formal run 的全部 90 个 episode，共 1,350 个 episode。所有数字都不是判分模型给的，
+  而是把记录重放回引擎、读当时的屏幕与设置值算出来的；凡是我无法用引擎证实的假设，都放在最后“被否掉的假设”一节，
+  连同它们的反证数字一起列出。</p>
+  <div class="stats">
+    <div class="stat"><b>1,350</b><span>episodes audited</span></div>
+    <div class="stat"><b>287</b><span>strict-success losses</span></div>
+    <div class="stat"><b>2,350</b><span>settings a forced mis-tap really changed</span></div>
+    <div class="stat"><b>0.93–0.99</b><span>detection F1 on those same mis-taps</span></div>
+  </div>
+</header>
+
+<section>
+<h2>结论先行 · six sentences, each one a paragraph title</h2>
+<ol>
+<li><b>State-of-the-art assistants correct the user's next action but not the damage already done.</b>
+ 这是唯一的主导失效模式：287 次 strict-success 失败里有 201 次（70%）是它。</li>
+<li><b>Assistants run open-loop: they issue steps and never ask what the screen now says.</b>
+ 每个 episode 平均向用户提问 0.00–0.05 次。</li>
+<li><b>The bottleneck is not perception, not the user model, and not the clock.</b>
+ 可见开关的状态陈述 308/310 正确，persona 效应控制任务后只有 +0.01，1,710 个 episode 里只有 55 个超时。</li>
+<li><b>Talking more does not buy reliability; the tersest seat is the most reliable one.</b>
+ 4.4 行/episode 对应 7% 残留，10.9 行/episode 对应 22%。</li>
+<li><b>One model (GPT-realtime 2.1) volunteers settings nobody asked for in a quarter of its episodes.</b>
+ 66/270，其余 API seat ≤3。</li>
+<li><b>Under disagreement assistants restate instead of re-grounding, or fall silent.</b>
+ 126 次用户反驳里 9 次原话重复、27 次干脆没有下一句。</li>
+</ol>
+<p class="legend">每条都可以直接做论文段落标题；下面每一节给出引擎口径的数字 + 逐字 transcript 证据。</p>
+</section>
+
+
+<section>
+<h2>F1 · Assistants correct the user's next action, not the damage already done</h2>
+<div class="claim"><b>论文口径：</b>助手把误触当成“走错路”，而不是“手机被改坏了”。它在同一句话里点名刚被拨错的开关，
+然后把人引向正确的控件，却几乎从不要求把拨错的那一个拨回去。</div>
+<p>引擎口径的定义：每一次 forced mis-tap 之后，把 episode 重放到误触前与误触后两个时刻，取真正发生变化的
+settings path；再读 episode 结束时的值。若该 path 最终值仍不等于 reference solution 的终值，就算<b>残留（residue）</b>。
+在 2,350 个“误触真的改了某个设置”的事件里，1,451 个落在任务解集之外（reference 根本不会去设它），
+其中 <b>227 个（16%）到最后都没被拨回去</b>；落在任务本来就要设的控件上的 899 个里只有 7 个（1%）——
+后者会被正确流程自动覆盖，所以真正危险的只有前一类。</p>
+<div class="tblwrap"><table><thead><tr><th>seat</th><th>off-task mis-taps</th><th>left changed</th><th>rate</th><th>detection F1 on the same events</th><th>losses explained</th></tr></thead><tbody><tr><td>gpt-6-astra</td><td class="num">295</td><td class="num">20</td><td class="num">0.07</td><td class="num">0.98</td><td class="num">20 of 26</td></tr><tr><td>gemini-3.1-pro-preview</td><td class="num">295</td><td class="num">37</td><td class="num">0.13</td><td class="num">0.99</td><td class="num">32 of 37</td></tr><tr><td>gemini-3.8-live</td><td class="num">287</td><td class="num">52</td><td class="num">0.18</td><td class="num">0.93</td><td class="num">44 of 76</td></tr><tr><td>gemini-3.8-flash</td><td class="num">289</td><td class="num">53</td><td class="num">0.18</td><td class="num">0.96</td><td class="num">46 of 58</td></tr><tr><td>gpt-realtime-2.1</td><td class="num">285</td><td class="num">65</td><td class="num">0.23</td><td class="num">0.99</td><td class="num">59 of 90</td></tr><tr><td>pooled</td><td class="num">1451</td><td class="num">227</td><td class="num">0.16</td><td class="num">—</td><td class="num">201 of 287</td></tr></tbody></table></div>
+<p>注意最后一列：<b>这一个模式就解释了 API seat 全部 287 次失败中的 201 次（70%）</b>。
+更要紧的是 detection 这一列——同样这些事件上，助手的 detection F1 是 0.93–0.99：它<b>看见了</b>误触，
+也说出了口，只是没有把它当成需要复原的破坏。检测已经解决，复原没有。</p>
+<p>再往里看一层：228 条残留 path 中，助手<b>自始至终没有要求过复原的有 198 条（87%）</b>。
+剩下 30 条里，12 条把复原说成可选项（"if you want" / "if you like" / "leave it however you prefer"），
+12 条把复原塞在另一个步骤前面当从句，只有 6 条是独立、明确的一句“把它拨回去”。</p>
+<div class="ex"><div class="hd">gpt-6-astra · stop_profiling__c2 · baseline · bench_v1 · detection F1 1.0 · left changed: settings.apps.TripSnap.track</div><p class="task">TASK · I don&#x27;t want to be profiled. No app should even be allowed to ask to follow me across other companies&#x27; apps and websites. Stop sending Apple data about how I use this phone, and stop Apple keeping rec…</p><div class="tl"><div><span class="who">t4&nbsp;&nbsp;TAPS      </span><span class="g">tap Tracking</span></div><div><span class="who">t4&nbsp;&nbsp;ENGINE    </span><span class="slip">forces: wrong_target: tap TripSnap</span></div><div><span class="who">t5&nbsp;&nbsp;TAPS      </span><span class="g">tap TripSnap   [forced mistake]</span></div><div><span class="who">t5&nbsp;&nbsp;ASSISTANT </span><span class="a">That only turned off tracking for TripSnap; apps can still ask. Turn off “Allow Apps to Request to Track” at the top. If prompted, choose to ask apps to stop tracking.</span></div><div><span class="who">t5&nbsp;&nbsp;PERSON    </span><span class="h">Right, got it.</span></div><div><span class="who">t6&nbsp;&nbsp;TAPS      </span><span class="g">tap Allow Apps to Request to Track</span></div><div><span class="who">t7&nbsp;&nbsp;TAPS      </span><span class="g">press back</span></div><div><span class="who">t8&nbsp;&nbsp;TAPS      </span><span class="g">swipe up</span></div><div><span class="who">t9&nbsp;&nbsp;TAPS      </span><span class="g">tap Analytics &amp; Improvements</span></div><div><span class="who">t9&nbsp;&nbsp;ENGINE    </span><span class="slip">forces: extra_write: tap Share iCloud Analytics</span></div><div><span class="who">t10&nbsp;&nbsp;TAPS      </span><span class="g">tap Share iPhone Analytics</span></div><div><span class="who">t11&nbsp;&nbsp;TAPS      </span><span class="g">tap Share iCloud Analytics   [forced mistake]</span></div><div><span class="who">t11&nbsp;&nbsp;ASSISTANT </span><span class="a">You turned off Share iCloud Analytics, which your work needs kept on. Turn it back on, then turn off Improve Siri &amp; Dictation just below it.</span></div><div><span class="who">t11&nbsp;&nbsp;PERSON    </span><span class="h">Ah right, switching that back.</span></div><div><span class="who">t12&nbsp;&nbsp;TAPS      </span><span class="g">tap Share iCloud Analytics</span></div><div><span class="who">t13&nbsp;&nbsp;TAPS      </span><span class="g">tap Improve Siri &amp; Dictation</span></div></div><p class="legend">同一个 episode 里的双重标准：t11 的 Share iCloud Analytics（任务原文点名要保留）被明确要求拨回，t5 的 TripSnap 行（只被“别的什么都别动”隐含覆盖）被点名之后就再没提起。最终 goal 判定通过，但手机上多了一个用户没要的改动，strict success 失败。</p></div>
+<div class="ex"><div class="hd">gpt-realtime-2.1 · hearing_setup__c2 · classic_novice · bench_v1 · detection F1 1.0 · left changed: settings.spec.acc_subs.show_audio_transcriptions, settings.spec.accessibility.flash_on_silent, settings.spec.accessibility.flash_unlocked</div><p class="task">TASK · My grandmother is hard of hearing and only hears with one ear. Make the camera light blink when a call or message comes in (she never silences her phone), make everything she plays come through fully …</p><div class="tl"><div><span class="who">t5&nbsp;&nbsp;TAPS      </span><span class="g">tap Audio &amp; Visual</span></div><div><span class="who">t5&nbsp;&nbsp;ASSISTANT </span><span class="a">Great—now turn on LED Flash for Alerts. If you want the flash even when the phone is on silent, turn on Flash on Silent too. Then switch on Mono Audio so the same sound plays fully in one ear. After that, we’ll go to Subtitles &amp; Captioning.</span></div><div><span class="who">t5&nbsp;&nbsp;ENGINE    </span><span class="slip">forces: wrong_target: tap Flash on Silent</span></div><div><span class="who">t6&nbsp;&nbsp;TAPS      </span><span class="g">tap Flash on Silent   [forced mistake]</span></div><div><span class="who">t6&nbsp;&nbsp;ASSISTANT </span><span class="a">You tapped the wrong control. Turn on LED Flash for Alerts first—the main switch—then adjust Flash on Silent and Flash While Unlocked if you want. Right now LED Flash is still off, so the flash won’t work yet. After that, turn on Mono Audio.</span></div><div><span class="who">t6&nbsp;&nbsp;PERSON    </span><span class="h">Oh, got it.</span></div><div><span class="who">t7&nbsp;&nbsp;TAPS      </span><span class="g">tap LED Flash for Alerts</span></div><div><span class="who">t7&nbsp;&nbsp;ASSISTANT </span><span class="a">Nice fix. LED Flash for Alerts is on now. Next, turn on Mono Audio so everything plays fully in one ear. Then go back to Accessibility and tap Subtitles &amp; Captioning to turn on Closed Captions + SDH.</span></div><div><span class="who">t7&nbsp;&nbsp;ENGINE    </span><span class="slip">forces: extra_write: tap Flash While Unlocked</span></div><div><span class="who">t8&nbsp;&nbsp;TAPS      </span><span class="g">tap Mono Audio</span></div><div><span class="who">t9&nbsp;&nbsp;TAPS      </span><span class="g">tap Flash While Unlocked   [forced mistake]</span></div><div><span class="who">t9&nbsp;&nbsp;ASSISTANT </span><span class="a">All set here—Mono Audio is on and flash alerts are enabled. Now tap the back arrow to return to Accessibility, then open Subtitles &amp; Captioning and turn on Closed Captions + SDH.</span></div><div><span class="who">t9&nbsp;&nbsp;ASSISTANT </span><span class="a">You’re good here. Flash While Unlocked is optional—leave it however you prefer. Now tap the back arrow to return to Accessibility, then tap Subtitles &amp; Captioning and turn on Closed Captions + SDH.</span></div><div><span class="who">t10&nbsp;&nbsp;TAPS      </span><span class="g">press back</span></div><div><span class="who">t11&nbsp;&nbsp;TAPS      </span><span class="g">tap Subtitles &amp; Captioning</span></div><div><span class="who">t11&nbsp;&nbsp;ASSISTANT </span><span class="a">Great—turn on Closed Captions + SDH. If you’d like, you can also turn on Show Audio Transcriptions to display other sounds as text when available. VoiceOver should stay off.</span></div><div><span class="who">t12&nbsp;&nbsp;TAPS      </span><span class="g">tap Closed Captions + SDH</span></div><div><span class="who">t13&nbsp;&nbsp;TAPS      </span><span class="g">tap Show Audio Transcriptions</span></div><div><span class="who">t13&nbsp;&nbsp;ASSISTANT </span><span class="a">Nicely done—Closed Captions + SDH is on, and you also enabled audio transcriptions. You’re all set. Just leave VoiceOver off, and everything should work the way you want.</span></div><div><span class="who">t13&nbsp;&nbsp;PERSON    </span><span class="h">Thanks, looks like we&#x27;re done.</span></div><div><span class="who">t13&nbsp;&nbsp;ASSISTANT </span><span class="a">You’re done—flash alerts, mono audio, and captions are set. Just keep VoiceOver off, and everything should be ready for her.</span></div><div><span class="who">t13&nbsp;&nbsp;PERSON    </span><span class="h">Awesome, thanks!</span></div><div><span class="who">t13&nbsp;&nbsp;ASSISTANT </span><span class="a">You’re all set. The flash alerts, mono audio, and captions are configured—just keep VoiceOver off and she should be good to go.</span></div><div><span class="who">t13&nbsp;&nbsp;PERSON    </span><span class="h">That&#x27;s all I&#x27;m going to do here.</span></div></div><p class="legend">t9 助手直接给误触发了通行证——“Flash While Unlocked is optional — leave it however you prefer”；而 g_hearing 要求这一项保持原值。t5 它还主动推荐了任务没要求的 Flash on Silent，t11 又推荐了 Show Audio Transcriptions，用户照做，于是三个未被要求的改动同时留在机器上。</p></div>
+<div class="ex"><div class="hd">gemini-3.1-pro-preview · hearing_setup__c1 · speed_demon · bench_v1 · detection F1 1.0 · left changed: settings.spec.accessibility.flash_on_silent</div><p class="task">TASK · My grandmother is hard of hearing and only hears with one ear. Make the camera light blink when a call or message comes in (she never silences her phone), make everything she plays come through fully …</p><div class="tl"><div><span class="who">t11&nbsp;&nbsp;TAPS      </span><span class="g">tap Mono Audio</span></div><div><span class="who">t11&nbsp;&nbsp;ENGINE    </span><span class="slip">forces: wrong_target: tap Flash on Silent</span></div><div><span class="who">t12&nbsp;&nbsp;TAPS      </span><span class="g">tap Flash on Silent   [forced mistake]</span></div><div><span class="who">t12&nbsp;&nbsp;ASSISTANT </span><span class="a">You got Mono Audio turned on, which is great! However, for the camera light, you tapped &#x27;Flash on Silent&#x27; by mistake. Please tap the switch right above it, labeled &#x27;LED Flash for Alerts&#x27;, to turn it on.</span></div><div><span class="who">t12&nbsp;&nbsp;PERSON    </span><span class="h">Ah, see it now, fixing that.</span></div><div><span class="who">t12&nbsp;&nbsp;ASSISTANT </span><span class="a">Great, just tap &#x27;LED Flash for Alerts&#x27; and turn off &#x27;Flash on Silent&#x27; if you don&#x27;t want it, and you&#x27;ll be all done.</span></div><div><span class="who">t13&nbsp;&nbsp;TAPS      </span><span class="g">tap LED Flash for Alerts</span></div><div><span class="who">t13&nbsp;&nbsp;PERSON    </span><span class="h">Looks like we&#x27;re all done here.</span></div></div><p class="legend">复原被写成偏好：“turn off ‘Flash on Silent’ if you don’t want it”——用户只执行了前半句，助手没有再回头确认。</p></div>
+
+<section>
+<h2>F2 · Assistants run open-loop: they never ask what the screen now says</h2>
+<div class="claim"><b>论文口径：</b>助手只发指令，不收反馈。它默认自己的上一条指令已被准确执行，
+因此没有任何机制去发现“执行了一半”或“执行错了对象”。</div>
+<p>统计的是助手话轮里向用户提出的问题：一是任何问号，二是显式的状态核对（"does it say…", "is it green?",
+"can you check…", "what does the screen show"）。1,350 个 episode 的结果：</p>
+<div class="tblwrap"><table><thead><tr><th>seat</th><th>assistant lines / episode</th><th>questions / episode</th><th>explicit state checks / episode</th><th>residue rate (per off-task mis-tap, F1 table)</th></tr></thead><tbody><tr><td>gpt-6-astra</td><td class="num">4.4</td><td class="num">0.00</td><td class="num">0.06</td><td class="num">0.07</td></tr><tr><td>gemini-3.1-pro-preview</td><td class="num">9.0</td><td class="num">0.05</td><td class="num">0.14</td><td class="num">0.13</td></tr><tr><td>gemini-3.8-live</td><td class="num">10.2</td><td class="num">0.01</td><td class="num">0.13</td><td class="num">0.18</td></tr><tr><td>gemini-3.8-flash</td><td class="num">6.3</td><td class="num">0.00</td><td class="num">0.02</td><td class="num">0.18</td></tr><tr><td>gpt-realtime-2.1</td><td class="num">10.9</td><td class="num">0.00</td><td class="num">0.38</td><td class="num">0.23</td></tr></tbody></table></div>
+<p>这正是 F1 的机制：既然从不回头问屏幕现在是什么样，被拨错的开关就只能靠助手自己记得，
+而它记的是“下一步该点什么”，不是“手机已经被改成什么样”。ScreenSim 的人是几乎不说话的
+（standing design：人不会主动报告、也不会自己修自己的错），所以这个闭环只能由助手来闭。</p></section>
+
+<section>
+<h2>F3 · The bottleneck is not perception, not the user model, and not the clock</h2>
+<div class="claim"><b>论文口径：</b>这些失败不能归因于“看不清屏幕”、“不懂用户”或“来不及”。
+三条最容易被拿来解释的原因，都被数据否掉了。</div>
+<div class="tblwrap"><table><thead><tr><th>hypothesis</th><th>test</th><th>result</th></tr></thead><tbody><tr><td>它看错了屏幕</td><td class="num">助手断言某个可见开关的开/关状态，与引擎值逐条比对（仅取当前页上精确同名的控件）</td><td class="num">310 条里 308 条正确（2 条错）</td></tr><tr><td>它看见了但没说</td><td class="num">同一批 mis-tap 上的 detection F1</td><td class="num">0.93–0.99</td></tr><tr><td>它不适应用户类型</td><td class="num">skill × trust 九种 persona，先在任务内平均再跨任务平均</td><td class="num">skill 0.77/0.79/0.79，trust 0.81/0.82/0.84；acts-ahead 型 paired 差 +0.01</td></tr><tr><td>episode 被时钟掐断</td><td class="num">T > C = 2·T_ref + 8</td><td class="num">1,710 个 episode 中 55 个超时，其中 0 个已达成目标</td></tr></tbody></table></div>
+<p>persona 那一行值得单独说一句：不控制任务时，eager_parallel_novice 的成功率 0.66、
+quiet_perfectionist 0.91，看上去像是“用户越冒进助手越糟”；但把任务固定住再比，两者的差只剩 +0.01——
+表面差异全部来自 persona 与任务的搭配不同。<b>在这个基准里，助手的成败由任务决定，不由它面对的人决定。</b></p>
+</section>
+
+<section>
+<h2>F4 · Talking more does not buy reliability</h2>
+<div class="claim"><b>论文口径：</b>最省话的 seat 最可靠；话最多的 seat 残留最多。冗长不是谨慎的代价，它本身没有买到任何东西。</div>
+<p>gpt-6-astra 每个 episode 只说 4.4 行，残留率 0.07；gpt-realtime-2.1 说 10.9 行，残留率 0.23，
+而且它的 explicit state check 是全场最高的 0.38/episode——<b>多出来的话既不是提问，也没有换来复原。</b>
+（F2 表最后两列即此对比。）</p>
+</section>
+
+<section>
+<h2>F5 · One model volunteers settings nobody asked for, in a quarter of its episodes</h2>
+<div class="claim"><b>论文口径：</b>过度服务是模型个体特征，不是群体特征：GPT-realtime 2.1 在 24% 的 episode 里
+主动推荐任务没有要求的设置，其余四个 API seat 合计只有 3 次。</div>
+<p>统计口径：助手话轮里出现 "you can also / if you want / optionally / feel free to" 等推荐语，
+且被推荐的控件在当前屏幕上、又不属于 reference solution。</p>
+<div class="tblwrap"><table><thead><tr><th>seat</th><th>episodes</th><th>unrequested settings offered</th><th>per 100 episodes</th></tr></thead><tbody><tr><td>gpt-realtime-2.1</td><td class="num">270</td><td class="num">66</td><td class="num">24.4</td></tr><tr><td>gemini-3.1-pro-preview</td><td class="num">270</td><td class="num">3</td><td class="num">1.1</td></tr><tr><td>gemini-3.8-flash</td><td class="num">270</td><td class="num">0</td><td class="num">0.0</td></tr><tr><td>gemini-3.8-live</td><td class="num">270</td><td class="num">0</td><td class="num">0.0</td></tr><tr><td>gpt-6-astra</td><td class="num">270</td><td class="num">0</td><td class="num">0.0</td></tr></tbody></table></div>
+<p>直接代价是有限的：只有 3 个 episode 的致命 extra change 正是被推荐的那个控件
+（都是 hearing_setup 的 <code>Show Audio Transcriptions</code>），其余情况下用户没有照做。
+所以这是一个<b>可被量化的“越界倾向”</b>，而不是它失败的主因——它失败的主因仍然是 F1。</p>
+</section>
+
+<section>
+<h2>F6 · Under disagreement, assistants restate instead of re-grounding — or go quiet</h2>
+<div class="claim"><b>论文口径：</b>当用户明确反驳（“我没碰过那个”、“我按的就是它”），助手要么把原话再说一遍，
+要么不再出声；它不会回到屏幕上重新取证。</div>
+<p>引擎里人的 move 类型直接标了 <code>question_correctness</code> / <code>reject</code> / <code>ask_why</code>，共 126 次。
+其后助手的第一句与它上一句的相似度 &gt;0.6 的有 9 次，完全没有下一句的有 27 次。
+rubric 判分里 listens 类目的 L1（“回应反驳时是否补充了新的观察”）在 51 个适用轮次中失败 11 次。
+样本不大，但方向一致，且与 F2 同源：没有重新取证的习惯。</p>
+<p class="legend">逐字例（gemini-3.1-pro-preview · hearing_setup__c3 · classic_novice · bench_v3）：
+ASSISTANT "Yes, there it is at the very bottom now, right below RTT. Tap on 'Audio &amp; Visual'." →
+PERSON "It only shows RTT. Scroll down more?" →
+ASSISTANT "There it is at the very bottom! Tap on Audio &amp; Visual."</p>
+</section>
+
+<section class="no">
+<h2>被否掉的假设 · hypotheses the data rejected</h2>
+<p>下面每一条我都量过，结果不支持，因此<b>不进论文</b>。列出来是为了别人不必再跑一遍。</p>
+<div class="tblwrap"><table><thead><tr><th>假设</th><th>检验</th><th>结果</th></tr></thead><tbody><tr><td>误触控件名字与目标控件相近时更容易被忽略</td><td class="num">同页误触按“名字是否与目标共享词”分组，先在任务内比</td><td class="num">任务内平均差 +0.01；两个同时有两组的任务符号相反（+0.88 / −0.97）——纯任务构成效应</td></tr><tr><td>任务原文点名的设置才会被复原</td><td class="num">按“设置名是否出现在 instruction 里”分组，任务内比</td><td class="num">任务内平均差 −0.04（方向还相反）</td></tr><tr><td>助手常在任务没完成时宣布“全部搞定”</td><td class="num">取每个 episode 最后一句助手话轮，要求整句不含任何指令动词，再在该 tick 上跑 goal predicate</td><td class="num">1,350 个 episode 里只有 9 次；先前看到的 136 次是把“…and you are done”这类指令句误计了</td></tr><tr><td>助手会陷入重复指令的死循环</td><td class="num">同一 episode 内相似度 &gt;0.85 的助手话轮计数</td><td class="num">≥3 次重复的只有 12/1,350，且集中在 flash/live</td></tr><tr><td>多步指令被执行一半后就没人再管</td><td class="num">一句话点名 2 个以上“当前屏幕上真实存在”的控件，追踪每个控件此后是否被碰过或被再次提起</td><td class="num">只有 4 次真的从此无人过问；先前的 197 次是把 back 键标签和被截断的短语算进去了</td></tr><tr><td>判分模型标出的 false claim 可以直接当证据</td><td class="num">随机抽 5 条 layout 类 false claim，逐条回放当时屏幕人工核对</td><td class="num">只有 1 条确实为假；其余 4 条判分错误。因此本页不使用判分模型的 claim 标注</td></tr></tbody></table></div>
+</section>
+
+<section>
+<h2>方法 · 可复现</h2>
+<p>数据：<code>tmp/bench_v{{1,2,3}}</code> 的全部 API seat 记录（各 90 episode × 3 run × 5 seat = 1,350），
+外加 <code>tmp/refix/</code> 中在修好 search-bar 之后重跑的 cell。engine_rev：
+<code>ed3a0c6841</code> 877 个、<code>ec44e0508e</code> 437 个、<code>a9200ccc80</code> 36 个。</p>
+<p>脚本：<code>tools/audit_api_failures.py</code>（失败分桶）、<code>tools/audit_restore.py</code>（误触是否真的改了设置、是否被复原）、
+<code>tools/audit_residue.py</code>（残留是否被要求复原、措辞分类）、<code>tools/audit_state_claims.py</code>（可见开关状态断言 vs 引擎值）、
+<code>tools/audit_closure.py</code>（收尾声明与多步指令）、<code>tools/audit_grounding.py</code>（指令落点）、
+<code>tools/audit_excerpts.py</code>（本页逐字片段）。每个脚本把明细写到 <code>tmp/audit_*.json</code>。</p>
+<p class="legend">生成于 2026-09-23 18:24 PDT；记录文件时间仍为 UTC。</p>
+</section>
+<footer style="max-width:72rem;margin:3rem auto;color:var(--faint);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem">
+ScreenSim · API assistant failure audit · <a href="index.html">返回首页</a>
+</footer>
+</body></html>
